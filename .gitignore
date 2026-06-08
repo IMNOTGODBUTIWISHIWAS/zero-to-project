@@ -1,0 +1,24 @@
+# Node
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+dev-server.err.log
+dev-server.out.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Vite cache
+.vite/
+
+# Test output
+coverage/
+
+# Workbench or scratch folders
+work/
