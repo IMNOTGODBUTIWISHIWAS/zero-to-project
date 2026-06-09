@@ -66,10 +66,21 @@ export interface TutorialExtraction {
   error?: string;
 }
 
+export type ResourceAuditStatus = "read-in-full" | "source-scanned" | "unverified";
+
+export interface ResourceSourceAudit {
+  status: ResourceAuditStatus;
+  verdict: "excellent" | "strong" | "usable" | "rejected";
+  auditedAt: string;
+  scope: string;
+  notes: string[];
+}
+
 export interface ResourceLink {
   label: string;
   url: string;
   provider: string;
+  audit?: ResourceSourceAudit;
 }
 
 export interface LearningModule {
@@ -158,7 +169,7 @@ export interface CurationRecord {
 export interface QualityIssue {
   id: string;
   severity: "low" | "medium" | "high";
-  target: "build" | "concepts" | "extraction" | "overall";
+  target: "build" | "concepts" | "extraction" | "resources" | "overall";
   message: string;
 }
 
@@ -170,9 +181,21 @@ export interface QualityAudit {
   repairs: string[];
 }
 
+export interface ResourceQualityAudit extends QualityAudit {
+  totalLinks: number;
+  uniqueLinks: number;
+  duplicateRatio: number;
+  providerCount: number;
+  repeatedUrls: Array<{
+    url: string;
+    count: number;
+  }>;
+}
+
 export interface TutorialQualityAudit {
   build: QualityAudit;
   concepts: QualityAudit;
+  resources: ResourceQualityAudit;
   overall: QualityAudit;
 }
 

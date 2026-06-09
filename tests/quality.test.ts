@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { generateProjectPath } from "../src/lib/curriculum";
-import { auditBuildGuide, auditConceptCards } from "../src/lib/quality";
+import { auditBuildGuide, auditConceptCards, auditResourceUse } from "../src/lib/quality";
 import { createTutorialGuide, repairGuideForQuality } from "../src/lib/tutorialGuide";
-import type { ConceptModule, TutorialArticle, TutorialExtraction } from "../src/lib/types";
+import type { ConceptModule, CurationRecord, TutorialArticle, TutorialExtraction } from "../src/lib/types";
 
 const article: TutorialArticle = {
   id: "web-server-quality",
@@ -88,6 +88,83 @@ describe("quality audits", () => {
     expect(audit.issues.map((issue) => issue.id)).not.toContain("build-setup");
     expect(audit.issues.map((issue) => issue.id)).not.toContain("build-proof");
     expect(audit.issues.map((issue) => issue.id)).not.toContain("build-resources");
+  });
+
+  it("audits resource repetition and provider diversity", () => {
+    const path = generateProjectPath({ ...article, extraction });
+    const guide = repairGuideForQuality(
+      article,
+      path,
+      extraction,
+      createTutorialGuide(article, path, extraction)
+    );
+    const audit = auditResourceUse(article, path, {
+      ...guide,
+      resourceLinks: [guide.resourceLinks?.[0] ?? path.prerequisites[0].resource],
+      checkpoints: guide.checkpoints.map((checkpoint) => ({
+        ...checkpoint,
+        resourceLinks: [guide.resourceLinks?.[0] ?? path.prerequisites[0].resource]
+      }))
+    });
+
+    expect(audit.totalLinks).toBeGreaterThan(audit.uniqueLinks);
+    expect(audit.issues.map((issue) => issue.target)).toContain("resources");
+  });
+
+  it("flags concept resource overlap and weak depth", () => {
+    const repeatedResource = {
+      provider: "Generic Docs",
+      label: "Generic overview",
+      url: "https://example.com/generic"
+    };
+    const concepts: ConceptModule[] = Array.from({ length: 4 }, (_, index) => ({
+      id: `concept-${index}`,
+      title: `HTTP concept ${index}`,
+      plainEnglish:
+        "This concept explains a specific web server idea with enough detail for a beginner to connect it to the tutorial.",
+      whyItMatters:
+        "It matters because the learner needs distinct evidence and references for each part of the web server build.",
+      signsYouUnderstand: [
+        "You can explain the concept in your own words.",
+        "You can connect it to one build checkpoint.",
+        "You can debug one failure related to it."
+      ],
+      resources: [repeatedResource]
+    }));
+
+    const audit = auditConceptCards(article, concepts);
+
+    expect(audit.issues.map((issue) => issue.id)).toEqual(
+      expect.arrayContaining(["concept-resource-depth", "concept-resource-overlap"])
+    );
+  });
+
+  it("flags curated resources that have not been read-audited", () => {
+    const curation: CurationRecord = {
+      level: "curated",
+      status: "approved",
+      source: "Unit-test approved curation",
+      summary: "Approved but intentionally missing source audits.",
+      standardVersion: "test",
+      updatedAt: "2026-06-09",
+      notes: []
+    };
+    const path = {
+      ...generateProjectPath({ ...article, extraction }),
+      curation
+    };
+    const guide = {
+      ...repairGuideForQuality(
+        article,
+        path,
+        extraction,
+        createTutorialGuide(article, path, extraction)
+      ),
+      curation
+    };
+    const audit = auditResourceUse(article, path, guide);
+
+    expect(audit.issues.map((issue) => issue.id)).toContain("resource-source-audit-missing");
   });
 
   it("caps quality when the original tutorial source is blocked", () => {

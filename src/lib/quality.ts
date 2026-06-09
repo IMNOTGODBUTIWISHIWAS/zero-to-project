@@ -3,6 +3,8 @@ import type {
   ProjectPath,
   QualityAudit,
   QualityIssue,
+  ResourceLink,
+  ResourceQualityAudit,
   TutorialArticle,
   TutorialExtraction,
   TutorialQualityAudit,
@@ -19,6 +21,20 @@ export function auditConceptCards(
   const repairs: string[] = [];
   const extractionStatus = article.extraction?.status;
   const contextualCount = concepts.filter((concept) => isContextual(article, concept)).length;
+  const conceptResourceSets = concepts.map((concept) => uniqueByUrl(concept.resources ?? []));
+  const allConceptResources = conceptResourceSets.flat();
+  const conceptResourceUrlCounts = countBy(allConceptResources, (resource) => resource.url.toLowerCase());
+  const conceptProviderCount = new Set(allConceptResources.map((resource) => resource.provider.toLowerCase())).size;
+  const averageConceptResourceCount =
+    concepts.length === 0
+      ? 0
+      : conceptResourceSets.reduce((total, resources) => total + resources.length, 0) / concepts.length;
+  const weakConceptResources = concepts.flatMap((concept) =>
+    uniqueByUrl(concept.resources ?? []).filter((resource) => !isConceptResourceRelevant(article, concept, resource))
+  );
+  const overusedConceptSources = Array.from(conceptResourceUrlCounts.entries()).filter(([, count]) =>
+    concepts.length >= 4 && count > Math.max(2, Math.ceil(concepts.length * 0.55))
+  );
 
   if (concepts.length < 4) {
     issues.push(issue("concept-count", "high", "concepts", "Concept section has fewer than four cards."));
@@ -62,6 +78,59 @@ export function auditConceptCards(
       issues.push(issue(`${prefix}-generic`, "high", "concepts", `"${concept.title}" reads generic instead of tutorial-specific.`));
     }
   });
+
+  if (concepts.length >= 2 && averageConceptResourceCount < 2.75) {
+    issues.push(
+      issue(
+        "concept-resource-depth",
+        "medium",
+        "concepts",
+        "Concept cards average fewer than three distinct learning resources."
+      )
+    );
+  }
+
+  if (conceptProviderCount < Math.min(3, Math.max(1, concepts.length)) && allConceptResources.length >= 6) {
+    issues.push(
+      issue(
+        "concept-resource-provider-diversity",
+        "medium",
+        "concepts",
+        "Concept resources lean on too few providers for a high-quality learning path."
+      )
+    );
+  }
+
+  if (overusedConceptSources.length > 0) {
+    issues.push(
+      issue(
+        "concept-resource-overlap",
+        "medium",
+        "concepts",
+        "The same learning source appears across many concept cards; review whether each concept has distinct support."
+      )
+    );
+  }
+
+  if (weakConceptResources.length / Math.max(1, allConceptResources.length) > 0.3) {
+    issues.push(
+      issue(
+        "concept-resource-relevance",
+        "high",
+        "concepts",
+        "Too many concept resources look weakly tied to the specific concept or tutorial."
+      )
+    );
+  } else if (weakConceptResources.length / Math.max(1, allConceptResources.length) > 0.18) {
+    issues.push(
+      issue(
+        "concept-resource-relevance-some",
+        "medium",
+        "concepts",
+        "Some concept resources look weakly tied to the specific concept or tutorial."
+      )
+    );
+  }
 
   if (!extractionStatus || extractionStatus === "blocked" || extractionStatus === "dead" || extractionStatus === "unknown") {
     issues.push(
@@ -165,20 +234,113 @@ export function auditBuildGuide(
   return buildAudit(capByExtraction(100 - penalty(issues), extraction.status, "build"), issues, repairs);
 }
 
+export function auditResourceUse(
+  article: TutorialArticle,
+  path: ProjectPath,
+  guide: TutorialSpecificGuide
+): ResourceQualityAudit {
+  const issues: QualityIssue[] = [];
+  const repairs: string[] = [];
+  const allResources = collectResources(path, guide);
+  const urlCounts = countBy(allResources, (resource) => resource.url.toLowerCase());
+  const providerCount = new Set(allResources.map((resource) => resource.provider.toLowerCase())).size;
+  const uniqueLinks = urlCounts.size;
+  const duplicateRatio = allResources.length === 0 ? 0 : 1 - uniqueLinks / allResources.length;
+  const repeatedUrls = Array.from(urlCounts.entries())
+    .filter(([, count]) => count > 1)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([url, count]) => ({ url, count }));
+  const maxRepeat = repeatedUrls[0]?.count ?? 0;
+  const uniqueResources = uniqueByUrl(allResources);
+  const weaklyRelevant = uniqueResources.filter((resource) => !isResourceRelevant(article, resource));
+  const genericFallbackHits = uniqueResources.filter((resource) => isGenericFallback(resource)).length;
+  const curationLevel = article.curation?.level ?? path.curation?.level ?? guide.curation?.level ?? "generated";
+  const missingCuratedSourceAudits =
+    curationLevel === "curated"
+      ? uniqueByUrl(collectCuratedLearningResources(path, guide)).filter(
+          (resource) =>
+            !resource.audit || resource.audit.status !== "read-in-full" || resource.audit.verdict === "rejected"
+        )
+      : [];
+
+  if (allResources.length < 10) {
+    issues.push(issue("resource-count", "medium", "resources", "Resource stack is too thin for a full beginner bridge."));
+  }
+
+  if (providerCount < 3) {
+    issues.push(issue("resource-provider-diversity", "high", "resources", "Resource stack needs at least three distinct providers."));
+  } else if (providerCount < 5 && allResources.length >= 25) {
+    issues.push(issue("resource-provider-range", "medium", "resources", "Resource stack is leaning on too few providers for this tutorial."));
+  }
+
+  if (allResources.length >= 20 && duplicateRatio > 0.84) {
+    issues.push(issue("resource-duplication-high", "medium", "resources", `Resource links are highly repetitive: ${Math.round(duplicateRatio * 100)}% duplicate placements.`));
+  } else if (allResources.length >= 20 && duplicateRatio > 0.7) {
+    issues.push(issue("resource-duplication-medium", "medium", "resources", `Resource links repeat often: ${Math.round(duplicateRatio * 100)}% duplicate placements.`));
+  }
+
+  if (maxRepeat >= 18) {
+    issues.push(issue("resource-single-source-overused", "medium", "resources", `One source is reused ${maxRepeat} times inside this path.`));
+  } else if (maxRepeat >= 10) {
+    issues.push(issue("resource-source-repeated", "medium", "resources", `One source is reused ${maxRepeat} times inside this path.`));
+  }
+
+  if (weaklyRelevant.length / Math.max(1, uniqueResources.length) > 0.35) {
+    issues.push(issue("resource-relevance", "high", "resources", "Too many resources look generic or weakly tied to this tutorial's category/title."));
+  } else if (weaklyRelevant.length / Math.max(1, uniqueResources.length) > 0.2) {
+    issues.push(issue("resource-relevance-some", "medium", "resources", "Some resources look generic or weakly tied to this tutorial's category/title."));
+  }
+
+  if (article.category === "Uncategorized" && genericFallbackHits >= 3 && !isFirstPrinciplesSystemsProject(article)) {
+    issues.push(issue("resource-uncategorized-fallback", "high", "resources", "Uncategorized tutorial is leaning on generic systems resources instead of a specific resource pack."));
+  }
+
+  if (missingCuratedSourceAudits.length > 0) {
+    issues.push(
+      issue(
+        "resource-source-audit-missing",
+        "high",
+        "resources",
+        `${missingCuratedSourceAudits.length} curated concept/build sources are missing read-in-full audit metadata.`
+      )
+    );
+  }
+
+  if (issues.length > 0) {
+    repairs.push("Prioritize fewer repeated links, more role-specific sources, and tutorial/domain-specific resource packs.");
+  }
+
+  const score = Math.max(0, Math.min(100, 100 - penalty(issues)));
+  const audit = buildAudit(score, issues, repairs);
+
+  return {
+    ...audit,
+    totalLinks: allResources.length,
+    uniqueLinks,
+    duplicateRatio: Number(duplicateRatio.toFixed(2)),
+    providerCount,
+    repeatedUrls
+  };
+}
+
 export function combineTutorialAudit(
   build: QualityAudit,
-  concepts: QualityAudit
+  concepts: QualityAudit,
+  resources: ResourceQualityAudit
 ): TutorialQualityAudit {
   const issues = [
     ...build.issues.map((item) => ({ ...item })),
-    ...concepts.issues.map((item) => ({ ...item }))
+    ...concepts.issues.map((item) => ({ ...item })),
+    ...resources.issues.map((item) => ({ ...item }))
   ];
-  const repairs = Array.from(new Set([...build.repairs, ...concepts.repairs]));
-  const score = Math.round(build.score * 0.6 + concepts.score * 0.4);
+  const repairs = Array.from(new Set([...build.repairs, ...concepts.repairs, ...resources.repairs]));
+  const score = Math.round(build.score * 0.5 + concepts.score * 0.35 + resources.score * 0.15);
 
   return {
     build,
     concepts,
+    resources,
     overall: buildAudit(score, issues, repairs)
   };
 }
@@ -234,6 +396,119 @@ function capByExtraction(
   if (status === "blocked" || status === "unknown" || !status) return Math.min(score, 84);
   if (status === "partial" || status === "video") return Math.min(score, 92);
   return score;
+}
+
+function collectResources(path: ProjectPath, guide: TutorialSpecificGuide): ResourceLink[] {
+  return [
+    ...path.prerequisites.flatMap((module) => [module.resource, ...(module.resources ?? [])]),
+    ...path.concepts.flatMap((concept) => concept.resources ?? []),
+    ...(guide.resourceLinks ?? []),
+    ...guide.checkpoints.flatMap((checkpoint) => checkpoint.resourceLinks ?? [])
+  ];
+}
+
+function collectCuratedLearningResources(path: ProjectPath, guide: TutorialSpecificGuide): ResourceLink[] {
+  return [
+    ...path.concepts.flatMap((concept) => concept.resources ?? []),
+    ...(guide.resourceLinks ?? []),
+    ...guide.checkpoints.flatMap((checkpoint) => checkpoint.resourceLinks ?? [])
+  ];
+}
+
+function countBy<T>(items: T[], keyFor: (item: T) => string): Map<string, number> {
+  const counts = new Map<string, number>();
+
+  items.forEach((item) => {
+    const key = keyFor(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  });
+
+  return counts;
+}
+
+function uniqueByUrl(resources: ResourceLink[]): ResourceLink[] {
+  const seen = new Set<string>();
+
+  return resources.filter((resource) => {
+    const key = resource.url.toLowerCase();
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function isResourceRelevant(article: TutorialArticle, resource: ResourceLink): boolean {
+  const articleSignals = `${article.title} ${article.category} ${article.languages.join(" ")} ${(article.extraction?.keyTerms ?? []).join(" ")} ${(article.extraction?.sections.map((section) => section.title) ?? []).join(" ")}`;
+  const resourceSignals = `${resource.provider} ${resource.label} ${resource.url}`;
+
+  return (
+    includesAny(resourceSignals, [articleSignals]) ||
+    includesAny(resourceSignals, domainKeywords(article)) ||
+    isTrustedGeneralBeginnerResource(resource)
+  );
+}
+
+function isConceptResourceRelevant(
+  article: TutorialArticle,
+  concept: ConceptModule,
+  resource: ResourceLink
+): boolean {
+  const conceptSignals = `${concept.title} ${concept.plainEnglish} ${concept.whyItMatters} ${concept.signsYouUnderstand.join(" ")}`;
+  const resourceSignals = `${resource.provider} ${resource.label} ${resource.url}`;
+
+  return (
+    includesAny(resourceSignals, [conceptSignals]) ||
+    includesAny(resourceSignals, domainKeywords(article)) ||
+    isResourceRelevant(article, resource)
+  );
+}
+
+function domainKeywords(article: TutorialArticle): string[] {
+  const value = `${article.title} ${article.category}`.toLowerCase();
+
+  if (/redis|resp|protocol parser/.test(value)) return ["redis", "resp", "protocol", "socket", "parser", "network"];
+  if (/compiler|interpreter|parser combinator|wasm|webassembly|jvm|scheme|lisp|garbage collector|lexer|scanner|programming language/.test(value)) return ["compiler", "interpreter", "parser", "lexer", "scanner", "grammar", "ast", "llvm", "webassembly", "runtime", "garbage collector"];
+  if (/unix shell|own shell|simple shell|shell in/.test(value)) return ["shell", "posix", "bash", "process", "fork", "exec", "pipe", "redirection", "exit status"];
+  if (/bootloader|system call|kernel|operating system|os from scratch|malloc tutorial/.test(value)) return ["osdev", "kernel", "boot", "bootloader", "system call", "memory", "process", "operating system", "linux"];
+  if (/container|docker|namespace|cgroup|linux containers/.test(value)) return ["container", "docker", "namespace", "cgroup", "oci", "runtime", "isolation", "linux"];
+  if (/git clone|gitlet|rebuilding git|write yourself a git|build git/.test(value)) return ["git", "object", "commit", "tree", "ref", "packfile", "repository", "hash"];
+  if (/stow|dotfile|symlink/.test(value)) return ["stow", "dotfile", "symlink", "link", "xdg", "configuration", "git"];
+  if (/json decoding|json parser|ini parser|markdown compiler/.test(value)) return ["json", "ini", "parser", "config", "grammar", "scanner", "markdown", "rfc"];
+  if (/dns server|dns/.test(value)) return ["dns", "rfc", "udp", "datagram", "record", "resolver", "query"];
+  if (/load balancer|load balancing/.test(value)) return ["load", "balancer", "proxy", "backend", "upstream", "health", "network"];
+  if (/linux debugger|debugger/.test(value)) return ["debugger", "ptrace", "gdb", "register", "breakpoint", "process", "linux"];
+  if (/window manager|x window/.test(value)) return ["xlib", "x11", "window", "manager", "ewmh", "freedesktop", "root window"];
+  if (/video player|media player/.test(value)) return ["video", "media", "codec", "container", "buffer", "playback", "ffmpeg"];
+  if (/synchronization engine|y\.js|crdt|collaborative/.test(value)) return ["sync", "synchronization", "crdt", "yjs", "automerge", "replica", "merge"];
+  if (/game engine|vr headset|roguelike|snake|space invaders|game/.test(value)) return ["game", "engine", "loop", "render", "input", "collision", "entity", "component", "vr", "webxr"];
+  if (/regex|regexp|regular expression/.test(value)) return ["regex", "regexp", "regular expression", "automata", "backtracking", "nfa"];
+  if (/chip-?8|emulator|virtual machine|vm/.test(value)) return ["chip-8", "emulator", "instruction", "opcode", "virtual machine", "state"];
+  if (/static site|site generator|template/.test(value)) return ["static", "site", "html", "template", "filesystem", "markdown"];
+  if (/spell|spelling|search|recommend/.test(value)) return ["spell", "edit distance", "language model", "search", "ranking", "recommendation"];
+  if (/database|sqlite|storage|index|btree|b-tree/.test(value)) return ["database", "sqlite", "postgres", "btree", "b-tree", "index", "storage"];
+  if (/kafka|distributed|queue|log|replication/.test(value)) return ["kafka", "distributed", "log", "replication", "consensus", "raft"];
+  if (/raycast|renderer|3d|wolfenstein/.test(value)) return ["raycast", "render", "3d", "graphics", "vector", "opengl"];
+  if (/neural|machine learning|deep learning|classifier|recognition/.test(value)) return ["neural", "machine learning", "gradient", "classification", "training", "image"];
+  if (/blockchain|bitcoin|cryptocurrency/.test(value)) return ["bitcoin", "blockchain", "cryptocurrency", "hash", "consensus"];
+  if (/test|testing|mini.?test/.test(value)) return ["test", "assert", "runner", "javascript", "node"];
+
+  return [article.category, article.title];
+}
+
+function isTrustedGeneralBeginnerResource(resource: ResourceLink): boolean {
+  return /mdn|github skills|khan academy|software carpentry|missing semester|freecodecamp|gnu|posix|ietf|w3c|man7|osdev|pro git|git-scm|node\.js|python docs|cloudflare|x\.org|freedesktop|ffmpeg|game programming patterns|docker docs|oci|automerge|yjs/i.test(`${resource.provider} ${resource.label} ${resource.url}`);
+}
+
+function isGenericFallback(resource: ResourceLink): boolean {
+  return /nand2tetris|elements of computing systems/i.test(`${resource.provider} ${resource.label} ${resource.url}`);
+}
+
+function isFirstPrinciplesSystemsProject(article: TutorialArticle): boolean {
+  return /nand|tetris|processor|operating system|emulator|virtual machine|compiler|hardware|cpu/i.test(article.title);
 }
 
 function isContextual(article: TutorialArticle, concept: ConceptModule): boolean {

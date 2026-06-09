@@ -5,7 +5,7 @@ import { parseBuildYourOwnX } from "../src/lib/byoxParser";
 import { applyCuratedGuideOverrides, curationLevelFor } from "../src/lib/curatedOverrides";
 import { generateProjectPath } from "../src/lib/curriculum";
 import { validateArticles } from "../src/lib/linkHealth";
-import { auditBuildGuide, combineTutorialAudit } from "../src/lib/quality";
+import { auditBuildGuide, auditResourceUse, combineTutorialAudit } from "../src/lib/quality";
 import { extractTutorial } from "../src/lib/tutorialExtraction";
 import { createTutorialGuide, repairGuideForQuality } from "../src/lib/tutorialGuide";
 import type { CatalogData, TutorialArticle, TutorialExtraction } from "../src/lib/types";
@@ -180,7 +180,8 @@ async function attachGuide(
     issues: [],
     repairs: ["Concept audit was unavailable during sync."]
   };
-  const qualityAudit = combineTutorialAudit(buildAudit, conceptsAudit);
+  const resourceAudit = auditResourceUse(articleWithExtraction, path, tutorialGuide);
+  const qualityAudit = combineTutorialAudit(buildAudit, conceptsAudit, resourceAudit);
 
   return {
     ...article,

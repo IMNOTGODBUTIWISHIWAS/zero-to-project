@@ -500,6 +500,35 @@ a {
   padding: 7px 10px;
 }
 
+.resource-link > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.source-audit {
+  flex: 0 0 auto;
+  border: 1px solid #c9b36e;
+  border-radius: 999px;
+  padding: 2px 7px;
+  color: #5a4300;
+  background: #fff6cf;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.source-audit-read-in-full {
+  border-color: #91b67b;
+  color: #295c28;
+  background: #edf8e7;
+}
+
+.source-audit-unverified {
+  border-color: #d9a29b;
+  color: #8d2820;
+  background: #fff0ee;
+}
+
 .warning-band,
 .intro-strip,
 .tutorial-band {
@@ -887,7 +916,7 @@ a {
 
 .audit-columns {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 

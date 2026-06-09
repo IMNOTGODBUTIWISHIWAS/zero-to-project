@@ -295,7 +295,7 @@ function scoreArticle(
 function domainPrepModules(article: TutorialArticle): LearningModule[] {
   const categorySlug = article.category.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const title = domainTitle(article.category);
-  const resources = domainResourceSet(article.category);
+  const resources = articleResourceSet(article);
 
   return [
     {
@@ -519,7 +519,7 @@ function domainResourceSet(category: string): ResourceLink[] {
     "Emulator / Virtual Machine": [
       learningResource("Nand2Tetris", "From NAND to Tetris", "https://www.nand2tetris.org/"),
       learningResource("RISC-V", "Technical specifications", "https://riscv.org/technical/specifications/"),
-      learningResource("Emulator 101", "Emulator basics", "http://www.emulator101.com/")
+      learningResource("Emulator 101", "Emulator basics", "https://www.emulator101.com/")
     ],
     "Front-end Framework / Library": [
       learningResource("React", "Thinking in React", "https://react.dev/learn/thinking-in-react"),
@@ -629,6 +629,266 @@ function domainResourceSet(category: string): ResourceLink[] {
   };
 
   return uniqueResources([...(resources[category] ?? resources.Uncategorized), domainResource(category)]);
+}
+
+function articleResourceSet(article: TutorialArticle): ResourceLink[] {
+  const specific = titleResourceSet(article);
+
+  if (specific.length === 0) {
+    return domainResourceSet(article.category);
+  }
+
+  const categoryResources = article.category === "Uncategorized" ? [] : domainResourceSet(article.category);
+
+  return uniqueResources([
+    ...specific,
+    ...categoryResources,
+    {
+      label: "GitHub Skills - Learning paths",
+      url: "https://skills.github.com/",
+      provider: "GitHub Skills"
+    }
+  ]).slice(0, 8);
+}
+
+function titleResourceSet(article: TutorialArticle): ResourceLink[] {
+  const value = `${article.title} ${article.category}`.toLowerCase();
+
+  if (/compiler|interpreter|parser combinator|wasm|webassembly|jvm|scheme|lisp|garbage collector|lexer|scanner|programming language/.test(value)) {
+    return [
+      learningResource("Crafting Interpreters", "Scanning", "https://craftinginterpreters.com/scanning.html"),
+      learningResource("Crafting Interpreters", "Parsing expressions", "https://craftinginterpreters.com/parsing-expressions.html"),
+      learningResource("LLVM", "Kaleidoscope tutorial", "https://llvm.org/docs/tutorial/"),
+      learningResource("WebAssembly", "Core specification", "https://webassembly.github.io/spec/core/")
+    ];
+  }
+
+  if (/unix shell|own shell|simple shell|shell in/.test(value)) {
+    return [
+      learningResource("POSIX", "Shell command language", "https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html"),
+      learningResource("GNU", "Bash manual", "https://www.gnu.org/software/bash/manual/bash.html"),
+      learningResource("OSTEP", "Process API", "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf"),
+      learningResource("man7", "pipe(2)", "https://man7.org/linux/man-pages/man2/pipe.2.html")
+    ];
+  }
+
+  if (/bootloader|system call|kernel|operating system|os from scratch|malloc tutorial/.test(value)) {
+    return [
+      learningResource("OSDev Wiki", "Bare Bones", "https://wiki.osdev.org/Bare_Bones"),
+      learningResource("OSDev Wiki", "Bootloader", "https://wiki.osdev.org/Bootloader"),
+      learningResource("OSTEP", "Operating systems", "https://pages.cs.wisc.edu/~remzi/OSTEP/"),
+      learningResource("Linux Kernel", "Kernel documentation", "https://docs.kernel.org/")
+    ];
+  }
+
+  if (/container|docker|namespace|cgroup|linux containers/.test(value)) {
+    return [
+      learningResource("Docker Docs", "What is a container?", "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/"),
+      learningResource("man7", "Linux namespaces", "https://man7.org/linux/man-pages/man7/namespaces.7.html"),
+      learningResource("man7", "Linux cgroups", "https://man7.org/linux/man-pages/man7/cgroups.7.html"),
+      learningResource("OCI", "Runtime specification", "https://github.com/opencontainers/runtime-spec")
+    ];
+  }
+
+  if (/git clone|gitlet|rebuilding git|write yourself a git|build git/.test(value)) {
+    return [
+      learningResource("Pro Git", "Git internals", "https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain"),
+      learningResource("Pro Git", "Git objects", "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"),
+      learningResource("Pro Git", "Packfiles", "https://git-scm.com/book/en/v2/Git-Internals-Packfiles"),
+      learningResource("GitHub Skills", "Introduction to GitHub", "https://skills.github.com/")
+    ];
+  }
+
+  if (/stow|dotfile|symlink/.test(value)) {
+    return [
+      learningResource("GNU Stow", "Manual", "https://www.gnu.org/software/stow/manual/stow.html"),
+      learningResource("GNU Coreutils", "ln invocation", "https://www.gnu.org/software/coreutils/manual/html_node/ln-invocation.html"),
+      learningResource("XDG", "Base directory specification", "https://specifications.freedesktop.org/basedir-spec/latest/"),
+      learningResource("Pro Git", "Getting started", "https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control")
+    ];
+  }
+
+  if (/json decoding|json parser|ini parser/.test(value)) {
+    return [
+      learningResource("IETF", "RFC 8259 JSON", "https://datatracker.ietf.org/doc/rfc8259/"),
+      learningResource("MDN", "JSON", "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON"),
+      learningResource("Python Docs", "configparser", "https://docs.python.org/3/library/configparser.html"),
+      learningResource("Crafting Interpreters", "Scanning", "https://craftinginterpreters.com/scanning.html")
+    ];
+  }
+
+  if (/dns server|dns/.test(value)) {
+    return [
+      learningResource("IETF", "RFC 1035 DNS", "https://datatracker.ietf.org/doc/html/rfc1035"),
+      learningResource("Cloudflare", "What is DNS?", "https://www.cloudflare.com/learning/dns/what-is-dns/"),
+      learningResource("Node.js", "dgram", "https://nodejs.org/api/dgram.html"),
+      learningResource("MDN", "DNS glossary", "https://developer.mozilla.org/en-US/docs/Glossary/DNS")
+    ];
+  }
+
+  if (/load balancer|load balancing/.test(value)) {
+    return [
+      learningResource("NGINX", "HTTP load balancing", "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/"),
+      learningResource("HAProxy", "Configuration tutorial", "https://www.haproxy.com/documentation/haproxy-configuration-tutorials/"),
+      learningResource("Cloudflare", "Load balancing", "https://www.cloudflare.com/learning/performance/what-is-load-balancing/"),
+      learningResource("Kurose and Ross", "Computer networking resources", "https://gaia.cs.umass.edu/kurose_ross/index.php")
+    ];
+  }
+
+  if (/linux debugger|debugger/.test(value)) {
+    return [
+      learningResource("man7", "ptrace(2)", "https://man7.org/linux/man-pages/man2/ptrace.2.html"),
+      learningResource("GDB", "Documentation", "https://www.gnu.org/software/gdb/documentation/"),
+      learningResource("man7", "gdb(1)", "https://man7.org/linux/man-pages/man1/gdb.1.html"),
+      learningResource("Linux Kernel", "Yama ptrace scope", "https://docs.kernel.org/admin-guide/LSM/Yama.html")
+    ];
+  }
+
+  if (/window manager|x window/.test(value)) {
+    return [
+      learningResource("freedesktop.org", "Extended Window Manager Hints", "https://specifications.freedesktop.org/wm-spec/latest-single/"),
+      learningResource("X.Org", "Xlib reference", "https://www.x.org/releases/current/doc/libX11/libX11/libX11.html"),
+      learningResource("Tronche", "Xlib window functions", "https://tronche.com/gui/x/xlib/window/"),
+      learningResource("freedesktop.org", "XDG Base Directory", "https://specifications.freedesktop.org/basedir-spec/latest/")
+    ];
+  }
+
+  if (/video player|media player/.test(value)) {
+    return [
+      learningResource("MDN", "Video and audio content", "https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Video_and_audio_content"),
+      learningResource("MDN", "Media Source Extensions", "https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"),
+      learningResource("FFmpeg", "Documentation", "https://ffmpeg.org/documentation.html"),
+      learningResource("W3C", "Media Source Extensions", "https://www.w3.org/TR/media-source-2/")
+    ];
+  }
+
+  if (/synchronization engine|y\.js|crdt|collaborative/.test(value)) {
+    return [
+      learningResource("Yjs", "Documentation", "https://docs.yjs.dev/"),
+      learningResource("Automerge", "Documentation", "https://automerge.org/docs/"),
+      learningResource("CRDT.tech", "Resources", "https://crdt.tech/"),
+      learningResource("Martin Kleppmann", "CRDTs and distributed systems", "https://martin.kleppmann.com/2020/07/06/crdt-hard-parts-hydra.html")
+    ];
+  }
+
+  if (/game engine|vr headset|roguelike|snake|space invaders|game/.test(value)) {
+    return [
+      learningResource("Game Programming Patterns", "Game loop", "https://gameprogrammingpatterns.com/game-loop.html"),
+      learningResource("Game Programming Patterns", "Component", "https://gameprogrammingpatterns.com/component.html"),
+      learningResource("MDN", "Game development", "https://developer.mozilla.org/en-US/docs/Games"),
+      learningResource("LearnOpenGL", "Getting started", "https://learnopengl.com/Getting-started/OpenGL")
+    ];
+  }
+
+  if (/redis|resp|protocol parser/.test(value)) {
+    return [
+      learningResource("Redis Docs", "RESP protocol specification", "https://redis.io/docs/latest/develop/reference/protocol-spec/"),
+      learningResource("Redis Docs", "Redis command reference", "https://redis.io/docs/latest/commands/"),
+      learningResource("Beej", "Guide to Network Programming", "https://beej.us/guide/bgnet/"),
+      learningResource("Crafting Interpreters", "Scanning", "https://craftinginterpreters.com/scanning.html")
+    ];
+  }
+
+  if (/regex|regexp|regular expression/.test(value)) {
+    return [
+      learningResource("Russ Cox", "Regular Expression Matching Can Be Simple And Fast", "https://swtch.com/~rsc/regexp/regexp1.html"),
+      learningResource("Russ Cox", "Regular Expression Matching: the Virtual Machine Approach", "https://swtch.com/~rsc/regexp/regexp2.html"),
+      learningResource("MDN", "Regular expressions", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions"),
+      learningResource("Stanford", "Automata theory course", "https://web.stanford.edu/class/archive/cs/cs103/cs103.1226/")
+    ];
+  }
+
+  if (/chip-?8|emulator|virtual machine|vm/.test(value)) {
+    return [
+      learningResource("CHIP-8 Reference", "Technical reference", "https://github-wiki-see.page/m/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Technical-Reference"),
+      learningResource("Emulator 101", "Emulator basics", "https://www.emulator101.com/"),
+      learningResource("Octo", "CHIP-8 IDE and tools", "https://johnearnest.github.io/Octo/"),
+      learningResource("MDN", "Canvas tutorial", "https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial")
+    ];
+  }
+
+  if (/static site|site generator|markdown|template/.test(value)) {
+    return [
+      learningResource("Node.js", "File system", "https://nodejs.org/api/fs.html"),
+      learningResource("Node.js", "Path", "https://nodejs.org/api/path.html"),
+      learningResource("MDN", "HTML basics", "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics"),
+      learningResource("Eleventy", "Documentation", "https://www.11ty.dev/docs/")
+    ];
+  }
+
+  if (/spell|spelling/.test(value)) {
+    return [
+      learningResource("Peter Norvig", "How to Write a Spelling Corrector", "https://norvig.com/spell-correct.html"),
+      learningResource("Stanford NLP", "Speech and Language Processing", "https://web.stanford.edu/~jurafsky/slp3/"),
+      learningResource("Stanford IR", "Introduction to Information Retrieval", "https://nlp.stanford.edu/IR-book/"),
+      learningResource("Python Docs", "difflib", "https://docs.python.org/3/library/difflib.html")
+    ];
+  }
+
+  if (/recommend|recommendation|search engine|rank/.test(value)) {
+    return [
+      learningResource("Stanford IR", "Introduction to Information Retrieval", "https://nlp.stanford.edu/IR-book/"),
+      learningResource("scikit-learn", "Feature extraction", "https://scikit-learn.org/stable/modules/feature_extraction.html"),
+      learningResource("Google", "Recommendation systems", "https://developers.google.com/machine-learning/recommendation"),
+      learningResource("PostgreSQL", "Full text search", "https://www.postgresql.org/docs/current/textsearch.html")
+    ];
+  }
+
+  if (/mini.?test|testing framework|test framework|unit test/.test(value)) {
+    return [
+      learningResource("Node.js", "Assert", "https://nodejs.org/api/assert.html"),
+      learningResource("Vitest", "Guide", "https://vitest.dev/guide/"),
+      learningResource("Jest", "Getting started", "https://jestjs.io/docs/getting-started"),
+      learningResource("GitHub Docs", "Building and testing Node.js", "https://docs.github.com/actions/guides/building-and-testing-nodejs")
+    ];
+  }
+
+  if (/kafka|distributed|queue|log|replication/.test(value)) {
+    return [
+      learningResource("Apache Kafka", "Design", "https://kafka.apache.org/documentation/#design"),
+      learningResource("Apache Kafka", "Introduction", "https://kafka.apache.org/intro"),
+      learningResource("MIT", "Distributed Systems", "https://pdos.csail.mit.edu/6.824/"),
+      learningResource("The Secret Lives of Data", "Raft consensus", "https://thesecretlivesofdata.com/raft/")
+    ];
+  }
+
+  if (/raycast|wolfenstein|3d renderer|renderer/.test(value)) {
+    return [
+      learningResource("Lode Vandevenne", "Raycasting tutorial", "https://lodev.org/cgtutor/raycasting.html"),
+      learningResource("Scratchapixel", "Rendering an image", "https://www.scratchapixel.com/lessons/3d-basic-rendering/rendering-3d-scene-overview/rendering-an-image.html"),
+      learningResource("Khan Academy", "Trigonometry", "https://www.khanacademy.org/math/trigonometry"),
+      learningResource("LearnOpenGL", "Coordinate systems", "https://learnopengl.com/Getting-started/Coordinate-Systems")
+    ];
+  }
+
+  if (/neural|machine learning|deep learning|tensorflow|classifier|recognition/.test(value)) {
+    return [
+      learningResource("Michael Nielsen", "Neural Networks and Deep Learning", "https://neuralnetworksanddeeplearning.com/"),
+      learningResource("3Blue1Brown", "Neural networks", "https://www.3blue1brown.com/topics/neural-networks"),
+      learningResource("Google", "Machine Learning Crash Course", "https://developers.google.com/machine-learning/crash-course"),
+      learningResource("fast.ai", "Practical Deep Learning", "https://course.fast.ai/")
+    ];
+  }
+
+  if (/database|sqlite|btree|b-tree|storage engine|index/.test(value)) {
+    return [
+      learningResource("SQLite", "Architecture", "https://www.sqlite.org/arch.html"),
+      learningResource("PostgreSQL", "Indexes", "https://www.postgresql.org/docs/current/indexes.html"),
+      learningResource("CMU", "Database systems course", "https://15445.courses.cs.cmu.edu/fall2023/"),
+      learningResource("Stanford IR", "Introduction to Information Retrieval", "https://nlp.stanford.edu/IR-book/")
+    ];
+  }
+
+  if (/blockchain|bitcoin|cryptocurrency|proof of stake|proof of work/.test(value)) {
+    return [
+      learningResource("Bitcoin Developer", "Blockchain overview", "https://developer.bitcoin.org/devguide/block_chain.html"),
+      learningResource("MIT OpenCourseWare", "Cryptocurrency Engineering and Design", "https://ocw.mit.edu/courses/mas-s62-cryptocurrency-engineering-and-design-spring-2018/"),
+      learningResource("Princeton", "Bitcoin and Cryptocurrency Technologies", "https://bitcoinbook.cs.princeton.edu/"),
+      learningResource("NIST", "Secure Hash Standard", "https://csrc.nist.gov/pubs/fips/180-4/upd1/final")
+    ];
+  }
+
+  return [];
 }
 
 function domainExercise(category: string, title: string): string {
@@ -844,7 +1104,7 @@ function tutorialConceptResources(article: TutorialArticle, signals: string[]): 
 
   return uniqueResources([
     ...signalResources,
-    ...domainResourceSet(article.category),
+    ...articleResourceSet(article),
     languageResource,
     {
       label: "GitHub Skills - Learning paths",

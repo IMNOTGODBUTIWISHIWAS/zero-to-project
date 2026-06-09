@@ -1,4 +1,4 @@
-import type { ProjectPath, TutorialArticle } from "./types";
+import type { ProjectPath, ResourceLink, TutorialArticle } from "./types";
 
 export const curationStandardVersion = "zero-to-project-curation-v1";
 
@@ -6,7 +6,9 @@ export const curationStandard = [
   "Beginner path starts from no coding background and names every prerequisite before the tutorial.",
   "Tutorial-specific guidance is curated or research-backed for high-value tutorials, not only inferred from headings.",
   "Every concept explains why it matters in this exact project or category.",
-  "Every concept includes multiple high-quality free external resources.",
+  "Every concept includes high-quality free external resources without spamming the same links across the tutorial.",
+  "Every approved learning source must be read in full at the exact linked page or section and carry audit metadata: status, verdict, scope, and notes.",
+  "Concept-to-concept source overlap is allowed only when the audited source genuinely supports each repeated concept.",
   "Every build checkpoint includes just-in-time learning, a small action, a debug prompt, proof of success, and checkpoint-specific resources.",
   "Blocked, dead, video-only, or weakly extracted sources remain honestly marked and are prioritized for review.",
   "Advanced projects keep a longer prerequisite ladder instead of pretending to be beginner-easy.",
@@ -32,9 +34,16 @@ export function reviewCuration(article: TutorialArticle, path: ProjectPath): Cur
   const qualityScore = article.qualityAudit?.overall.score ?? path.conceptQualityAudit?.score ?? 0;
   const conceptIssues = path.conceptQualityAudit?.issues.length ?? 0;
   const buildIssues = article.tutorialGuide?.qualityAudit?.issues.length ?? 0;
+  const resourceIssues = article.qualityAudit?.resources?.issues.length ?? 0;
+  const approvedSourceAuditGaps =
+    curationLevel === "curated" ? countMissingApprovedSourceAudits(article, path) : 0;
 
   if (curationLevel === "generated") {
     signals.push(signal("generated-only", "high", "Only generated guidance exists; no curated or research-backed override has been applied."));
+  }
+
+  if (curationLevel === "research-backed") {
+    signals.push(signal("research-backed-review", "medium", "Research-backed guidance exists, but this tutorial has not been individually approved as curated."));
   }
 
   if (extractionStatus === "blocked" || extractionStatus === "dead" || extractionStatus === "unknown") {
@@ -57,6 +66,20 @@ export function reviewCuration(article: TutorialArticle, path: ProjectPath): Cur
 
   if (buildIssues > 0) {
     signals.push(signal("build-issues", buildIssues > 3 ? "high" : "medium", `${buildIssues} build audit issues remain.`));
+  }
+
+  if (resourceIssues > 0) {
+    signals.push(signal("resource-issues", resourceIssues > 3 ? "high" : "medium", `${resourceIssues} resource audit issues remain.`));
+  }
+
+  if (approvedSourceAuditGaps > 0) {
+    signals.push(
+      signal(
+        "approved-source-audit-gaps",
+        "high",
+        `${approvedSourceAuditGaps} displayed curated learning sources are missing read-in-full source audits.`
+      )
+    );
   }
 
   if (path.difficulty === "expert" && curationLevel !== "curated") {
@@ -86,4 +109,30 @@ export function reviewCuration(article: TutorialArticle, path: ProjectPath): Cur
 
 function signal(id: string, severity: CurationSignal["severity"], message: string): CurationSignal {
   return { id, severity, message };
+}
+
+function countMissingApprovedSourceAudits(article: TutorialArticle, path: ProjectPath): number {
+  return uniqueResources([
+    ...path.concepts.flatMap((concept) => concept.resources ?? []),
+    ...(article.tutorialGuide?.resourceLinks ?? []),
+    ...(article.tutorialGuide?.checkpoints.flatMap((checkpoint) => checkpoint.resourceLinks ?? []) ?? [])
+  ]).filter(
+    (resource) =>
+      !resource.audit || resource.audit.status !== "read-in-full" || resource.audit.verdict === "rejected"
+  ).length;
+}
+
+function uniqueResources(resources: ResourceLink[]): ResourceLink[] {
+  const seen = new Set<string>();
+
+  return resources.filter((resource) => {
+    const key = resource.url.toLowerCase();
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }

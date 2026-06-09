@@ -21,7 +21,7 @@ import { useEffect, useMemo, useState } from "react";
 import { articlePaths, catalog, categories, languages } from "./lib/catalog";
 import { curationStandard, reviewCuration } from "./lib/curationStandard";
 import { loadProgress, saveProgress, toggleFavorite, toggleRecord } from "./lib/progress";
-import type { DifficultyLevel, ProjectPath, ResourceLink, TutorialArticle, TutorialSpecificGuide } from "./lib/types";
+import type { ConceptModule, DifficultyLevel, ProjectPath, ResourceLink, TutorialArticle, TutorialSpecificGuide } from "./lib/types";
 
 type EnrichedArticle = (typeof articlePaths)[number];
 type CatalogMode = "learn" | "curate";
@@ -107,6 +107,15 @@ export function App() {
     const okCount = catalog.articles.filter((article) => article.health.status === "ok").length;
     const deadCount = catalog.articles.filter((article) => article.health.status === "dead").length;
     const favoriteCount = progress.favoriteArticleIds.length;
+    const curatedCount = catalog.articles.filter((article) => article.curation?.level === "curated").length;
+    const researchBackedCount = catalog.articles.filter((article) => article.curation?.level === "research-backed").length;
+    const fallbackCount = catalog.articles.filter((article) =>
+      article.curation?.level === "generated" ||
+      article.curation?.source.includes("Catalog-wide researched curation safety net")
+    ).length;
+    const reviewNeededCount = catalog.articles.filter((article) =>
+      article.curation?.status !== "approved"
+    ).length;
     const reviewCount = articlePaths.filter(({ article, path }) =>
       ["critical", "high"].includes(reviewCuration(article, path).priority)
     ).length;
@@ -116,6 +125,10 @@ export function App() {
       okCount,
       deadCount,
       favoriteCount,
+      curatedCount,
+      researchBackedCount,
+      fallbackCount,
+      reviewNeededCount,
       reviewCount
     };
   }, [progress.favoriteArticleIds.length]);
@@ -260,12 +273,21 @@ export function App() {
           </label>
         </div>
 
-        <div className="stat-grid" aria-label="Catalog stats">
-          <Stat label="Projects" value={stats.total} />
-          <Stat label="Verified" value={stats.okCount} />
-          <Stat label="Dead" value={stats.deadCount} />
-          <Stat label={catalogMode === "curate" ? "Review" : "Saved"} value={catalogMode === "curate" ? stats.reviewCount : stats.favoriteCount} />
-        </div>
+        {catalogMode === "curate" ? (
+          <div className="stat-grid" aria-label="Catalog curation stats">
+            <Stat label="Approved" value={stats.curatedCount} />
+            <Stat label="Research" value={stats.researchBackedCount} />
+            <Stat label="Review" value={stats.reviewNeededCount} />
+            <Stat label="Fallback" value={stats.fallbackCount} />
+          </div>
+        ) : (
+          <div className="stat-grid" aria-label="Catalog stats">
+            <Stat label="Projects" value={stats.total} />
+            <Stat label="Verified" value={stats.okCount} />
+            <Stat label="Dead" value={stats.deadCount} />
+            <Stat label="Saved" value={stats.favoriteCount} />
+          </div>
+        )}
       </aside>
 
       <section className="catalog-column" aria-label="Project catalog">
@@ -276,7 +298,7 @@ export function App() {
           </div>
           <p className="sync-note">
             {catalogMode === "curate"
-              ? "Highest educational risk first."
+              ? "Research-backed queue, highest risk first."
               : "Source synced from Build Your Own X."}
           </p>
         </div>
@@ -343,6 +365,27 @@ function Stat({ label, value }: { label: string; value: number }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function ResourceAnchor({ resource }: { resource: ResourceLink }) {
+  const audit = resource.audit;
+
+  return (
+    <a href={resource.url} target="_blank" rel="noreferrer" className="resource-link">
+      <span>
+        {resource.provider}: {resource.label}
+      </span>
+      {audit ? (
+        <span
+          className={`source-audit source-audit-${audit.status}`}
+          title={`${audit.status}; verdict: ${audit.verdict}. ${audit.scope}`}
+        >
+          {audit.status === "read-in-full" ? "read audit" : audit.status}
+        </span>
+      ) : null}
+      <ExternalLink size={14} aria-hidden="true" />
+    </a>
   );
 }
 
@@ -606,16 +649,7 @@ function LearnFirst({
                 <div className="module-resources">
                   <strong>Learning resources</strong>
                   {resources.slice(0, 4).map((resource) => (
-                    <a
-                      href={resource.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="resource-link"
-                      key={resource.url}
-                    >
-                      {resource.provider}: {resource.label}
-                      <ExternalLink size={14} aria-hidden="true" />
-                    </a>
+                    <ResourceAnchor resource={resource} key={resource.url} />
                   ))}
                 </div>
               </div>
@@ -628,6 +662,8 @@ function LearnFirst({
 }
 
 function Concepts({ path }: { path: ProjectPath }) {
+  const resourceGroups = conceptResourceGroups(path.concepts);
+
   return (
     <div className="section-stack">
       {path.conceptQualityAudit ? (
@@ -644,7 +680,7 @@ function Concepts({ path }: { path: ProjectPath }) {
       ) : null}
 
       <div className="concept-grid">
-        {path.concepts.map((concept) => (
+        {path.concepts.map((concept, index) => (
           <article className="concept-card" key={concept.id}>
             <div className="concept-icon" aria-hidden="true">
               <Lightbulb size={20} />
@@ -660,17 +696,8 @@ function Concepts({ path }: { path: ProjectPath }) {
             </ul>
             <div className="concept-resources">
               <strong>Learn deeper</strong>
-              {concept.resources.map((resource) => (
-                <a
-                  href={resource.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="resource-link"
-                  key={resource.url}
-                >
-                  {resource.provider}: {resource.label}
-                  <ExternalLink size={14} aria-hidden="true" />
-                </a>
+              {resourceGroups[index].map((resource) => (
+                <ResourceAnchor resource={resource} key={resource.url} />
               ))}
             </div>
           </article>
@@ -761,17 +788,8 @@ function BuildPlan({
         <section className="guide-setup resource-panel">
           <h3>Research stack for this build</h3>
           <div className="resource-list">
-            {guide.resourceLinks.map((resource) => (
-              <a
-                href={resource.url}
-                target="_blank"
-                rel="noreferrer"
-                className="resource-link"
-                key={resource.url}
-              >
-                {resource.provider}: {resource.label}
-                <ExternalLink size={14} aria-hidden="true" />
-              </a>
+            {uniqueResourceLinks(guide.resourceLinks).map((resource) => (
+              <ResourceAnchor resource={resource} key={resource.url} />
             ))}
           </div>
         </section>
@@ -780,6 +798,10 @@ function BuildPlan({
       <div className="checkpoint-list">
         {guide.checkpoints.map((checkpoint, index) => {
           const isDone = completedMilestones[checkpoint.id] ?? false;
+          const checkpointResources = checkpointResourcesForDisplay(
+            checkpoint.resourceLinks ?? [],
+            guide.resourceLinks ?? []
+          );
 
           return (
             <article className="checkpoint-card" key={checkpoint.id}>
@@ -819,20 +841,11 @@ function BuildPlan({
                 <p className="debug-prompt">
                   <strong>Debug prompt:</strong> {checkpoint.debugPrompt}
                 </p>
-                {checkpoint.resourceLinks && checkpoint.resourceLinks.length > 0 ? (
+                {checkpointResources.length > 0 ? (
                   <div className="checkpoint-resources">
                     <strong>Learn for this checkpoint</strong>
-                    {checkpoint.resourceLinks.map((resource) => (
-                      <a
-                        href={resource.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="resource-link"
-                        key={resource.url}
-                      >
-                        {resource.provider}: {resource.label}
-                        <ExternalLink size={14} aria-hidden="true" />
-                      </a>
+                    {checkpointResources.map((resource) => (
+                      <ResourceAnchor resource={resource} key={resource.url} />
                     ))}
                   </div>
                 ) : null}
@@ -907,11 +920,33 @@ function uniqueResourceLinks(resources: ResourceLink[]): ResourceLink[] {
   });
 }
 
+function checkpointResourcesForDisplay(resources: ResourceLink[], sharedResources: ResourceLink[]): ResourceLink[] {
+  const shared = new Set(sharedResources.map((resource) => resource.url.toLowerCase()));
+  const specific = uniqueResourceLinks(resources).filter((resource) => !shared.has(resource.url.toLowerCase()));
+
+  return (specific.length >= 2 ? specific : uniqueResourceLinks(resources)).slice(0, 3);
+}
+
+function conceptResourceGroups(concepts: ConceptModule[]): ResourceLink[][] {
+  const seen = new Set<string>();
+
+  return concepts.map((concept) => {
+    const unique = uniqueResourceLinks(concept.resources);
+    const fresh = unique.filter((resource) => !seen.has(resource.url.toLowerCase()));
+    const displayed = (fresh.length >= 2 ? fresh : unique).slice(0, 3);
+
+    displayed.forEach((resource) => seen.add(resource.url.toLowerCase()));
+    return displayed;
+  });
+}
+
 function CurationPanel({ article, path }: { article: TutorialArticle; path: ProjectPath }) {
   const review = reviewCuration(article, path);
   const curation = article.curation ?? path.curation;
   const buildIssues = article.tutorialGuide?.qualityAudit?.issues ?? [];
   const conceptIssues = path.conceptQualityAudit?.issues ?? [];
+  const resourceAudit = article.qualityAudit?.resources;
+  const resourceIssues = resourceAudit?.issues ?? [];
 
   return (
     <div className="section-stack">
@@ -995,6 +1030,25 @@ function CurationPanel({ article, path }: { article: TutorialArticle; path: Proj
             ) : (
               <p>No build audit issues.</p>
             )}
+          </div>
+          <div>
+            <strong>Resources</strong>
+            {resourceAudit ? (
+              <p>
+                {resourceAudit.score}% score, {resourceAudit.uniqueLinks}/{resourceAudit.totalLinks} unique links, {resourceAudit.providerCount} providers.
+              </p>
+            ) : (
+              <p>Resource audit has not been generated yet.</p>
+            )}
+            {resourceIssues.length > 0 ? (
+              <ul className="plain-list">
+                {resourceIssues.slice(0, 6).map((issue) => (
+                  <li key={issue.id}>{issue.message}</li>
+                ))}
+              </ul>
+            ) : resourceAudit ? (
+              <p>No resource audit issues.</p>
+            ) : null}
           </div>
         </div>
       </section>

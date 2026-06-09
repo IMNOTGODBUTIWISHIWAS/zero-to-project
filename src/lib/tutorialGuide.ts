@@ -330,7 +330,7 @@ function guideResourceLinks(path: ProjectPath, extraction: TutorialExtraction): 
     ...extraction.sections.map((section) => section.title)
   ].join(" ");
 
-  return uniqueResourceLinks([
+  return providerDiverseLinks([
     ...path.prerequisites.filter((module) => module.layer === "domain").flatMap(moduleResources),
     ...path.prerequisites.filter((module) => module.layer === "language").flatMap(moduleResources),
     ...path.concepts
@@ -354,12 +354,17 @@ function checkpointResourceLinks(
     .filter((module) => moduleIds.includes(module.id) || matchesSignals(`${module.title} ${module.summary}`, signalText))
     .flatMap(moduleResources);
 
-  return uniqueResourceLinks([
-    ...path.prerequisites.filter((module) => module.layer === "domain").slice(0, 1).flatMap(moduleResources),
+  const directMatches = uniqueResourceLinks([
     ...matchedConceptResources,
-    ...matchedModuleResources,
+    ...matchedModuleResources
+  ]);
+  const fallback = [
+    ...path.prerequisites.filter((module) => module.layer === "domain").slice(0, 1).flatMap(moduleResources),
+    ...path.prerequisites.filter((module) => module.layer === "language").slice(0, 1).flatMap(moduleResources),
     ...path.concepts.slice(0, 2).flatMap((concept) => concept.resources)
-  ]).slice(0, 4);
+  ];
+
+  return providerDiverseLinks([...directMatches, ...fallback]).slice(0, 3);
 }
 
 function moduleResources(module: { resource: ResourceLink; resources?: ResourceLink[] }): ResourceLink[] {
@@ -379,6 +384,27 @@ function uniqueResourceLinks(resources: ResourceLink[]): ResourceLink[] {
     seen.add(key);
     return true;
   });
+}
+
+function providerDiverseLinks(resources: ResourceLink[]): ResourceLink[] {
+  const unique = uniqueResourceLinks(resources);
+  const picked: ResourceLink[] = [];
+  const deferred: ResourceLink[] = [];
+  const providers = new Set<string>();
+
+  unique.forEach((resource) => {
+    const provider = resource.provider.toLowerCase();
+
+    if (providers.has(provider)) {
+      deferred.push(resource);
+      return;
+    }
+
+    providers.add(provider);
+    picked.push(resource);
+  });
+
+  return [...picked, ...deferred];
 }
 
 function matchesSignals(value: string, signals: string): boolean {
