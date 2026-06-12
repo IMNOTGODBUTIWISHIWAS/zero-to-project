@@ -470,6 +470,36 @@ function isConceptResourceRelevant(
 function domainKeywords(article: TutorialArticle): string[] {
   const value = `${article.title} ${article.category}`.toLowerCase();
 
+  if (/nand|tetris|modern computer from first principles/.test(value)) {
+    return [
+      "nand",
+      "tetris",
+      "boolean",
+      "logic",
+      "gate",
+      "gates",
+      "hdl",
+      "alu",
+      "memory",
+      "ram",
+      "cpu",
+      "computer",
+      "architecture",
+      "machine",
+      "assembly",
+      "assembler",
+      "hack",
+      "instruction",
+      "isa",
+      "vm",
+      "stack",
+      "compiler",
+      "jack",
+      "operating",
+      "system"
+    ];
+  }
+
   if (/redis|resp|protocol parser/.test(value)) return ["redis", "resp", "protocol", "socket", "parser", "network"];
   if (/compiler|interpreter|parser combinator|wasm|webassembly|jvm|scheme|lisp|garbage collector|lexer|scanner|programming language/.test(value)) return ["compiler", "interpreter", "parser", "lexer", "scanner", "grammar", "ast", "llvm", "webassembly", "runtime", "garbage collector"];
   if (/unix shell|own shell|simple shell|shell in/.test(value)) return ["shell", "posix", "bash", "process", "fork", "exec", "pipe", "redirection", "exit status"];
@@ -478,6 +508,7 @@ function domainKeywords(article: TutorialArticle): string[] {
   if (/git clone|gitlet|rebuilding git|write yourself a git|build git/.test(value)) return ["git", "object", "commit", "tree", "ref", "packfile", "repository", "hash"];
   if (/stow|dotfile|symlink/.test(value)) return ["stow", "dotfile", "symlink", "link", "xdg", "configuration", "git"];
   if (/json decoding|json parser|ini parser|markdown compiler/.test(value)) return ["json", "ini", "parser", "config", "grammar", "scanner", "markdown", "rfc"];
+  if (/web server|http server|server from scratch|node\.?js server/.test(value)) return ["web", "server", "http", "tcp", "socket", "request", "response", "header", "body", "content-length", "transfer-encoding", "node", "net", "buffer", "stream", "event", "loop", "rfc"];
   if (/dns server|dns/.test(value)) return ["dns", "rfc", "udp", "datagram", "record", "resolver", "query"];
   if (/load balancer|load balancing/.test(value)) return ["load", "balancer", "proxy", "backend", "upstream", "health", "network"];
   if (/linux debugger|debugger/.test(value)) return ["debugger", "ptrace", "gdb", "register", "breakpoint", "process", "linux"];
@@ -490,6 +521,9 @@ function domainKeywords(article: TutorialArticle): string[] {
   if (/static site|site generator|template/.test(value)) return ["static", "site", "html", "template", "filesystem", "markdown"];
   if (/spell|spelling|search|recommend/.test(value)) return ["spell", "edit distance", "language model", "search", "ranking", "recommendation"];
   if (/database|sqlite|storage|index|btree|b-tree/.test(value)) return ["database", "sqlite", "postgres", "btree", "b-tree", "index", "storage"];
+  if (/php|composer|psr|middleware|front controller|framework/.test(value)) return ["composer", "autoload", "namespace", "declarations", "front controller", "request", "response", "http", "message", "server", "middleware", "handler", "router", "container", "dependency", "factory", "diactoros", "laminas", "fastroute", "relay"];
+  if (/discord/.test(value)) return ["discord", "discord.js", "gateway", "intent", "intents", "interaction", "commands", "slash", "permission", "permissions", "oauth2", "token", "guild", "node", "javascript", "rate", "limits"];
+  if (/bot|telegram|twitter|irc|messenger|chatbot/.test(value)) return ["bot", "event", "message", "command", "handler", "webhook", "websocket", "http", "api", "token", "credential", "secret", "permission", "rate", "limit", "async"];
   if (/kafka|distributed|queue|log|replication/.test(value)) return ["kafka", "distributed", "log", "replication", "consensus", "raft"];
   if (/raycast|renderer|3d|wolfenstein/.test(value)) return ["raycast", "render", "3d", "graphics", "vector", "opengl"];
   if (/neural|machine learning|deep learning|classifier|recognition/.test(value)) return ["neural", "machine learning", "gradient", "classification", "training", "image"];

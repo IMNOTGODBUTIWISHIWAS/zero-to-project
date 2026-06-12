@@ -425,7 +425,7 @@ function domainResource(category: string): ResourceLink {
     },
     Bot: {
       label: "MDN - HTTP messages",
-      url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages",
+      url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages",
       provider: "MDN"
     },
     Database: {
@@ -498,8 +498,8 @@ function domainResourceSet(category: string): ResourceLink[] {
     ],
     Bot: [
       learningResource("MDN", "HTTP messages", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages"),
-      learningResource("GitHub Docs", "Webhooks", "https://docs.github.com/en/webhooks"),
-      learningResource("Slack", "API basics", "https://api.slack.com/start")
+      learningResource("MDN", "Writing WebSocket client applications", "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications"),
+      learningResource("OWASP", "Secrets Management Cheat Sheet", "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html")
     ],
     "Command-Line Tool": [
       learningResource("MIT", "Missing Semester - Shell", "https://missing.csail.mit.edu/2020/course-shell/"),

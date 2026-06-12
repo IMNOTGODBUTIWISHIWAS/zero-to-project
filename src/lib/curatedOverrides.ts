@@ -3,6 +3,7 @@ import type {
   BuildCheckpoint,
   ConceptModule,
   CurationRecord,
+  LearningModule,
   ProjectPath,
   ResourceLink,
   ResourceSourceAudit,
@@ -20,6 +21,16 @@ interface CuratedOverride {
   finalProofTasks: string[];
   cvFraming: string;
   preserveGeneratedGuide?: boolean;
+  prerequisiteResources?: ResourceLink[];
+  prerequisiteResourceStrategy?:
+    | "github-app"
+    | "soft-engine"
+    | "opencv-ar"
+    | "archaeology-db"
+    | "modern-php"
+    | "discord-bot"
+    | "nand2tetris"
+    | "node-web-server";
 }
 
 const browserResources = [
@@ -36,11 +47,58 @@ const webServerResources = [
   resource("MDN", "Client-server overview", "https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Client-Server_overview")
 ];
 
+const nodeWebServerResources = [
+  resource("Build Your Own Web Server", "Book overview", "https://build-your-own.org/webserver/"),
+  resource("Build Your Own Web Server", "01. Introduction", "https://build-your-own.org/webserver/01_intro"),
+  resource("Build Your Own Web Server", "02. HTTP Overview", "https://build-your-own.org/webserver/02_http_intro"),
+  resource("Build Your Own Web Server", "03. Code A TCP Server", "https://build-your-own.org/webserver/03_tcp_server"),
+  resource("Build Your Own Web Server", "04. Promises and Events", "https://build-your-own.org/webserver/04_promise"),
+  resource("Build Your Own Web Server", "05. A Simple Network Protocol", "https://build-your-own.org/webserver/05_proto"),
+  resource("Build Your Own Web Server", "06. HTTP Semantics and Syntax", "https://build-your-own.org/webserver/06_http_proto"),
+  resource("Build Your Own Web Server", "07. Code A Basic HTTP Server", "https://build-your-own.org/webserver/07_http_server"),
+  resource("Node.js", "Net module", "https://nodejs.org/api/net.html"),
+  resource("Node.js", "Buffer", "https://nodejs.org/api/buffer.html"),
+  resource("Node.js", "The Node.js Event Loop", "https://nodejs.org/learn/asynchronous-work/event-loop-timers-and-nexttick"),
+  resource("Node.js", "Stream", "https://nodejs.org/api/stream.html"),
+  resource("MDN", "HTTP messages", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages"),
+  resource("MDN", "Client-server overview", "https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Client-Server_overview"),
+  resource("RFC Editor", "RFC 9112: HTTP/1.1", "https://www.rfc-editor.org/rfc/rfc9112.html"),
+  resource("RFC Editor", "RFC 9110: HTTP Semantics", "https://www.rfc-editor.org/rfc/rfc9110.html"),
+  resource("High Performance Browser Networking", "Building Blocks of TCP", "https://hpbn.co/building-blocks-of-tcp/")
+];
+
 const nandResources = [
   resource("nand2tetris", "From NAND to Tetris", "https://www.nand2tetris.org/"),
-  resource("nand2tetris", "The Elements of Computing Systems", "https://www.nand2tetris.org/book"),
+  resource("nand2tetris", "Projects", "https://www.nand2tetris.org/course"),
+  resource("nand2tetris", "Software tools", "https://www.nand2tetris.org/software"),
+  resource("nand2tetris", "License and solution-sharing guidance", "https://www.nand2tetris.org/license"),
+  resource("nand2tetris", "Project 1: Boolean Logic", "https://www.nand2tetris.org/project01"),
+  resource("nand2tetris", "Project 2: Boolean Arithmetic", "https://www.nand2tetris.org/project02"),
+  resource("nand2tetris", "Project 3: Memory", "https://www.nand2tetris.org/project03"),
+  resource("nand2tetris", "Project 4: Machine Language Programming", "https://www.nand2tetris.org/project04"),
+  resource("nand2tetris", "Project 5: Computer Architecture", "https://www.nand2tetris.org/project05"),
+  resource("nand2tetris", "Project 6: The Assembler", "https://www.nand2tetris.org/project06"),
+  resource("nand2tetris", "Project 7: Virtual Machine I", "https://www.nand2tetris.org/project07"),
+  resource("nand2tetris", "Project 8: Virtual Machine II", "https://www.nand2tetris.org/project08"),
+  resource("nand2tetris", "Project 9: High-Level Programming", "https://www.nand2tetris.org/project09"),
+  resource("nand2tetris", "Project 10: Syntax Analysis", "https://www.nand2tetris.org/project10"),
+  resource("nand2tetris", "Project 11: Code Generation", "https://www.nand2tetris.org/project11"),
+  resource("nand2tetris", "Project 12: Operating System", "https://www.nand2tetris.org/project12"),
   resource("Software Carpentry", "The Unix Shell", "https://swcarpentry.github.io/shell-novice/"),
-  resource("MIT", "Missing Semester", "https://missing.csail.mit.edu/")
+  resource("MIT Missing Semester", "Course shell", "https://missing.csail.mit.edu/2020/course-shell/"),
+  resource("MIT OpenCourseWare", "Computation Structures", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/"),
+  resource("MIT OpenCourseWare", "The Digital Abstraction", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c2/"),
+  resource("MIT OpenCourseWare", "Combinational Logic", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c4/"),
+  resource("MIT OpenCourseWare", "Sequential Logic", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c5/"),
+  resource("MIT OpenCourseWare", "Designing an Instruction Set", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c9/"),
+  resource("MIT OpenCourseWare", "Assembly Language and Models of Computation", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c10/"),
+  resource("MIT OpenCourseWare", "Compilers", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c11/"),
+  resource("MIT OpenCourseWare", "Procedures and Stacks", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c12/"),
+  resource("MIT OpenCourseWare", "Building the Beta", "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c13/"),
+  resource("Crafting Interpreters", "Scanning", "https://craftinginterpreters.com/scanning.html"),
+  resource("Crafting Interpreters", "A Virtual Machine", "https://craftinginterpreters.com/a-virtual-machine.html"),
+  resource("Crafting Interpreters", "Compiling Expressions", "https://craftinginterpreters.com/compiling-expressions.html"),
+  resource("OSTEP", "Operating Systems: Three Easy Pieces", "https://pages.cs.wisc.edu/~remzi/OSTEP/")
 ];
 
 const regexResources = [
@@ -226,10 +284,51 @@ const containerResources = [
 ];
 
 const botResources = [
-  resource("Discord", "Developer documentation", "https://discord.com/developers/docs/intro"),
-  resource("Slack", "API basics", "https://api.slack.com/start"),
-  resource("Reddit", "API documentation", "https://www.reddit.com/dev/api/"),
-  resource("MDN", "HTTP messages", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages")
+  auditedResource(
+    "MDN",
+    "Writing WebSocket client applications",
+    "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications",
+    "Bot/platform family audit of event delivery, WebSocket lifecycle, HTTP message shape, async JavaScript, environment variables, and secret hygiene.",
+    [
+      "Kept for generic bot tutorials because it explains persistent event connections, open/message/error/close events, JSON payloads, and secure WebSocket caveats without pretending to be platform-specific."
+    ]
+  ),
+  auditedResource(
+    "MDN",
+    "HTTP messages",
+    "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages",
+    "Bot/platform family audit of event delivery, WebSocket lifecycle, HTTP message shape, async JavaScript, environment variables, and secret hygiene.",
+    [
+      "Kept for bot tutorials that call webhook or platform APIs because it teaches request/response structure, headers, bodies, status lines, and the browser/devtools/curl proof loop."
+    ]
+  ),
+  auditedResource(
+    "Node.js",
+    "How to read environment variables from Node.js",
+    "https://nodejs.org/learn/command-line/how-to-read-environment-variables-from-nodejs",
+    "Bot/platform family audit of event delivery, WebSocket lifecycle, HTTP message shape, async JavaScript, environment variables, and secret hygiene.",
+    [
+      "Kept for Node-based bot tutorials because tokens, guild ids, API keys, and local config should be read from process environment rather than hardcoded into source."
+    ]
+  ),
+  auditedResource(
+    "MDN",
+    "Using promises",
+    "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
+    "Bot/platform family audit of event delivery, WebSocket lifecycle, HTTP message shape, async JavaScript, environment variables, and secret hygiene.",
+    [
+      "Kept because many bot APIs are asynchronous and beginners need to understand returned promises, success/failure callbacks, chaining, and error handling before debugging platform code."
+    ]
+  ),
+  auditedResource(
+    "OWASP",
+    "Secrets Management Cheat Sheet",
+    "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+    "Bot/platform family audit of event delivery, WebSocket lifecycle, HTTP message shape, async JavaScript, environment variables, and secret hygiene.",
+    [
+      "Kept for credential hygiene, least privilege, rotation, documentation, and incident-response thinking; learners should use the relevant beginner sections rather than treating the whole cheat sheet as a first lesson."
+    ]
+  )
 ];
 
 const frontendFrameworkResources = [
@@ -413,9 +512,21 @@ const hashTableApprovedResources = uniqueResources([
 
 const gifbotApprovedResources = uniqueResources([
   resource("Scott Logic", "gifbot - Building a GitHub App", "https://blog.scottlogic.com/2017/05/22/gifbot-github-integration.html"),
+  resource("GitHub Docs", "Registering a GitHub App", "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app"),
+  resource("GitHub Docs", "Choosing permissions for a GitHub App", "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app"),
+  resource("GitHub Docs", "Using webhooks with GitHub Apps", "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/using-webhooks-with-github-apps"),
+  resource("GitHub Docs", "issue_comment webhook payload", "https://docs.github.com/en/webhooks/webhook-events-and-payloads?actionType=created#issue_comment"),
+  resource("GitHub Docs", "Validating webhook deliveries", "https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries"),
+  resource("GitHub Docs", "About GitHub App authentication", "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/about-authentication-with-a-github-app"),
+  resource("GitHub Docs", "Generating a GitHub App JWT", "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app"),
+  resource("GitHub Docs", "Generating an installation access token", "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app"),
+  resource("GitHub Docs", "Create an issue comment", "https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment"),
+  resource("GIPHY Developers", "Search Endpoint", "https://developers.giphy.com/docs/api/endpoint#search"),
+  resource("MDN", "HTTP messages", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages"),
+  resource("MDN", "JavaScript regular expressions", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions"),
+  resource("Node.js", "crypto.createHmac()", "https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options"),
   resource("GitHub Docs", "Creating GitHub Apps", "https://docs.github.com/en/apps/creating-github-apps"),
-  resource("GitHub Docs", "Webhooks", "https://docs.github.com/en/webhooks"),
-  ...botResources
+  resource("GitHub Docs", "Webhooks documentation", "https://docs.github.com/en/webhooks")
 ]);
 
 const gitCloneHaskellResources = uniqueResources([
@@ -460,30 +571,87 @@ const minitestApprovedResources = uniqueResources([
 
 const modernPhpApprovedResources = uniqueResources([
   resource("Kevin Smith", "Modern PHP Without a Framework", "https://kevinsmith.io/modern-php-without-a-framework/"),
-  resource("PHP-FIG", "PSR-4 autoloader", "https://www.php-fig.org/psr/psr-4/"),
+  resource("PHP Manual", "Built-in web server", "https://www.php.net/manual/en/features.commandline.webserver.php"),
   resource("Composer", "Basic usage", "https://getcomposer.org/doc/01-basic-usage.md"),
-  ...webAppResources
+  resource("Composer", "Autoload schema", "https://getcomposer.org/doc/04-schema.md#autoload"),
+  resource("PHP-FIG", "PSR-4 autoloader", "https://www.php-fig.org/psr/psr-4/"),
+  resource("PHP-FIG", "PSR-7 HTTP message interfaces", "https://www.php-fig.org/psr/psr-7/"),
+  resource("PHP-FIG", "PSR-11 container interface", "https://www.php-fig.org/psr/psr-11/"),
+  resource("PHP-FIG", "PSR-15 request handlers and middleware", "https://www.php-fig.org/psr/psr-15/"),
+  resource("PHP-DI", "Understanding dependency injection", "https://php-di.org/doc/understanding-di.html"),
+  resource("PHP-DI", "Configuring the container", "https://php-di.org/doc/container-configuration.html"),
+  resource("FastRoute", "Fast request router for PHP", "https://github.com/nikic/FastRoute"),
+  resource("Relay", "PSR-15 middleware dispatcher", "https://relayphp.com/"),
+  resource("Laminas Diactoros", "PSR-7 HTTP message implementation", "https://docs.laminas.dev/laminas-diactoros/"),
+  resource("MDN", "HTTP messages", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages"),
+  resource("PHP Manual", "Namespace basics", "https://www.php.net/manual/en/language.namespaces.basics.php"),
+  resource("PHP Manual", "Type declarations", "https://www.php.net/manual/en/language.types.declarations.php"),
+  resource("PHP-FIG", "PSR-17 HTTP factories", "https://www.php-fig.org/psr/psr-17/")
 ]);
 
 const openCvArApprovedResources = uniqueResources([
-  resource("Bites of Code", "Augmented reality with Python and OpenCV", "https://bitesofcode.wordpress.com/2017/09/12/augmented-reality-with-python-and-opencv-part-1/"),
+  resource("Bites of Code", "Part 1: features, matching, and homography", "https://bitesofcode.wordpress.com/2017/09/12/augmented-reality-with-python-and-opencv-part-1/"),
+  resource("Bites of Code", "Part 2: projection matrix and model rendering", "https://bitesofcode.wordpress.com/2018/09/16/augmented-reality-with-python-and-opencv-part-2/"),
+  resource("Bites of Code", "Part 3: Kalman tracking stabilization", "https://bitesofcode.wordpress.com/2024/11/30/augmented-reality-with-python-and-opencv-part-3/"),
+  resource("OpenCV", "ORB tutorial", "https://docs.opencv.org/4.x/d1/d89/tutorial_py_orb.html"),
   resource("OpenCV", "ORB feature detector", "https://docs.opencv.org/4.x/db/d95/classcv_1_1ORB.html"),
   resource("OpenCV", "Feature matching", "https://docs.opencv.org/4.x/dc/dc3/tutorial_py_matcher.html"),
-  ...arResources
+  resource("OpenCV", "AKAZE and ORB planar tracking", "https://docs.opencv.org/4.x/dc/d16/tutorial_akaze_tracking.html"),
+  resource("OpenCV", "Feature matching + homography", "https://docs.opencv.org/4.x/d1/de0/tutorial_py_feature_homography.html"),
+  resource("OpenCV", "Basic concepts of homography", "https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html"),
+  resource("LearnOpenCV", "Homography examples using OpenCV", "https://learnopencv.com/homography-examples-using-opencv-python-c/"),
+  resource("OpenCV", "Camera calibration", "https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html"),
+  resource("OpenCV", "Pose estimation", "https://docs.opencv.org/4.x/d7/d53/tutorial_py_pose.html"),
+  resource("OpenCV", "Perspective-n-Point pose computation", "https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html"),
+  resource("OpenCV", "Real-time pose estimation of a textured object", "https://docs.opencv.org/4.x/dc/d2c/tutorial_real_time_pose.html"),
+  resource("OpenCV", "KalmanFilter class reference", "https://docs.opencv.org/4.x/dd/d6a/classcv_1_1KalmanFilter.html"),
+  resource("NumPy", "Linear algebra", "https://numpy.org/doc/stable/reference/routines.linalg.html")
 ]);
 
 const softEngineApprovedResources = uniqueResources([
-  resource("David Rousset", "3D soft engine from scratch", "https://www.davrous.com/2013/06/13/tutorial-series-learning-how-to-write-a-3d-soft-engine-from-scratch-in-c-typescript-or-javascript/"),
-  resource("Scratchapixel", "Rendering an image", "https://www.scratchapixel.com/lessons/3d-basic-rendering/rendering-3d-scene-overview/rendering-an-image.html"),
-  resource("LearnOpenGL", "Coordinate systems", "https://learnopengl.com/Getting-started/Coordinate-Systems"),
-  ...raycastingResources
+  resource("David Rousset", "Part 1: camera, mesh, and device object", "https://www.davrous.com/2013/06/13/tutorial-series-learning-how-to-write-a-3d-soft-engine-from-scratch-in-c-typescript-or-javascript/"),
+  resource("David Rousset", "Part 2: drawing lines and triangles", "https://www.davrous.com/2013/06/14/tutorial-part-2-learning-how-to-write-a-3d-soft-engine-from-scratch-in-c-ts-or-js-drawing-lines-triangles/"),
+  resource("David Rousset", "Part 3: loading Blender JSON meshes", "https://www.davrous.com/2013/06/17/tutorial-part-3-learning-how-to-write-a-3d-soft-engine-in-c-ts-or-js-loading-meshes-exported-from-blender/"),
+  resource("David Rousset", "Part 4: rasterization and Z-buffering", "https://www.davrous.com/2013/06/21/tutorial-part-4-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-rasterization-z-buffering/"),
+  resource("David Rousset", "Part 5: flat and Gouraud shading", "https://www.davrous.com/2013/07/03/tutorial-part-5-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-flat-gouraud-shading/"),
+  resource("David Rousset", "Part 6: textures, back-face culling, and WebGL", "https://www.davrous.com/2013/07/18/tutorial-part-6-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-texture-mapping-back-face-culling-webgl/"),
+  resource("OpenGL Tutorial", "Matrices", "https://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/"),
+  resource("Song Ho", "OpenGL Transformation", "https://www.songho.ca/opengl/gl_transform.html"),
+  resource("MDN", "Canvas tutorial", "https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial"),
+  resource("MDN", "requestAnimationFrame()", "https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame"),
+  resource("Scratchapixel", "Rasterization", "https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage.html"),
+  resource("LearnOpenGL", "Coordinate systems", "https://learnopengl.com/Getting-started/Coordinate-Systems")
 ]);
 
 const discordBotApprovedResources = uniqueResources([
   resource("discord.js", "Guide", "https://discordjs.guide/"),
-  resource("Discord", "Application commands", "https://discord.com/developers/docs/interactions/application-commands"),
-  resource("Discord", "Gateway intents", "https://discord.com/developers/docs/events/gateway#gateway-intents"),
-  ...botResources
+  resource("discord.js", "Application setup and token safety", "https://discordjs.guide/legacy/preparations/app-setup"),
+  resource("discord.js", "Adding your app to servers", "https://discordjs.guide/legacy/preparations/adding-your-app"),
+  resource("discord.js", "Installing Node.js and discord.js", "https://discordjs.guide/legacy/preparations/installation"),
+  resource("discord.js", "Project setup and secret files", "https://discordjs.guide/legacy/app-creation/project-setup"),
+  resource("discord.js", "The main file", "https://discordjs.guide/legacy/app-creation/main-file"),
+  resource("discord.js", "Creating slash commands", "https://discordjs.guide/legacy/app-creation/creating-commands"),
+  resource("discord.js", "Command handling", "https://discordjs.guide/legacy/app-creation/handling-commands"),
+  resource("discord.js", "Registering commands", "https://discordjs.guide/legacy/app-creation/deploying-commands"),
+  resource("discord.js", "Event handling", "https://discordjs.guide/legacy/app-creation/handling-events"),
+  resource("discord.js", "Gateway intents", "https://discordjs.guide/legacy/popular-topics/intents"),
+  resource("discord.js", "Permissions", "https://discordjs.guide/legacy/popular-topics/permissions"),
+  resource("Discord", "Developer platform intro", "https://docs.discord.com/developers/intro"),
+  resource("Discord", "Gateway", "https://docs.discord.com/developers/events/gateway"),
+  resource("Discord", "Application commands", "https://docs.discord.com/developers/interactions/application-commands"),
+  resource("Discord", "Receiving and responding to interactions", "https://docs.discord.com/developers/interactions/receiving-and-responding"),
+  resource("Discord", "OAuth2", "https://docs.discord.com/developers/topics/oauth2"),
+  resource("Discord", "Permissions", "https://docs.discord.com/developers/topics/permissions"),
+  resource("Discord", "Rate limits", "https://docs.discord.com/developers/topics/rate-limits"),
+  resource("Node.js", "Introduction to Node.js", "https://nodejs.org/learn/getting-started/introduction-to-nodejs"),
+  resource("Node.js", "Download Node.js", "https://nodejs.org/en/download"),
+  resource("Node.js", "Environment variables", "https://nodejs.org/learn/command-line/how-to-read-environment-variables-from-nodejs"),
+  resource("Node.js", "Event emitter", "https://nodejs.org/learn/asynchronous-work/the-nodejs-event-emitter"),
+  resource("Node.js", "Discover promises", "https://nodejs.org/learn/asynchronous-work/discover-promises-in-nodejs"),
+  resource("Node.js", "File system", "https://nodejs.org/api/fs.html"),
+  resource("npm Docs", "package.json", "https://docs.npmjs.com/cli/v10/configuring-npm/package-json/"),
+  resource("MDN", "JavaScript modules", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules"),
+  resource("MDN", "Using promises", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises")
 ]);
 
 const tcpIpStackApprovedResources = uniqueResources([
@@ -498,6 +666,251 @@ const craftingInterpretersApprovedResources = uniqueResources([
   resource("Crafting Interpreters", "Scanning", "https://craftinginterpreters.com/scanning.html"),
   resource("Crafting Interpreters", "Representing Code", "https://craftinginterpreters.com/representing-code.html"),
   ...compilerResources
+]);
+
+const minipackApprovedResources = uniqueResources([
+  resource("Minipack", "README", "https://github.com/ronami/minipack"),
+  resource("Minipack", "Annotated source", "https://github.com/ronami/minipack/blob/master/src/minipack.js"),
+  resource("webpack", "Modules", "https://webpack.js.org/concepts/modules/"),
+  resource("Babel", "Parser", "https://babeljs.io/docs/babel-parser")
+]);
+
+const superTinyCompilerApprovedResources = uniqueResources([
+  resource("The Super Tiny Compiler", "README", "https://github.com/jamiebuilds/the-super-tiny-compiler"),
+  resource(
+    "The Super Tiny Compiler",
+    "Annotated source",
+    "https://github.com/jamiebuilds/the-super-tiny-compiler/blob/master/the-super-tiny-compiler.js"
+  ),
+  resource("Crafting Interpreters", "Scanning", "https://craftinginterpreters.com/scanning.html"),
+  resource("Crafting Interpreters", "Parsing expressions", "https://craftinginterpreters.com/parsing-expressions.html")
+]);
+
+const miniatureRedisApprovedResources = uniqueResources([
+  resource("Charles Leifer", "Miniature Redis with Python", "https://charlesleifer.com/blog/building-a-simple-redis-server-with-python/"),
+  resource("Redis Docs", "RESP protocol specification", "https://redis.io/docs/latest/develop/reference/protocol-spec/"),
+  resource("Python Docs", "Socket Programming HOWTO", "https://docs.python.org/3/howto/sockets.html")
+]);
+
+const norvigLispyApprovedResources = uniqueResources([
+  resource("Peter Norvig", "How to Write a Lisp Interpreter in Python", "https://norvig.com/lispy.html"),
+  resource("Peter Norvig", "An Even Better Lisp Interpreter in Python", "https://norvig.com/lispy2.html"),
+  resource("Crafting Interpreters", "Representing Code", "https://craftinginterpreters.com/representing-code.html")
+]);
+
+const russCoxRegexApprovedResources = uniqueResources([
+  resource("Russ Cox", "Regular Expression Matching Can Be Simple And Fast", "https://swtch.com/~rsc/regexp/regexp1.html"),
+  resource("Russ Cox", "Regular Expression Matching: the Virtual Machine Approach", "https://swtch.com/~rsc/regexp/regexp2.html"),
+  resource("Python Docs", "Regular Expression HOWTO", "https://docs.python.org/3/howto/regex.html"),
+  resource("MDN", "Regular expressions", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions")
+]);
+
+const toyTemplateApprovedResources = uniqueResources([
+  resource("Alex Michael", "Building a toy template engine in Python", "https://alexmic.net/building-a-template-engine/"),
+  resource("Python Docs", "ast.literal_eval", "https://docs.python.org/3/library/ast.html#ast.literal_eval"),
+  resource("Django", "Template language", "https://docs.djangoproject.com/en/6.0/ref/templates/language/")
+]);
+
+const superTinyInterpreterApprovedResources = uniqueResources([
+  resource("The Super Tiny Interpreter", "README", "https://github.com/keyz/the-super-tiny-interpreter/blob/master/README.md"),
+  resource(
+    "The Super Tiny Interpreter",
+    "Expression interpreter",
+    "https://github.com/keyz/the-super-tiny-interpreter/blob/master/src/Interp/ExpressionInterp.js"
+  ),
+  resource("The Super Tiny Interpreter", "Closure model", "https://github.com/keyz/the-super-tiny-interpreter/blob/master/src/Closure.js"),
+  resource("MDN", "Closures", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures"),
+  resource("Babel", "Parser", "https://babeljs.io/docs/babel-parser")
+]);
+
+const tinyPackageManagerApprovedResources = uniqueResources([
+  resource("Tiny Package Manager", "README", "https://github.com/g-plane/tiny-package-manager/blob/master/README.md"),
+  resource("Tiny Package Manager", "Main install flow", "https://github.com/g-plane/tiny-package-manager/blob/master/src/index.ts"),
+  resource("Tiny Package Manager", "Dependency resolution", "https://github.com/g-plane/tiny-package-manager/blob/master/src/list.ts"),
+  resource("Tiny Package Manager", "Lock file", "https://github.com/g-plane/tiny-package-manager/blob/master/src/lock.ts"),
+  resource("npm Docs", "package.json", "https://docs.npmjs.com/cli/v10/configuring-npm/package-json"),
+  resource("Semantic Versioning", "SemVer 2.0.0", "https://semver.org/")
+]);
+
+const nimBencodeApprovedResources = uniqueResources([
+  resource("Nim Days", "Parsing Bencode", "https://xmonader.github.io/nimdays/day02_bencode.html"),
+  resource("BitTorrent.org", "BEP 3 bencoding", "https://www.bittorrent.org/beps/bep_0003.html"),
+  resource("Nim", "Object variants", "https://nim-lang.org/docs/manual.html#types-object-variants"),
+  resource("Nim", "Enumerations", "https://nim-lang.org/docs/tut1.html#advanced-types-enumerations")
+]);
+
+const nimRespApprovedResources = uniqueResources([
+  resource("Nim Days", "Redis Protocol", "https://xmonader.github.io/nimdays/day12_resp.html"),
+  resource("Redis Docs", "RESP protocol specification", "https://redis.io/docs/latest/develop/reference/protocol-spec/"),
+  resource("Nim", "Object variants", "https://nim-lang.org/docs/manual.html#types-object-variants"),
+  resource("Nim", "strutils", "https://nim-lang.org/docs/strutils.html")
+]);
+
+const nimIniApprovedResources = uniqueResources([
+  resource("Nim Days", "INI Parser", "https://xmonader.github.io/nimdays/day05_iniparser.html"),
+  resource("Nim", "parsecfg", "https://nim-lang.org/docs/parsecfg.html"),
+  resource("Python Docs", "configparser", "https://docs.python.org/3/library/configparser.html"),
+  resource("Nim", "strutils", "https://nim-lang.org/docs/strutils.html")
+]);
+
+const jsonAlgorithmApprovedResources = uniqueResources([
+  resource("JSON Decoding Algorithm", "README", "https://github.com/cheery/json-algorithm/blob/master/README.md"),
+  resource("JSON Decoding Algorithm", "Table generator", "https://github.com/cheery/json-algorithm/blob/master/build_tables.py"),
+  resource("JSON Decoding Algorithm", "Verifier", "https://github.com/cheery/json-algorithm/blob/master/verifier.py"),
+  resource("IETF", "RFC 8259 JSON", "https://datatracker.ietf.org/doc/html/rfc8259"),
+  resource("Python Docs", "json module", "https://docs.python.org/3/library/json.html")
+]);
+
+const nistowApprovedResources = uniqueResources([
+  resource("Nim Days", "Nistow dotfiles manager", "https://xmonader.github.io/nimdays/day06_nistow.html"),
+  resource("GNU Stow", "Manual", "https://www.gnu.org/software/stow/manual/stow.html"),
+  resource("GNU Coreutils", "ln invocation", "https://www.gnu.org/software/coreutils/manual/html_node/ln-invocation.html"),
+  resource("Nim", "parseopt", "https://nim-lang.org/docs/parseopt.html"),
+  resource("Nim", "os module", "https://nim-lang.org/docs/os.html")
+]);
+
+const dmiParserApprovedResources = uniqueResources([
+  resource("Nim Days", "DMIDecode parser", "https://xmonader.github.io/nimdays/day01_dmidecode.html"),
+  resource("DMTF", "SMBIOS overview", "https://www.dmtf.org/standards/smbios"),
+  resource("Nim", "strutils", "https://nim-lang.org/docs/strutils.html"),
+  resource("Nim", "tables", "https://nim-lang.org/docs/tables.html")
+]);
+
+const nimShortUrlApprovedResources = uniqueResources([
+  resource("Nim Days", "URL Shortening Service", "https://xmonader.github.io/nimdays/day07_shorturl.html"),
+  resource("Jester", "README", "https://github.com/dom96/jester"),
+  resource("Nim", "db_sqlite", "https://nim-lang.org/docs/db_sqlite.html"),
+  resource("Nim", "json", "https://nim-lang.org/docs/json.html"),
+  resource("MDN", "HTTP status codes", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status")
+]);
+
+const nimLinkCheckerApprovedResources = uniqueResources([
+  resource("Nim Days", "Async Link Checker", "https://xmonader.github.io/nimdays/day04_asynclinkschecker.html"),
+  resource("Nim", "asyncdispatch", "https://nim-lang.org/docs/asyncdispatch.html"),
+  resource("Nim", "httpclient", "https://nim-lang.org/docs/httpclient.html"),
+  resource("MDN", "HTTP status codes", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status"),
+  resource("Nim", "os module", "https://nim-lang.org/docs/os.html")
+]);
+
+const nimBuildSystemApprovedResources = uniqueResources([
+  resource("Nim Days", "Bake build system", "https://xmonader.github.io/nimdays/day11_buildsystem.html"),
+  resource("GNU Make", "Writing rules", "https://www.gnu.org/software/make/manual/html_node/Rules.html"),
+  resource("cp-algorithms", "Checking a graph for cycles", "https://cp-algorithms.com/graph/finding-cycle.html"),
+  resource("Nim", "tables", "https://nim-lang.org/docs/tables.html"),
+  resource("Nim", "algorithm", "https://nim-lang.org/docs/algorithm.html")
+]);
+
+const littleLispApprovedResources = uniqueResources([
+  resource("Mary Rose Cook", "Little Lisp interpreter", "https://maryrosecook.com/blog/post/little-lisp-interpreter"),
+  resource("Little Lisp", "Source", "https://github.com/maryrosecook/littlelisp/blob/master/littlelisp.js"),
+  resource("Little Lisp", "Tests", "https://github.com/maryrosecook/littlelisp/blob/master/littlelisp.spec.js"),
+  resource("Crafting Interpreters", "Representing Code", "https://craftinginterpreters.com/representing-code.html")
+]);
+
+const khamidouLispApprovedResources = uniqueResources([
+  resource("Khamidou", "lisp.py", "http://khamidou.com/compilers/lisp.py/"),
+  resource("Peter Norvig", "How to Write a Lisp Interpreter in Python", "https://norvig.com/lispy.html"),
+  resource("Crafting Interpreters", "Representing Code", "https://craftinginterpreters.com/representing-code.html"),
+  resource("Crafting Interpreters", "Evaluating Expressions", "https://craftinginterpreters.com/evaluating-expressions.html")
+]);
+
+const swiftyLispApprovedResources = uniqueResources([
+  resource("uraimo", "Building a LISP from scratch with Swift", "https://www.uraimo.com/2017/02/05/building-a-lisp-from-scratch-with-swift/"),
+  resource("SwiftyLISP", "Source", "https://github.com/uraimo/SwiftyLISP/blob/master/Sources/SwiftyLisp.swift"),
+  resource("SwiftyLISP", "README", "https://github.com/uraimo/SwiftyLISP/blob/master/README.md"),
+  resource("Crafting Interpreters", "Representing Code", "https://craftinginterpreters.com/representing-code.html"),
+  resource("Crafting Interpreters", "Evaluating Expressions", "https://craftinginterpreters.com/evaluating-expressions.html")
+]);
+
+const dagobaApprovedResources = uniqueResources([
+  resource("AOSA", "Dagoba: An In-Memory Graph Database", "http://aosabook.org/en/500L/dagoba-an-in-memory-graph-database.html"),
+  resource("Apache TinkerPop", "Getting Started", "https://tinkerpop.apache.org/docs/current/tutorials/getting-started/"),
+  resource("MDN", "Object.create()", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create"),
+  resource("MDN", "JSON.stringify()", "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify"),
+  resource("MDN", "Window.localStorage", "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage")
+]);
+
+const dbdbApprovedResources = uniqueResources([
+  resource("AOSA", "DBDB: Dog Bed Database", "http://aosabook.org/en/500L/dbdb-dog-bed-database.html"),
+  resource("SQLite", "Architecture of SQLite", "https://www.sqlite.org/arch.html"),
+  resource("SQLite", "Atomic Commit In SQLite", "https://www.sqlite.org/atomiccommit.html"),
+  resource("Python Docs", "shelve - Python object persistence", "https://docs.python.org/3/library/shelve.html"),
+  resource("Python Docs", "os.fsync()", "https://docs.python.org/3/library/os.html#os.fsync")
+]);
+
+const cstackDatabaseApprovedResources = uniqueResources([
+  resource("cstack", "Let's Build a Simple Database", "https://cstack.github.io/db_tutorial/"),
+  resource("SQLite", "Architecture of SQLite", "https://www.sqlite.org/arch.html"),
+  resource("SQLite", "Database File Format", "https://www.sqlite.org/fileformat2.html"),
+  resource("man7", "getline(3)", "https://man7.org/linux/man-pages/man3/getline.3.html"),
+  resource("man7", "open(2)", "https://man7.org/linux/man-pages/man2/open.2.html")
+]);
+
+const rubyBitcaskApprovedResources = uniqueResources([
+  resource("Dinesh Gowda", "Build Your Own Fast, Persistent KV Store", "https://dineshgowda.com/posts/build-your-own-persistent-kv-store/"),
+  resource("Wikipedia", "Bitcask", "https://en.wikipedia.org/wiki/Bitcask"),
+  resource("SQLite", "Atomic Commit In SQLite", "https://www.sqlite.org/atomiccommit.html"),
+  resource("man7", "open(2)", "https://man7.org/linux/man-pages/man2/open.2.html")
+]);
+
+const archaeologyDbApprovedResources = uniqueResources([
+  resource("AOSA", "An Archaeology-Inspired Database", "https://aosabook.org/en/500L/an-archaeology-inspired-database.html"),
+  resource("Clojure", "Data Structures", "https://clojure.org/reference/data_structures"),
+  resource("Clojure", "Datatypes: deftype, defrecord and reify", "https://clojure.org/reference/datatypes"),
+  resource("Clojure", "Protocols", "https://clojure.org/reference/protocols"),
+  resource("Clojure", "Metadata", "https://clojure.org/reference/metadata"),
+  resource("Clojure", "Atoms", "https://clojure.org/reference/atoms"),
+  resource("Datomic", "Overview and information model", "https://docs.datomic.com/datomic-overview.html"),
+  resource("Datomic", "Index Model", "https://docs.datomic.com/indexes/index-model.html"),
+  resource("Datomic", "Schema Reference", "https://docs.datomic.com/schema/schema-reference.html"),
+  resource("Datomic", "Transaction Data Reference", "https://docs.datomic.com/transactions/transaction-data-reference.html"),
+  resource("Datomic", "Query Reference", "https://docs.datomic.com/query/query-data-reference.html"),
+  resource("Datomic", "Index-Pull", "https://docs.datomic.com/indexes/index-pull.html"),
+  resource("Datomic", "Entities", "https://docs.datomic.com/reference/entities.html"),
+  resource("Clojure", "Sequences", "https://clojure.org/reference/sequences"),
+  resource("Clojure", "Learn Clojure: Hashed Collections", "https://clojure.org/guides/learn/hashed_colls"),
+  resource("Clojure", "Refs and Transactions", "https://clojure.org/reference/refs")
+]);
+
+const tokioRedisApprovedResources = uniqueResources([
+  resource("Tokio", "Mini-Redis setup", "https://tokio.rs/tokio/tutorial/setup"),
+  resource("Tokio", "Spawning", "https://tokio.rs/tokio/tutorial/spawning"),
+  resource("Tokio", "Shared state", "https://tokio.rs/tokio/tutorial/shared-state"),
+  resource("Tokio", "Framing", "https://tokio.rs/tokio/tutorial/framing"),
+  resource("Redis Docs", "RESP protocol specification", "https://redis.io/docs/latest/develop/reference/protocol-spec/")
+]);
+
+const cppRedisApprovedResources = uniqueResources([
+  resource("Build Your Own", "Build Your Own Redis with C/C++", "https://build-your-own.org/redis/"),
+  resource("Build Your Own", "Socket Programming", "https://build-your-own.org/redis/02_intro_sockets"),
+  resource("Build Your Own", "Request-Response Protocol", "https://build-your-own.org/redis/04_proto"),
+  resource("Build Your Own", "Event Loop", "https://build-your-own.org/redis/06_event_loop_impl"),
+  resource("Build Your Own", "Key-Value Server", "https://build-your-own.org/redis/07_basic_server"),
+  resource("Build Your Own", "Hashtables", "https://build-your-own.org/redis/08_hashtables"),
+  resource("Build Your Own", "Data Serialization", "https://build-your-own.org/redis/09_serialization"),
+  resource("Build Your Own", "Sorted Set", "https://build-your-own.org/redis/11_sortedset"),
+  resource("Build Your Own", "Cache Expiration with TTL", "https://build-your-own.org/redis/13_heap"),
+  resource("Redis Docs", "RESP protocol specification", "https://redis.io/docs/latest/develop/reference/protocol-spec/"),
+  resource("man7", "socket(2)", "https://man7.org/linux/man-pages/man2/socket.2.html"),
+  resource("man7", "epoll(7)", "https://man7.org/linux/man-pages/man7/epoll.7.html")
+]);
+
+const simpleKafkaApprovedResources = uniqueResources([
+  resource("buildthingsuseful", "Build Your Own Kafka README", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/README.md"),
+  resource("SimpleKafka", "Broker source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/broker/SimpleKafkaBroker.java"),
+  resource("SimpleKafka", "Partition source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/broker/Partition.java"),
+  resource("SimpleKafka", "Protocol source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/broker/Protocol.java"),
+  resource("SimpleKafka", "ZooKeeper client source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/broker/ZookeeperClient.java"),
+  resource("SimpleKafka", "Client source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/client/SimpleKafkaClient.java"),
+  resource("SimpleKafka", "Producer source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/client/SimpleKafkaProducer.java"),
+  resource("SimpleKafka", "Consumer source", "https://github.com/buildthingsuseful/build-your-own-kafka/blob/main/com/simplekafka/client/SimpleKafkaConsumer.java"),
+  resource("Apache Kafka", "Introduction", "https://kafka.apache.org/intro/"),
+  resource("Apache ZooKeeper", "Overview", "https://zookeeper.apache.org/doc/current/zookeeperOver.html"),
+  resource("Oracle Java Tutorials", "All About Sockets", "https://docs.oracle.com/javase/tutorial/networking/sockets/index.html"),
+  resource("Java SE 11 API", "ByteBuffer", "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/nio/ByteBuffer.html"),
+  resource("Java SE 11 API", "FileChannel", "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/nio/channels/FileChannel.html"),
+  resource("Java SE 11 API", "SocketChannel", "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/nio/channels/SocketChannel.html"),
+  resource("Apache Maven", "Maven in 5 Minutes", "https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html")
 ]);
 
 interface FamilyConceptSpec {
@@ -615,6 +1028,150 @@ const curatedOverrides: CuratedOverride[] = [
     cvFraming:
       "Built a toy browser engine from first principles, including page fetching, HTML parsing, layout, rendering, and basic navigation, with clear boundaries between engine internals and browser UI."
   },
+  approvedTutorialOverride(
+    "web-server-node-js-build-your-own-web-server-from-scratch-in-javascript",
+    "Individual review of build-your-own.org webserver chapters 1-7 plus Node net/Buffer/event-loop/stream docs, MDN HTTP messages, RFC 9110/9112, and HPBN TCP material",
+    "Approved path for the Node.js web-server tutorial focused on TCP byte streams, Node evented sockets, protocol framing, HTTP/1.1 message syntax, response generation, body streaming, and honest extension boundaries for the paid/unfinished Part II topics.",
+    nodeWebServerResources,
+    [
+      concept(
+        "approved-node-webserver-tcp-byte-stream",
+        "TCP is a byte stream, not message packets",
+        "The tutorial deliberately starts below HTTP: a TCP socket gives your Node program an ordered stream of bytes, but it does not preserve application-message boundaries for you.",
+        "This is the first beginner trap in the project. If you assume every `data` event is one request, your server will work in tiny demos and fail when bytes are split or coalesced differently.",
+        [
+          "You can explain why TCP does not know where one HTTP request ends.",
+          "You can describe bind/listen/connection/read/write/close without saying framework.",
+          "You can name one proof that shows your code handles partial or combined data."
+        ],
+        resourcesByIndex(nodeWebServerResources, [3, 8, 16, 5])
+      ),
+      concept(
+        "approved-node-webserver-event-loop-sockets",
+        "Node accepts connections through events",
+        "In this tutorial, `net.createServer()` wraps listening sockets and connection sockets in event-emitting objects; your code registers handlers for connection, data, end, error, and close.",
+        "Beginners need this model before writing server logic because the code is not a straight loop that blocks for one client. The event loop decides when each socket handler runs.",
+        [
+          "You can map each socket event to the TCP primitive it represents.",
+          "You can explain why a long-running handler delays other connections.",
+          "You can test error handling by trying to bind two servers to the same port."
+        ],
+        resourcesByIndex(nodeWebServerResources, [3, 8, 10, 4])
+      ),
+      concept(
+        "approved-node-webserver-buffer-framing",
+        "Buffers and framing turn bytes into protocol messages",
+        "The middle chapters teach a small protocol before HTTP so learners can practice cutting complete messages out of a growing buffer without losing leftover bytes.",
+        "That buffer discipline is what makes the HTTP parser understandable later: find delimiters, wait for enough bytes, preserve the rest, and only then hand a complete message to application logic.",
+        [
+          "You can say why Node `Buffer` is a better model than strings for raw sockets.",
+          "You can trace how leftover bytes remain in the dynamic buffer after one message is cut.",
+          "You can write a fixture where two messages arrive in one read or one message arrives in two reads."
+        ],
+        resourcesByIndex(nodeWebServerResources, [5, 9, 3, 7])
+      ),
+      concept(
+        "approved-node-webserver-http-syntax-semantics",
+        "HTTP semantics and HTTP/1.1 syntax are separate jobs",
+        "The tutorial separates what a request means from how it appears on the wire: methods, URIs, status codes, and headers are HTTP semantics; start lines, CRLF, header fields, and body framing are HTTP/1.1 syntax.",
+        "This keeps the beginner from building a fragile string splitter. A useful toy server should know where the standard gives rules and where the project intentionally implements only a safe subset.",
+        [
+          "You can identify request line, status line, header section, blank line, and message body.",
+          "You can explain why Content-Length and Transfer-Encoding decide body length.",
+          "You can name one HTTP ambiguity the toy server rejects or leaves out."
+        ],
+        resourcesByIndex(nodeWebServerResources, [6, 7, 12, 14, 15])
+      ),
+      concept(
+        "approved-node-webserver-streaming-scope",
+        "Streaming and extensions require resource boundaries",
+        "The public table of contents points beyond the basic server into dynamic content, file IO, range requests, caching, compression, streams, WebSocket, and concurrency.",
+        "A portfolio version should be honest about scope: prove the basic HTTP server first, then add one extension with explicit resource cleanup, backpressure, and limits rather than claiming production-server completeness.",
+        [
+          "You can explain why a response body may be a reader instead of a single buffer.",
+          "You can document which Part II extension you attempted and which ones remain out of scope.",
+          "You can describe one resource leak risk when serving files or streams."
+        ],
+        resourcesByIndex(nodeWebServerResources, [0, 7, 11, 16])
+      )
+    ],
+    [
+      checkpoint(
+        "Set up the Node socket lab before HTTP",
+        "01. Introduction and 02. HTTP Overview",
+        "Learn the tutorial's scope, install Node, open a terminal, and manually send one HTTP request with netcat, socat, curl, or a browser devtools network panel before writing server code.",
+        "Create a clean repository, run a one-file Node program, capture one raw HTTP request/response transcript, and write the minimal response shape in your notes.",
+        "If the command-line request fails, debug host, port, TLS/plain HTTP, and blank-line termination before touching Node socket code.",
+        "You can show a raw request line, a status line, headers, the blank line, and a body from your own local notes.",
+        resourcesByIndex(nodeWebServerResources, [1, 2, 12, 13])
+      ),
+      checkpoint(
+        "Build and test the TCP echo server",
+        "03. Code A TCP Server",
+        "Learn listening sockets, connection sockets, data/end/error events, and why TCP gives you a byte stream rather than complete messages.",
+        "Implement the echo server with `node:net`, run it on localhost, send text through netcat or socat, and add a controlled close path plus an error handler.",
+        "If no data appears, separate three questions: did the server listen, did a client connect, and did the socket emit a `data` event.",
+        "The server echoes bytes, logs connection lifecycle events, and explains one half-close or close behavior without using Node's HTTP module.",
+        resourcesByIndex(nodeWebServerResources, [3, 8, 16, 10])
+      ),
+      checkpoint(
+        "Practice framing with the simple protocol",
+        "04. Promises and Events and 05. A Simple Network Protocol",
+        "Learn promises/events only as much as needed to sequence socket reads, then implement a tiny message protocol so byte-stream parsing is tested before HTTP complexity arrives.",
+        "Build the dynamic buffer/cut-message step from the tutorial and test split, combined, empty, and malformed inputs as fixtures.",
+        "If parsing drops bytes or duplicates messages, log buffer length before and after each cut instead of changing the protocol randomly.",
+        "A fixture proves the parser can wait for incomplete data and preserve leftover bytes after extracting one complete message.",
+        resourcesByIndex(nodeWebServerResources, [4, 5, 9, 10])
+      ),
+      checkpoint(
+        "Parse HTTP headers from bytes",
+        "06. HTTP Semantics and Syntax",
+        "Learn the difference between HTTP semantics and HTTP/1.1 wire syntax: request line, CRLF, header fields, empty-line delimiter, Content-Length, Transfer-Encoding, and deliberately rejected ambiguous cases.",
+        "Write a parser for the request header subset used by the tutorial, keep URI/header bytes as buffers until interpretation is needed, and add fixtures for CRLF, missing delimiters, and invalid length.",
+        "If the parser accepts impossible input, compare it against RFC 9112's message-format model and decide whether to reject, wait for more bytes, or mark unsupported.",
+        "The parser turns a raw request header into method, URI bytes, version, headers, and a clear body-reading decision.",
+        resourcesByIndex(nodeWebServerResources, [6, 12, 14, 15])
+      ),
+      checkpoint(
+        "Serve a basic HTTP response through your own loop",
+        "07. Code A Basic HTTP Server",
+        "Learn how the tutorial replaces the simple protocol message with an HTTP request/response object and keeps body reading separate from the parsed header.",
+        "Wire the parser into the TCP server loop, return a valid response for at least `/` and one unknown path, and test it from curl and a browser.",
+        "If the browser hangs or curl reports a protocol problem, inspect CRLF, Content-Length, connection close behavior, and whether the body reader actually reaches EOF.",
+        "Curl and the browser both receive valid responses from your raw Node server, and your notes identify the parser, handler, and response writer functions.",
+        resourcesByIndex(nodeWebServerResources, [7, 6, 12, 14])
+      ),
+      checkpoint(
+        "Document extensions without pretending production readiness",
+        "Part II contents: applications and extensions",
+        "Learn the extension map honestly: dynamic content, file IO, range requests, caching, compression, streams, WebSocket, and concurrency are separate follow-up concepts, not automatically solved by the basic server.",
+        "Pick one small extension or write a design note for all of them, including resource cleanup, streaming/backpressure, request limits, unsupported HTTP cases, and why Node's built-in HTTP module exists.",
+        "If the extension grows fuzzy, stop and define the input, output, resource lifetime, and failure mode before coding more.",
+        "The README distinguishes the implemented basic HTTP server from future production concerns and includes one concrete extension proof or design plan.",
+        resourcesByIndex(nodeWebServerResources, [0, 11, 16, 15])
+      )
+    ],
+    [
+      "Install a current Node LTS and decide whether you will write JavaScript or the tutorial's TypeScript-flavored code.",
+      "Read chapters 1-2 before coding and manually produce one raw HTTP request/response transcript.",
+      "Do not import Node's `http` module for the core project; the point is to build below that abstraction with `node:net`.",
+      "Create parser fixtures before the HTTP server loop, especially split reads, combined messages, malformed headers, and missing blank lines.",
+      "Commit after echo server, framing protocol, HTTP parser, response writer, and final README proof."
+    ],
+    [
+      "Demo `curl -v` and a browser receiving valid responses from the raw Node server.",
+      "Include parser fixtures showing split/combined TCP data and at least one rejected malformed HTTP header.",
+      "Add a README diagram separating TCP socket layer, byte buffer/framing layer, HTTP parser, app handler, and response writer.",
+      "Document which HTTP features are intentionally unsupported: TLS, HTTP/2/3, full chunked parsing, request smuggling edge cases, concurrency limits, caching, compression, and WebSocket.",
+      "Explain why Node's built-in HTTP server is still the right choice for production even after building this learning version."
+    ],
+    "Built a raw Node.js HTTP server from TCP sockets upward, including event-driven socket handling, byte-stream framing, Buffer-based parsing, HTTP/1.1 request/response syntax, body-reader boundaries, curl/browser proof, and clearly documented production gaps.",
+    [
+      "The public tutorial exposes chapters 1-7 for the basic server; Part II appears as an extension table of contents and should be framed as follow-up scope unless the learner has access to the full book.",
+      "Supporting resources were selected to match each tutorial layer rather than repeating a generic web-server pack."
+    ],
+    { prerequisiteResources: nodeWebServerResources, prerequisiteResourceStrategy: "node-web-server" }
+  ),
   {
     id: "web-server",
     match: (article) =>
@@ -718,93 +1275,1053 @@ const curatedOverrides: CuratedOverride[] = [
     curation: record(
       "curated",
       "approved",
-      "Deep Research PDF plus nand2tetris and beginner shell resources",
-      "Curated first-principles computer-systems path focused on the abstraction ladder from gates to software tools.",
+      "Individual review of nand2tetris official project pages, tools page, license guidance, MIT computation structures, Crafting Interpreters, and OSTEP",
+      "Curated first-principles computer-systems path focused on the complete abstraction ladder: Boolean gates, HDL, ALU, memory, CPU, machine language, assembler, VM translator, Jack compiler, OS services, and project-by-project proof tests.",
       [
         "Treat this as a long course, not a weekend tutorial.",
-        "Keep the hardware half and software half connected.",
-        "Do not let learners skip proof tests for earlier layers."
+        "Use the official project pages and tools page as the source of truth, because the homepage extraction is limited.",
+        "Do not let learners skip proof tests for earlier layers.",
+        "Respect the course authors' request not to publish full solutions publicly."
       ]
     ),
     concepts: [
       concept(
-        "curated-abstraction-ladder",
-        "The abstraction ladder",
-        "Each project layer becomes a simpler interface for the next layer: gates become chips, chips become CPU/memory, machine code becomes a VM/compiler target.",
-        "This is the central survival map for nand2tetris because every later failure can come from a misunderstood earlier layer.",
+        "curated-nand-abstraction-ladder",
+        "The abstraction ladder is the project",
+        "Nand2Tetris is not one app tutorial; it is a sequence where each finished layer becomes the simplified interface used by the next layer: gates, chips, memory, CPU, machine language, assembler, VM, compiler, Jack code, and OS services.",
+        "This ladder is the survival map for beginners because a later failure often means an earlier contract was never really understood or tested.",
         [
-          "You can draw the ladder from gates to OS services.",
-          "You can explain what a layer hides and what contract it exposes.",
-          "You can decide which earlier layer to test when a later layer fails."
+          "You can draw the ladder from NAND gate to Jack OS service.",
+          "You can explain what each layer hides and what contract it exposes.",
+          "You can decide which earlier layer to retest when a later layer fails."
         ],
-        nandResources
+        resourcesByIndex(nandResources, [0, 1, 2, 18])
       ),
       concept(
-        "curated-hardware-software-contract",
-        "Hardware/software contracts",
-        "An instruction set is a contract between the hardware that executes instructions and the software tools that generate them.",
-        "This is the bridge between CPU design, assembler, VM translator, compiler, and operating-system services.",
+        "curated-nand-boolean-hdl-contracts",
+        "Boolean logic and HDL contracts",
+        "The hardware half begins with truth tables and HDL chip interfaces: each chip declares inputs and outputs, the implementation wires smaller chips together, and the simulator checks the declared behavior against test and compare files.",
+        "Beginners need this because HDL can feel like programming until the contract mindset clicks: you are building a circuit interface, not writing step-by-step runtime instructions.",
         [
-          "You can explain why a compiler must know its target machine.",
-          "You can name one CPU-level detail the assembler cares about.",
-          "You can test a tiny program through one toolchain stage at a time."
+          "You can read a chip interface and predict which output pins a test will inspect.",
+          "You can explain why NAND is sufficient to build other basic gates.",
+          "You can debug a composed chip by testing its smaller dependencies first."
         ],
-        nandResources
+        resourcesByIndex(nandResources, [4, 5, 19, 20, 2])
+      ),
+      concept(
+        "curated-nand-state-memory-cpu",
+        "State turns gates into a computer",
+        "Project 3 adds time and storage with DFF-backed registers and RAM, and Project 5 connects ALU, registers, memory, instruction memory, and control bits into the Hack computer.",
+        "This is the first point where a learner can see why a CPU is not magic: it repeatedly fetches an instruction, routes data, updates state, and exposes enough behavior for machine programs to run.",
+        [
+          "You can distinguish combinational logic from sequential/stateful logic.",
+          "You can trace one instruction through ALU input, destination bits, jump logic, and memory effects.",
+          "You can explain why Memory, CPU, and Computer must each be unit-tested before running programs."
+        ],
+        resourcesByIndex(nandResources, [6, 8, 21, 22, 26])
+      ),
+      concept(
+        "curated-nand-isa-assembler-contract",
+        "Machine language and assembler form a contract",
+        "The Hack instruction set is the agreement between the hardware platform and the software tools: assembly names registers, addresses, computations, destinations, and jumps, while the assembler turns those symbols into exact 16-bit binary instructions.",
+        "This bridge matters because it is where learners stop treating hardware and software as separate worlds; the CPU executes the bits that the assembler emits.",
+        [
+          "You can translate a tiny A-instruction and C-instruction by hand.",
+          "You can explain labels and variables as assembler conveniences, not CPU features.",
+          "You can compare your `.hack` output against the supplied assembler before blaming the CPU."
+        ],
+        resourcesByIndex(nandResources, [7, 9, 22, 23])
+      ),
+      concept(
+        "curated-nand-vm-translator-stack",
+        "The VM translator is a stack-machine compiler backend",
+        "Projects 7 and 8 define a VM language that sits above Hack assembly: stack arithmetic, memory segments, branching, function calls, and returns are translated into lower-level Hack assembly sequences.",
+        "This is the beginner-friendly reason compilers have layers: Jack code does not need to know Hack assembly directly if a VM translator can reliably map a simpler abstract machine onto the hardware.",
+        [
+          "You can draw stack pointer movement for `push constant 7`, `push constant 8`, `add`.",
+          "You can explain the difference between VM arithmetic, memory access, branching, and function-call commands.",
+          "You can test generated assembly in the CPU emulator while also checking intended VM behavior in the VM emulator."
+        ],
+        resourcesByIndex(nandResources, [10, 11, 25, 28])
+      ),
+      concept(
+        "curated-nand-compiler-os-services",
+        "The compiler and OS complete the software half",
+        "Projects 9 through 12 move from writing Jack programs to building the Jack compiler front end, emitting VM code, and implementing OS services such as Math, Memory, Screen, Keyboard, Output, String, Array, and Sys.",
+        "This final layer matters because it proves the whole stack is useful: a high-level program can call library services, compile to VM code, translate to assembly, and run on the computer built earlier.",
+        [
+          "You can separate tokenizing, parsing, symbol tables, and code generation.",
+          "You can explain why Jack OS services are ordinary code that hides common runtime behavior.",
+          "You can scope a final proof without pretending you built a production operating system."
+        ],
+        resourcesByIndex(nandResources, [12, 13, 14, 15, 24, 27, 29, 30])
       )
     ],
     checkpoints: [
       checkpoint(
-        "Logic gates feel concrete",
-        "Hardware half",
-        "Learn truth tables, simple gates, and how tests prove a chip contract.",
-        "Complete a small gate subset and write what each gate promises.",
-        "If a composed chip fails, test the smaller gates before changing the larger chip.",
-        "A chain of basic gates passes supplied tests and is explained in your own words.",
-        nandResources
+        "Prepare tools, folders, terminal basics, and solution boundaries",
+        "Software, Projects, and License",
+        "Learn the course structure before building: official projects, supplied tools, test scripts, compare files, local folders, shell commands, and the authors' request not to publish complete solutions publicly.",
+        "Set up the online IDE or local software suite, run one supplied tool/test script, create a private progress log, and write your public README plan without revealing future solution code.",
+        "If a tool does not run, debug Java/path/shell setup separately from project logic; do not edit HDL or assembler code until the tool itself is proven.",
+        "You can open the tools, locate project folders, run a sample test, and explain what can be shared publicly versus kept private.",
+        resourcesByIndex(nandResources, [0, 1, 2, 3, 16, 17])
       ),
       checkpoint(
-        "ALU and CPU contracts are visible",
-        "ALU, registers, CPU",
-        "Learn how arithmetic, memory, registers, and instruction decoding fit together.",
-        "Draw the data path for one instruction before implementing or debugging CPU behavior.",
-        "If CPU tests fail, isolate whether the instruction, register state, or ALU output is wrong.",
-        "One tiny machine instruction can be traced from input state to output state.",
-        nandResources
+        "Build Boolean gates and the ALU as tested contracts",
+        "Projects 1-2: Boolean Logic and Boolean Arithmetic",
+        "Learn truth tables, HDL interfaces, multiplexers, adders, and ALU control bits as contracts checked by `.tst` and `.cmp` files.",
+        "Implement the project 1 gates and project 2 arithmetic chips in the recommended order, then write a short explanation of how the ALU control bits choose each output.",
+        "If a later chip fails, run the smaller chip tests first and isolate whether the failure is wiring, bus width, status outputs, or use of a missing built-in chip.",
+        "Project 1 and 2 tests pass, and your notes explain one gate, one adder, and the ALU without copying a full solution.",
+        resourcesByIndex(nandResources, [4, 5, 19, 20])
       ),
       checkpoint(
-        "Assembler and VM translator are separate",
-        "Assembler and VM translator stages",
-        "Learn why symbolic assembly, VM commands, and machine code are different representations.",
-        "Run a tiny known-good program through one translation stage at a time.",
-        "If compiler output is wrong, verify assembler and VM translator with smaller examples first.",
-        "A simple program produces expected output through the toolchain stage under test.",
-        nandResources
+        "Build memory, CPU, and the complete Hack computer",
+        "Projects 3 and 5: Memory and Computer Architecture",
+        "Learn how stateful registers and RAM differ from combinational chips, then connect memory, CPU control, instruction memory, and I/O-mapped devices into the top-level Computer chip.",
+        "Complete RAM and PC chips, unit-test Memory and CPU, then run the supplied Add, Max, or Rect machine program on the completed Computer chip.",
+        "If the Computer test fails, do not debug everything at once: isolate memory address decoding, ALU output, destination bits, jump decision, and program counter behavior.",
+        "A supplied machine program runs on your Hack computer, and your README traces one instruction through CPU and memory state.",
+        resourcesByIndex(nandResources, [6, 8, 21, 22, 26])
       ),
       checkpoint(
-        "Compiler and OS services connect upward",
-        "Compiler and OS stages",
-        "Learn how the compiler targets the VM/machine model and how OS services provide reusable behavior.",
-        "Implement or trace one language feature through compiler output and runtime support.",
-        "If runtime behavior fails, decide whether the compiler emitted wrong code or the OS/service layer misbehaved.",
-        "A small Jack/program example runs through the stack with a written layer-by-layer explanation.",
-        nandResources
+        "Write assembly and then build the assembler",
+        "Projects 4 and 6: Machine Language and the Assembler",
+        "Learn Hack assembly by writing small programs first, then implement the assembler that turns symbols, labels, A-instructions, and C-instructions into binary code.",
+        "Write and test Mult or Fill in Hack assembly, then implement a two-stage assembler: symbol-free translation first, labels/variables second.",
+        "If output differs from the supplied assembler, compare one instruction at a time and decide whether the parser, symbol table, comp table, dest table, or jump table is wrong.",
+        "Your assembler produces `.hack` files matching the supplied assembler for staged test programs.",
+        resourcesByIndex(nandResources, [7, 9, 22, 23])
+      ),
+      checkpoint(
+        "Build the VM translator in two deliberate passes",
+        "Projects 7-8: VM Translator",
+        "Learn the VM language as a stack-machine interface: arithmetic and memory segments first, then branching, functions, calls, returns, bootstrap code, and directory-level translation.",
+        "Implement project 7 until all stack/memory tests pass, save a clean checkpoint, then extend it for project 8 control flow and function-call tests.",
+        "If translated assembly fails, run the original `.vm` in the VM emulator, inspect generated assembly around the failing command, and reduce to the smallest VM program that reproduces the bug.",
+        "The VM translator passes project 7 and 8 staged tests and your notes explain stack pointer changes for one arithmetic command and one function call.",
+        resourcesByIndex(nandResources, [10, 11, 25, 28])
+      ),
+      checkpoint(
+        "Finish with Jack, compiler stages, and OS services",
+        "Projects 9-12: Jack, Compiler, and Operating System",
+        "Learn Jack as the source language, then build compiler phases in order: tokenizer, parser/XML proof, symbol table, VM code generation, and finally selected OS services that Jack programs rely on.",
+        "Write a small Jack program, complete tokenizer/parser tests, extend the compiler to generate VM code, then implement and test OS classes with a clearly documented scope.",
+        "If a Jack program fails, identify the layer before changing code: source program, tokenizer, parser, symbol table, emitted VM code, VM translator, or OS service.",
+        "A small Jack program compiles and runs through your stack, with README proof showing the source-to-VM-to-assembly-to-Hack-computer path.",
+        resourcesByIndex(nandResources, [12, 13, 14, 15, 24, 27, 29, 30])
       )
     ],
     setupSteps: [
-      "Treat nand2tetris as a multi-week course and create a progress log for each layer.",
-      "Learn shell navigation first if files, folders, and commands still feel uncertain.",
-      "Draw the abstraction ladder before starting: gates, chips, ALU, CPU, assembler, VM, compiler, OS.",
+      "Treat Nand2Tetris as a multi-week course and create a progress log for each official project layer.",
+      "Learn shell navigation, file paths, and tool invocation first if folders, commands, or test scripts still feel uncertain.",
+      "Draw the abstraction ladder before starting: NAND, gates, ALU, memory, CPU, assembler, VM translator, compiler, Jack OS.",
+      "Keep solution code private or scoped carefully, respecting the course authors' request not to publish full project solutions.",
       "Commit after each passed hardware/software test suite and write which contract now works."
     ],
     finalProofTasks: [
-      "Show one working artifact from the hardware half and one from the software half.",
-      "Add a README ladder explaining how each layer supports the next.",
+      "Show one working artifact from the hardware half and one from the software half without publishing complete protected solutions.",
+      "Add a README ladder explaining how gates support chips, chips support the CPU, the ISA supports the assembler, the VM supports the compiler, and OS services support Jack programs.",
       "Include one debugging story where a later failure came from an earlier contract.",
+      "Include screenshots or logs from test scripts rather than full solution listings.",
       "Explain why this is larger than a normal tutorial and how you scoped your completed work."
     ],
     cvFraming:
-      "Built an educational computer stack from first principles, connecting logic gates, CPU architecture, assembler/VM tooling, compiler behavior, and simple OS services through explicit layer contracts."
+      "Built an educational computer stack from first principles, connecting Boolean logic, HDL chip contracts, ALU/RAM/CPU architecture, Hack machine language, assembler tooling, VM translation, Jack compiler phases, and OS services through explicit layer-by-layer tests.",
+    prerequisiteResources: nandResources,
+    prerequisiteResourceStrategy: "nand2tetris"
   },
+  approvedTutorialOverride(
+    "database-javascript-dagoba-an-in-memory-graph-database",
+    "Individual review of AOSA Dagoba chapter plus TinkerPop graph traversal and MDN JavaScript storage/prototype references",
+    "Approved path for Dagoba focused on property-graph modeling, vertex/edge identity, JavaScript prototype factories, fluent traversal programs, lazy step execution, JSON serialization, localStorage persistence, and update/concurrency caveats.",
+    dagobaApprovedResources,
+    [
+      concept(
+        "approved-dagoba-property-graph-model",
+        "A graph database stores relationships as first-class data",
+        "Dagoba starts from vertices and directed edges, then adds IDs, in/out edge lists, and a vertexIndex so relationships can be followed instead of recomputed from unrelated tables.",
+        "Beginners need this because a graph database is not just an object array; the edge direction and lookup structure are what make traversal queries natural.",
+        [
+          "You can draw one vertex with `_in` and `_out` edge lists.",
+          "You can explain why edges store references to existing vertices.",
+          "You can say what `vertexIndex` speeds up and what it does not solve."
+        ],
+        [dagobaApprovedResources[0], dagobaApprovedResources[1], dagobaApprovedResources[2]]
+      ),
+      concept(
+        "approved-dagoba-lazy-traversal-program",
+        "Traversal steps are a tiny query program",
+        "Dagoba represents a query as an ordered program of pipetype steps plus per-step state, then runs the program in a pull-style loop so results can be produced lazily.",
+        "That is the key beginner bridge: the fluent API is not magic chaining; it records steps that a small interpreter executes later.",
+        [
+          "You can list the program entries created by `g.v('Thor').out().in()`.",
+          "You can explain why per-step state is needed for a paused query.",
+          "You can trace one result through vertex, out, in, property, or filter steps."
+        ],
+        [dagobaApprovedResources[0], dagobaApprovedResources[1]]
+      ),
+      concept(
+        "approved-dagoba-json-persistence-limits",
+        "Persistence is serialization plus honest limits",
+        "Dagoba flattens graph objects to JSON by replacing cyclic vertex/edge references with IDs, then stores the string in localStorage for quick restart.",
+        "This is useful only if learners understand the limits: JSON does not preserve arbitrary live objects, localStorage is per-origin browser storage, and concurrent updates can overwrite each other.",
+        [
+          "You can explain why graph cycles must be broken before JSON.stringify.",
+          "You can rebuild a graph from stored vertex and edge data.",
+          "You can name at least two reasons localStorage persistence is not a production database."
+        ],
+        [dagobaApprovedResources[0], dagobaApprovedResources[3], dagobaApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Build the graph core before queries",
+        "Build a Better Graph",
+        "Learn Dagoba's data model: factory-created graph objects, vertex IDs, edge validation, `_in`/`_out` lists, and index lookup.",
+        "Implement graph, addVertex, addEdge, findVertexById, and a fixture graph with named people/software or family data.",
+        "If traversal later returns nothing, inspect whether edges point to real vertex objects and whether `_in`/`_out` lists were updated.",
+        "A printed graph shows vertices, edges, in/out lists, and indexed lookup for one known vertex.",
+        [dagobaApprovedResources[0], dagobaApprovedResources[2], dagobaApprovedResources[1]]
+      ),
+      checkpoint(
+        "Record fluent query steps",
+        "Enter the Query",
+        "Learn that the fluent API stores a program instead of immediately calculating every answer.",
+        "Implement query, add, g.v, and at least two step-recording helpers, then print the query program before running it.",
+        "If chaining loses earlier steps, inspect whether each method returns the query object.",
+        "A chain such as `g.v(id).out('created')` produces an inspectable program array.",
+        [dagobaApprovedResources[0], dagobaApprovedResources[1]]
+      ),
+      checkpoint(
+        "Run pipetypes lazily",
+        "The Problem with Being Eager and Pipetypes",
+        "Learn why Dagoba avoids eager whole-query evaluation and instead lets each step keep enough state to resume later.",
+        "Implement vertex, out/in, property, filter, take, and run with a tiny trace showing state movement across steps.",
+        "If results duplicate or disappear, log step index, current state, and current vertex before changing pipetype logic.",
+        "The same query can return one result at a time or all results predictably.",
+        [dagobaApprovedResources[0], dagobaApprovedResources[1]]
+      ),
+      checkpoint(
+        "Serialize, reload, and document browser limits",
+        "Serialization, Persistence, Updates, and Wrapping Up",
+        "Learn why cyclic graph references need a custom JSON boundary and why localStorage persistence is convenient but weak.",
+        "Implement jsonify/fromString/persist/depersist, reload a saved graph, then document cycle handling, storage quota, multi-window overwrite risk, update consistency, missing indexes, and lack of durable server storage.",
+        "If JSON.stringify fails, inspect for unbroken cycles before changing graph structure.",
+        "README explains graph model, query interpreter, lazy execution, persistence strategy, and browser-storage limitations.",
+        [dagobaApprovedResources[0], dagobaApprovedResources[3], dagobaApprovedResources[4]]
+      )
+    ],
+    [
+      "Review JavaScript objects, arrays, prototypes, Object.create, higher-order functions, and JSON basics.",
+      "Draw a tiny property graph with vertex IDs, directed edges, and expected traversal answers before coding.",
+      "Keep a fixture query whose program and output are both written down.",
+      "Commit after graph core, query program recording, pipetype execution, persistence, and limitations notes."
+    ],
+    [
+      "Demo adding vertices/edges and querying a relationship chain from a fixture graph.",
+      "Add README artifacts for graph shape, query program array, lazy run trace, and JSON persistence round trip.",
+      "Include one traversal-state or cyclic-serialization bug and how it was isolated.",
+      "List why Dagoba is an educational in-memory graph database, not durable multi-user storage."
+    ],
+    "Built Dagoba-style graph database internals in JavaScript with vertex/edge identity, indexed graph storage, fluent query recording, lazy traversal execution, JSON serialization, local browser persistence, and explicit update/concurrency caveats.",
+    ["Original AOSA chapter, TinkerPop traversal guide, and MDN prototype/JSON/localStorage references were read; approval is scoped to an in-memory educational graph database."]
+  ),
+  approvedTutorialOverride(
+    "database-python-dbdb-dog-bed-database",
+    "Individual review of AOSA DBDB chapter plus SQLite architecture/atomic-commit and Python persistence/fsync references",
+    "Approved path for DBDB focused on storage/logical/interface layering, value references, immutable binary-tree updates, structural sharing, serialization boundaries, root-address commits, fsync/flush reasoning, and stale-reader/locking limits.",
+    dbdbApprovedResources,
+    [
+      concept(
+        "approved-dbdb-layered-storage-design",
+        "DBDB separates physical, logical, and interface layers",
+        "The chapter divides the database into storage bytes on disk, logical tree/value references, and a small user API, so each layer has one job to prove.",
+        "Beginners need that map because persistence projects become confusing when file offsets, tree nodes, API methods, and command-line behavior are all debugged at once.",
+        [
+          "You can say which layer owns file reads and writes.",
+          "You can say which layer owns tree search and references.",
+          "You can trace a set/get call from tool interface down to storage and back."
+        ],
+        [dbdbApprovedResources[0], dbdbApprovedResources[1], dbdbApprovedResources[3]]
+      ),
+      concept(
+        "approved-dbdb-immutable-tree-refs",
+        "Immutable tree updates make commits understandable",
+        "DBDB updates by creating new binary-tree nodes that share unchanged subtrees, while NodeRef and ValueRef objects hold either addresses or concrete referents.",
+        "That design lets uncommitted changes exist in memory and become visible only after the new root address is committed.",
+        [
+          "You can explain why insert returns a new node instead of mutating the old one.",
+          "You can draw structural sharing for one changed key.",
+          "You can describe when a NodeRef has an address, a referent, or both."
+        ],
+        [dbdbApprovedResources[0], dbdbApprovedResources[3]]
+      ),
+      concept(
+        "approved-dbdb-atomic-root-commit",
+        "The root address is the commit point",
+        "DBDB writes dirty referenced values first, flushes them, then writes the root address at the front of the file so readers see either the old tree or the new tree.",
+        "This is the heart of the project: durability is not 'we wrote a file'; it is a carefully ordered promise about what survives crashes and what readers can observe.",
+        [
+          "You can explain why child/value refs are stored before the root address.",
+          "You can say what flush and fsync are trying to guarantee.",
+          "You can name a stale-read or concurrent-writer limitation honestly."
+        ],
+        [dbdbApprovedResources[0], dbdbApprovedResources[2], dbdbApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Start from the API contract",
+        "Introduction, Architecture, and Discovering the Design",
+        "Learn the promised behavior before internals: open a database, set a key, get a key, commit changes, close, and reopen.",
+        "Write interface-level tests for set/get/delete-or-missing behavior, reopen persistence, stale-reader behavior, and expected errors before implementing storage details.",
+        "If internal code feels aimless, return to the API tests and identify which promise is failing.",
+        "Tests describe the user-visible database contract without depending on implementation classes.",
+        [dbdbApprovedResources[0], dbdbApprovedResources[3]]
+      ),
+      checkpoint(
+        "Implement storage and references separately",
+        "Organisational Units, Physical Layer, and Logical Layer",
+        "Learn the split between file storage addresses and logical object references.",
+        "Implement Storage, ValueRef, and BinaryNodeRef enough to write/read one serialized value by address.",
+        "If data cannot be read back, inspect raw address, bytes written, and referent/address state before changing tree code.",
+        "A direct storage/ref test writes one value and reads it back by address.",
+        [dbdbApprovedResources[0], dbdbApprovedResources[1], dbdbApprovedResources[3]]
+      ),
+      checkpoint(
+        "Build immutable binary-tree updates",
+        "Binary Tree and How It Works",
+        "Learn search-tree lookup and structural sharing before durable commit.",
+        "Implement get/set so updating a key creates new path nodes while unchanged branches are shared by reference.",
+        "If an old value changes unexpectedly, inspect whether a node was mutated instead of copied.",
+        "A tree diagram or test proves old and new roots share unchanged subtrees.",
+        [dbdbApprovedResources[0], dbdbApprovedResources[3]]
+      ),
+      checkpoint(
+        "Commit, reopen, and document guarantees",
+        "How Commit Works, How NodeRefs Save Memory, and Patterns and Principles",
+        "Learn DBDB's atomicity story: store dirty refs, flush data, write the root address, and release the writer lock.",
+        "Implement commit/reopen proof tasks, then document stale reads, lockfile behavior, unbalanced tree performance, pickle/serialization trust boundaries, lack of compaction, and why B+ trees improve disk reads.",
+        "If persistence appears flaky, log store order and root address before assuming the tree algorithm is wrong.",
+        "README explains layers, immutable updates, ref storage, root-address commit, fsync purpose, and educational limits.",
+        dbdbApprovedResources.slice(0, 5)
+      )
+    ],
+    [
+      "Review Python classes, file modes, bytes, dictionaries, binary search trees, recursion, and serialization risk.",
+      "Write API-level tests before physical storage code so implementation changes cannot hide broken behavior.",
+      "Use a temporary database file fixture and reopen it after every commit proof.",
+      "Commit after API contract, storage/ref layer, immutable tree set/get, commit/reopen, and limitations notes."
+    ],
+    [
+      "Demo set/get, commit, close, reopen, and old/new reader behavior with a tiny database file.",
+      "Add README artifacts for architecture layers, NodeRef state, structural sharing, and commit order.",
+      "Include one persistence-order or mutation bug and how it was diagnosed.",
+      "List DBDB's intentional gaps: balancing, compaction, rich serialization safety, multi-writer concurrency, and production crash testing."
+    ],
+    "Built DBDB-style persistent key-value storage in Python with layered storage architecture, immutable binary-tree updates, address-backed references, serialized values, root-address commits, reopen proof tests, and explicit durability/concurrency limitations.",
+    ["Original AOSA chapter, SQLite architecture/atomic-commit references, and Python persistence/fsync docs were read; approval is scoped to DBDB's educational key-value database, not a production storage engine."]
+  ),
+  approvedTutorialOverride(
+    "database-c-let-s-build-a-simple-database",
+    "Individual review of the full cstack SQLite-clone series, SQLite architecture/file-format docs, and C/POSIX I/O references",
+    "Approved path for the cstack database tutorial focused on C prerequisites, REPL input handling, tiny SQL compiler and VM split, fixed row serialization, page-cache persistence, cursor traversal, B-tree leaf/internal node layout, binary search, node splitting, tests, and explicit non-SQLite durability limits.",
+    cstackDatabaseApprovedResources,
+    [
+      concept(
+        "approved-cstack-sqlite-layer-map",
+        "SQLite is layers, not one giant parser",
+        "The series mirrors SQLite's architecture in beginner-sized pieces: input text enters a REPL, a tiny compiler prepares statements, a VM executes them, a B-tree stores rows, and a pager reads/writes pages.",
+        "This layer map keeps beginners from mixing syntax errors, execution bugs, memory layout bugs, and disk persistence bugs into one impossible problem.",
+        [
+          "You can place REPL, prepare_statement, execute_statement, B-tree, pager, and file I/O on a diagram.",
+          "You can explain why meta-commands and SQL statements are handled separately.",
+          "You can say which layer owns a bug before opening the code."
+        ],
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[1]]
+      ),
+      concept(
+        "approved-cstack-row-page-layout",
+        "Rows become bytes inside pages",
+        "The tutorial turns a Row struct into fixed offsets inside a page, then uses a pager to cache 4096-byte pages and flush them to a database file.",
+        "That is the real beginner jump: durable storage means choosing a byte layout, not just saving a C struct and hoping every machine agrees.",
+        [
+          "You can compute ID, username, email, and row offsets.",
+          "You can explain why little-endian layout and uninitialized bytes matter.",
+          "You can trace get_page, pager_flush, and db_close for one saved row."
+        ],
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[2], cstackDatabaseApprovedResources[4]]
+      ),
+      concept(
+        "approved-cstack-cursor-btree-search",
+        "Cursors separate traversal from storage shape",
+        "The Cursor starts as row-number traversal, then evolves into page/cell traversal so selects and inserts can work after the table becomes a B-tree.",
+        "This is subtle but important: query code should not need to know every detail of the current storage representation.",
+        [
+          "You can explain table_start, cursor_value, cursor_advance, and end_of_table.",
+          "You can show why cursor state changes from row_num to page_num plus cell_num.",
+          "You can trace select across leaf pages using next_leaf links."
+        ],
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[2]]
+      ),
+      concept(
+        "approved-cstack-btree-splitting",
+        "B-tree growth is careful key bookkeeping",
+        "The later parts build leaf-node and internal-node layouts, binary search insertion, duplicate-key checks, leaf splits, parent updates, sibling links, and internal-node splits.",
+        "Beginners need to see this as a sequence of invariants: sorted keys, max-key separators, parent pointers, right child handling, and root changes.",
+        [
+          "You can say why keys in an internal node are maximum keys for left children.",
+          "You can trace a leaf split and name the old node, new node, parent, and root cases.",
+          "You can identify pointer-arithmetic or key-update bugs with `.btree` output."
+        ],
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Build the REPL and tiny statement pipeline",
+        "Parts 1-2: REPL, compiler, and VM skeleton",
+        "Learn C line input, prompt loops, meta-command handling, result enums, prepared statement structs, and the compiler/VM split before storing data.",
+        "Implement the REPL, `.exit`, prepare_statement for insert/select stubs, execute_statement, and result-code switches; then write a note mapping the code to SQLite's front-end and VM architecture.",
+        "If the prompt hangs or commands fall through, inspect getline newline handling and the meta-command branch before changing statement execution.",
+        "The program distinguishes `.exit`, insert, select, and unknown commands with predictable output.",
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[1], cstackDatabaseApprovedResources[3]]
+      ),
+      checkpoint(
+        "Store rows in memory with tests",
+        "Parts 3-4: append-only table and first bugs",
+        "Learn fixed-size Row layout, serialization/deserialization, page slots, table capacity, Ruby-style black-box tests, string limits, and negative-ID validation.",
+        "Implement Row, serialize_row, deserialize_row, row_slot, insert/select over the in-memory table, then add tests for successful insert/select, table full, too-long strings, and negative IDs.",
+        "If selected data is corrupted, print offsets and raw row fields before debugging parser code.",
+        "Tests prove row encoding, insert/select behavior, capacity handling, and input validation.",
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[2]]
+      ),
+      checkpoint(
+        "Persist pages through a pager",
+        "Parts 5-6: persistence and cursor abstraction",
+        "Learn file descriptors, page cache misses, offsets, partial-page flushes, db_open/db_close, and cursor-based row access.",
+        "Implement Pager, get_page, pager_flush, db_open, db_close, table_start, table_end, cursor_value, and cursor_advance; prove a row survives close/reopen.",
+        "If persistence fails, separate open/lseek/read/write/close errors from row serialization errors.",
+        "A restart test reads inserted rows from the database file and a cursor scan prints them in order.",
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[4], cstackDatabaseApprovedResources[2]]
+      ),
+      checkpoint(
+        "Convert the table into B-tree pages",
+        "Parts 7-10: B-tree intro, leaf format, search, and root split",
+        "Learn leaf/internal node roles, common headers, leaf cells, node type/root flags, binary search, duplicate-key rejection, leaf splits, and creating a new root.",
+        "Implement node layout helpers, `.constants`, `.btree`, table_find/leaf_node_find, duplicate-key checks, leaf_node_split_and_insert, get_unused_page_num, and create_new_root.",
+        "If keys are unsorted or duplicated, inspect binary search result and leaf cell shifts before changing pager code.",
+        "The tree output shows sorted keys, duplicate inserts fail, and inserting past one leaf creates a two-level tree.",
+        [cstackDatabaseApprovedResources[0], cstackDatabaseApprovedResources[2]]
+      ),
+      checkpoint(
+        "Finish multi-level traversal and document limits",
+        "Parts 11-15: recursive search, sibling scan, parent updates, internal splits, and stopping point",
+        "Learn recursive internal-node search, next_leaf sibling scans, parent pointers, parent key updates, right-child special handling, internal-node splitting, and the tutorial's unfinished status.",
+        "Implement internal_node_find, leaf sibling links, cursor scans across leaves, node_parent, update_internal_node_key, internal_node_insert, internal_node_split_and_insert, and the final tree-print tests; then document missing SQL parsing, transactions, crash safety, deletion, variable-length rows, indexes, concurrency, portability, and ongoing maintenance.",
+        "If a row appears corrupted, inspect whether key and value were written to the correct cell offsets before changing search logic.",
+        "README explains the full layer map, byte/page layout, cursor abstraction, B-tree invariants, final tests, and why this is an educational SQLite clone rather than SQLite.",
+        cstackDatabaseApprovedResources.slice(0, 5)
+      )
+    ],
+    [
+      "Review C pointers, structs, malloc/free, enums, strcmp/strncmp, sscanf/strtok, memcpy, fixed-width integers, file descriptors, lseek/read/write, and debugger basics.",
+      "Treat this as a multi-session systems project; commit after every part and keep expected CLI transcripts as fixtures.",
+      "Draw row/page/node layouts before writing pointer arithmetic.",
+      "Run the test suite after REPL, row storage, persistence, cursor refactor, leaf search, leaf split, parent update, and internal split."
+    ],
+    [
+      "Demo the CLI inserting, selecting, closing, reopening, and printing a multi-level B-tree.",
+      "Add README artifacts for SQLite layer map, row/page byte layout, cursor state, and B-tree split diagrams.",
+      "Include one real bug from the tutorial path, such as corrupted row data or bad internal-node key arithmetic, and how you diagnosed it.",
+      "State the hard limits clearly: not production SQLite, no real SQL parser, no transactions, no crash-safe atomic commit, no deletion, no concurrency, and incomplete maintenance after part 14."
+    ],
+    "Built a SQLite-inspired database in C with REPL input, tiny SQL statement preparation, VM-style execution, fixed row serialization, page-cache persistence, cursor traversal, B-tree leaf/internal pages, binary search insertion, node splitting, black-box tests, and explicit storage-engine limits.",
+    ["All 15 cstack series parts, SQLite architecture/file-format references, and C/POSIX I/O references were reviewed; approval is scoped to the educational SQLite clone through the tutorial's stopping point."]
+  ),
+  approvedTutorialOverride(
+    "database-ruby-build-your-own-fast-persistent-kv-store-in-ruby",
+    "Individual review of the Ruby Bitcask-style KV store article plus Bitcask, atomic-commit, and file-I/O references",
+    "Approved path for the Ruby persistent key-value store focused on append-only data files, binary record layout, in-memory keydir indexing, write/read/delete API behavior, crash-recovery limits, tombstones, and compaction as the missing production feature.",
+    rubyBitcaskApprovedResources,
+    [
+      concept(
+        "approved-ruby-bitcask-append-log",
+        "Writes append records instead of rewriting the database",
+        "The tutorial follows the Bitcask idea: every set/delete operation appends a record to a data file, while the newest key location is remembered separately.",
+        "Beginners need this because persistence is easier to reason about when writes are sequential and old records can remain as historical garbage until compaction.",
+        [
+          "You can describe why an append-only data file makes writes simple.",
+          "You can explain why old values remain on disk after an update.",
+          "You can name why a crash near the end of the file needs recovery checks."
+        ],
+        [rubyBitcaskApprovedResources[0], rubyBitcaskApprovedResources[1], rubyBitcaskApprovedResources[2]]
+      ),
+      concept(
+        "approved-ruby-bitcask-keydir",
+        "The keydir turns file offsets into fast reads",
+        "The in-memory keydir maps each key to the file id, value size, value position, and timestamp for the newest record.",
+        "That is the tradeoff that makes Bitcask-style reads fast: the database avoids scanning the file on every get, but all keys must fit in memory.",
+        [
+          "You can explain what metadata a keydir entry stores.",
+          "You can rebuild the keydir by scanning records from disk.",
+          "You can state the memory tradeoff without hand-waving."
+        ],
+        [rubyBitcaskApprovedResources[0], rubyBitcaskApprovedResources[1]]
+      ),
+      concept(
+        "approved-ruby-bitcask-record-format",
+        "Binary record format is the project contract",
+        "The article defines record fields such as checksum, timestamp, key size, value size, key bytes, and value bytes before stitching writes and reads together.",
+        "Beginners need to treat that byte format as an interface: one wrong length or offset means recovery and lookup both lie.",
+        [
+          "You can calculate the header size and value position for one record.",
+          "You can explain how a tombstone represents delete.",
+          "You can write a fixture that decodes raw bytes into a record."
+        ],
+        [rubyBitcaskApprovedResources[0], rubyBitcaskApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Learn the Bitcask data shape",
+        "Bitcask and Data Format",
+        "Learn the design before Ruby code: append-only data file, record header, key/value bytes, and in-memory keydir.",
+        "Draw one record layout and one keydir entry, then write expected metadata for setting key `name` to `Ada`.",
+        "If offsets feel fuzzy, compute byte sizes on paper before touching File operations.",
+        "A written diagram shows record bytes and the keydir entry that should point to the value.",
+        [rubyBitcaskApprovedResources[0], rubyBitcaskApprovedResources[1]]
+      ),
+      checkpoint(
+        "Encode and append records",
+        "Number System and Stiching Everything",
+        "Learn Ruby binary packing, file append mode, timestamp/checksum placement, key/value sizes, and write offsets.",
+        "Implement set so it appends one encoded record, stores value position/size in keydir, and can print the raw record fields for debugging.",
+        "If get reads garbage, inspect the stored value position and value size before changing the keydir structure.",
+        "A single set writes a record and the keydir points to the value bytes.",
+        [rubyBitcaskApprovedResources[0], rubyBitcaskApprovedResources[3]]
+      ),
+      checkpoint(
+        "Read, update, delete, and rebuild",
+        "Closing thoughts and missing pieces",
+        "Learn the full lifecycle: get follows keydir, updating a key appends a newer record, deleting uses a tombstone, and startup rebuilds index state from the log.",
+        "Implement get, delete/tombstone behavior, and keydir rebuild by scanning records from disk after reopening the store.",
+        "If deleted keys return old values, inspect tombstone handling and scan order during rebuild.",
+        "Tests prove set/get/update/delete and close/reopen index recovery.",
+        [rubyBitcaskApprovedResources[0], rubyBitcaskApprovedResources[1], rubyBitcaskApprovedResources[2]]
+      ),
+      checkpoint(
+        "Document compaction and durability gaps",
+        "Closing thoughts",
+        "Learn what the tutorial intentionally leaves unfinished: compaction, checksums, partial-write recovery, file rotation, locks, fsync policy, and multi-process safety.",
+        "Add a README limitations table and one optional compaction sketch that rewrites only live values into a clean file.",
+        "If the project feels complete after get/set, compare it against Bitcask's memory and recovery tradeoffs.",
+        "README explains append log, keydir, tombstones, recovery, compaction gap, and durability/concurrency limits.",
+        rubyBitcaskApprovedResources.slice(0, 4)
+      )
+    ],
+    [
+      "Review Ruby files, strings/bytes, arrays and hashes, exceptions, binary packing, and tests.",
+      "Write one exact record-layout example before implementing set/get.",
+      "Use a temporary data directory and reopen the store in every persistence test.",
+      "Commit after record encoding, set/get, update/delete, rebuild, and limitations notes."
+    ],
+    [
+      "Demo set/get/update/delete across close and reopen.",
+      "Add README artifacts for record layout, keydir entry, startup scan, and tombstone behavior.",
+      "Include one offset or stale-keydir bug and how raw record inspection found it.",
+      "State missing production pieces: checksums, compaction, file rotation, locking, fsync policy, and partial-write recovery."
+    ],
+    "Built a Bitcask-inspired Ruby key-value store with append-only record files, binary key/value layout, in-memory keydir lookup, update/delete tombstones, startup index rebuild, persistence tests, and explicit compaction/durability limits.",
+    ["Original Ruby article, Bitcask overview, atomic-commit background, and file-I/O references were read; approval is scoped to a small educational append-log KV store."]
+  ),
+  approvedTutorialOverride(
+    "database-clojure-an-archaeology-inspired-database",
+    "Individual review of AOSA archaeology-inspired database plus Clojure data-structure and Datomic index/schema references",
+    "Approved path for the archaeology-inspired database focused on Datomic-like datoms, entity/attribute/value/time facts, immutable storage, schema-aware attributes, EAVT/AEVT/AVET-style indexes, query shape, and historical database caveats.",
+    archaeologyDbApprovedResources,
+    [
+      concept(
+        "approved-archaeology-datoms-history",
+        "Facts accumulate as datoms",
+        "The chapter turns ordinary entity data into small facts. A fact says that one entity had one attribute with one value at a particular layer or time, and later changes add new evidence instead of overwriting the old fact in place.",
+        "This is the core beginner shift from mutable rows to an archaeology-style database. You preserve the layers that explain how the data reached its current state, which makes history and auditability an explicit design goal instead of a side effect.",
+        [
+          "You can write one entity as several datoms.",
+          "You can explain why adding a new fact differs from mutating a row.",
+          "You can state what historical querying could mean for one changed value."
+        ],
+        [archaeologyDbApprovedResources[6], archaeologyDbApprovedResources[9], archaeologyDbApprovedResources[12], archaeologyDbApprovedResources[8]]
+      ),
+      concept(
+        "approved-archaeology-layers-persistent-values",
+        "Layers are database values, not hidden mutation",
+        "The tutorial's `Database` and `Layer` records model each point in time as a value with storage, indexes, `top-id`, and `curr-time`. Clojure's immutable collections make it practical for later database values to share unchanged structure with earlier ones.",
+        "Beginners need this before transactions make sense. The project is not just a map with helper functions; it is a sequence of database values where each new layer can reuse old entities and indexes safely.",
+        [
+          "You can point to the fields that describe one database snapshot.",
+          "You can describe structural sharing without saying the whole database is copied.",
+          "You can explain why returning a new database value is safer than changing the old one."
+        ],
+        [archaeologyDbApprovedResources[0], archaeologyDbApprovedResources[1], archaeologyDbApprovedResources[14], archaeologyDbApprovedResources[2]]
+      ),
+      concept(
+        "approved-archaeology-multiple-indexes",
+        "Different questions need different sorted indexes",
+        "The same datoms are arranged in multiple orders so different lookup shapes start from the most selective component. Entity-first, attribute-first, value-first, and relationship-navigation indexes are not duplicates; they are different doors into the same facts.",
+        "Beginners need this because indexing is not decoration. If a query starts with the wrong ordering, it turns into a scan; if it starts with the right ordering, it can narrow the search immediately.",
+        [
+          "You can explain what EAVT-like ordering answers quickly.",
+          "You can explain why attribute/value lookup needs a different ordering.",
+          "You can trace one query to the index it should use first."
+        ],
+        [archaeologyDbApprovedResources[7], archaeologyDbApprovedResources[11], archaeologyDbApprovedResources[13], archaeologyDbApprovedResources[14]]
+      ),
+      concept(
+        "approved-archaeology-schema-metadata",
+        "Schema gives attributes meaning",
+        "The chapter stores attribute meaning next to the value by using type, cardinality, references, and Clojure metadata. That is the small educational version of a Datomic-like schema: the database can know whether a value is single or many, scalar or reference, and allowed or invalid.",
+        "This is the bridge from a bag of triples to a database with rules. Without schema, every value is just a value; with schema, the transaction and query layers can reject invalid facts and interpret relationships intentionally.",
+        [
+          "You can explain the difference between an attribute's value and its metadata.",
+          "You can describe cardinality one versus many in this project.",
+          "You can name one invalid fact the schema should reject."
+        ],
+        [archaeologyDbApprovedResources[8], archaeologyDbApprovedResources[4], archaeologyDbApprovedResources[12], archaeologyDbApprovedResources[9]]
+      ),
+      concept(
+        "approved-archaeology-query-transaction-scope",
+        "Queries and transactions are intentionally small",
+        "The project teaches query clauses and transactions as inspectable transformations over immutable database values. It can show inserts, updates, old snapshots, and clause-driven lookups without becoming a full Datomic implementation.",
+        "That honesty matters for a portfolio project. A beginner should be able to say what was built, why it resembles Datomic, and where it stops: no production storage engine, query optimizer, distributed transactor, or operational guarantees.",
+        [
+          "You can trace one query clause to the index it narrows first.",
+          "You can explain how `swap!` or transaction application creates a new database value.",
+          "You can list at least four Datomic features this project does not implement."
+        ],
+        [archaeologyDbApprovedResources[10], archaeologyDbApprovedResources[9], archaeologyDbApprovedResources[5], archaeologyDbApprovedResources[15]]
+      )
+    ],
+    [
+      checkpoint(
+        "Model entities as datoms",
+        "Entities and Storage",
+        "Learn entity IDs, attributes, values, type/cardinality metadata, transaction/time fields, and why one entity becomes several inspectable facts.",
+        "Create datom records for one tiny domain object and write expected fact tuples before building indexes.",
+        "If the data model feels abstract, compare one row-shaped object to its fact-shaped datoms.",
+        "A fixture entity is represented as explicit datoms with attribute names and values.",
+        [archaeologyDbApprovedResources[0], archaeologyDbApprovedResources[6], archaeologyDbApprovedResources[12], archaeologyDbApprovedResources[9]]
+      ),
+      checkpoint(
+        "Build storage records and protocols",
+        "Storage and Database",
+        "Learn Clojure records, protocols, immutable maps, and the boundary between the database value and the storage provider.",
+        "Implement the `Database`, `Layer`, entity, attribute, and storage protocol pieces, then prove storage can read, write, and drop entities without hidden mutation.",
+        "If state changes unexpectedly, inspect whether a function returned a new value or mutated/reused the old one incorrectly.",
+        "Tests show storage operations returning expected values and preserving old fixtures where appropriate.",
+        [archaeologyDbApprovedResources[3], archaeologyDbApprovedResources[2], archaeologyDbApprovedResources[14], archaeologyDbApprovedResources[1]]
+      ),
+      checkpoint(
+        "Build index orders deliberately",
+        "Indexing the Data",
+        "Learn EAVT, AVET, VEAT, and VAET as different sorted views over the same datom components.",
+        "Implement the tutorial's index structures and prove entity lookup, attribute lookup, value lookup, and reference navigation choose different first keys.",
+        "If a query scans too much, write which index order would have made the first narrowing step cheap.",
+        "Tests show at least three query shapes using different indexes.",
+        [archaeologyDbApprovedResources[7], archaeologyDbApprovedResources[11], archaeologyDbApprovedResources[13], archaeologyDbApprovedResources[14]]
+      ),
+      checkpoint(
+        "Add schema and query behavior",
+        "Schema and Querying",
+        "Learn how schema gives attributes meaning and how query code turns pattern-like clauses into index lookups.",
+        "Add a schema fixture, one valid transaction, one invalid/missing attribute case, and one multi-clause query.",
+        "If a query returns too many facts, inspect clause binding order before changing storage.",
+        "A query proof demonstrates schema-backed attributes and more than one clause.",
+        [archaeologyDbApprovedResources[8], archaeologyDbApprovedResources[4], archaeologyDbApprovedResources[10], archaeologyDbApprovedResources[12]]
+      ),
+      checkpoint(
+        "Prove history and document scope",
+        "Conclusion and design review",
+        "Learn what the project does and does not implement compared with Datomic: immutable facts and indexes, but not full distributed storage, production transactions, query optimizer, or operational tooling.",
+        "Create a before/after database value for one changed fact, show what remains queryable, and document unsupported Datomic/database guarantees.",
+        "If history disappears, inspect whether update code replaced state in place instead of returning a new database value.",
+        "README explains datoms, indexes, schema, queries, persistent collections, and Datomic-inspired limitations.",
+        [archaeologyDbApprovedResources[10], archaeologyDbApprovedResources[9], archaeologyDbApprovedResources[15], archaeologyDbApprovedResources[6]]
+      )
+    ],
+    [
+      "Review Clojure maps, sets, records, sequences, pure functions, immutable updates, and REPL-driven tests.",
+      "Write datom examples for a tiny domain before implementing storage.",
+      "Keep query fixtures small enough to inspect by hand.",
+      "Commit after datom model, storage/indexes, schema checks, query clauses, and historical snapshot notes."
+    ],
+    [
+      "Demo inserting facts, querying by entity and attribute/value, and preserving an older database value.",
+      "Add README artifacts for datom tuples, index orderings, query clause binding, and structural sharing.",
+      "Include one wrong-index or accidental-mutation bug and how it was found.",
+      "List what the project borrows from Datomic and what it deliberately does not implement."
+    ],
+    "Built a Datomic-inspired educational database in Clojure with immutable datoms, schema-aware attributes, multiple sorted indexes, query fixtures, persistent snapshots, storage protocols, transaction examples, and explicit Datomic/production scope limits.",
+    [
+      "Original AOSA chapter, Clojure data-structure/datatypes/protocols/metadata/atoms docs, and Datomic overview/index/schema/transaction/query references were read; approval is scoped to the chapter's small educational database."
+    ],
+    { prerequisiteResources: archaeologyDbApprovedResources, prerequisiteResourceStrategy: "archaeology-db" }
+  ),
+  approvedTutorialOverride(
+    "database-rust-build-your-own-redis-client-and-server",
+    "Individual review of Tokio Mini-Redis tutorial sections plus Redis RESP protocol specification",
+    "Approved path for the Tokio Mini-Redis tutorial focused on Rust async prerequisites, client proof, per-connection task spawning, shared HashMap state, command execution, channel-based coordination, RESP framing, buffered I/O, async state-machine caveats, and production Redis limits.",
+    tokioRedisApprovedResources,
+    [
+      concept(
+        "approved-tokio-redis-async-task-model",
+        "Async work pauses without blocking the thread",
+        "The tutorial uses async functions, `.await`, the Tokio runtime, and spawned tasks so many connections can make progress without one connection blocking the accept loop.",
+        "Beginners need this before server code makes sense: async Rust is a state machine that can pause at `.await`, and spawned tasks must own the data they keep across those pauses.",
+        [
+          "You can explain why `client::connect(...).await` pauses the task.",
+          "You can say why each accepted TCP socket is moved into a spawned task.",
+          "You can debug a `'static` or `Send` compile error by finding data held across `.await`."
+        ],
+        [tokioRedisApprovedResources[0], tokioRedisApprovedResources[1]]
+      ),
+      concept(
+        "approved-tokio-redis-state-boundary",
+        "Shared state needs an explicit boundary",
+        "Mini-Redis starts with a shared HashMap guarded by synchronization, then introduces channel-based coordination so tasks can communicate without freely mutating everything.",
+        "This teaches a real server habit: connection handling, command parsing, and data ownership should be separate enough that concurrency bugs have a place to live.",
+        [
+          "You can explain why `Arc` is needed when multiple tasks share database state.",
+          "You can name why holding a lock across `.await` is dangerous.",
+          "You can describe when a channel/message-passing design is cleaner than shared mutable state."
+        ],
+        [tokioRedisApprovedResources[1], tokioRedisApprovedResources[2]]
+      ),
+      concept(
+        "approved-tokio-redis-resp-framing",
+        "RESP frames sit between bytes and commands",
+        "The framing layer converts a TCP byte stream into Redis frames such as arrays, bulk strings, simple strings, integers, errors, and nulls before command code decides what SET or GET means.",
+        "Beginners need this separation because socket reads are arbitrary chunks: a read can contain a partial frame, one frame, or multiple frames.",
+        [
+          "You can encode a SET command as a RESP array of bulk strings.",
+          "You can explain why `read_frame` needs a buffer.",
+          "You can separate protocol parsing bugs from command execution bugs."
+        ],
+        [tokioRedisApprovedResources[3], tokioRedisApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Prove the async client before writing the server",
+        "Setup and Hello Tokio",
+        "Learn cargo setup, Tokio dependencies, Mini-Redis test server, async main, `.await`, and a SET/GET round trip.",
+        "Run the official Mini-Redis server, write the hello client, set `hello=world`, read it back, and write a note explaining what `.await` does at each network boundary.",
+        "If the client hangs, check that the server is running and that you are connecting to the expected host and port before changing async code.",
+        "The client prints `Some(b\"world\")` and the README explains async main, runtime startup, and `.await` in plain language.",
+        [tokioRedisApprovedResources[0]]
+      ),
+      checkpoint(
+        "Accept sockets and spawn per-connection tasks",
+        "Spawning",
+        "Learn TcpListener, accept loops, TcpStream ownership, task spawning, `'static` bounds, Send bounds, and why a single connection must not block the accept loop.",
+        "Move the client into an example, create the server accept loop, print one incoming frame, then spawn a task per accepted socket.",
+        "If the compiler complains about lifetimes or Send, identify what data crosses the spawned task boundary or an `.await` point.",
+        "Multiple client runs can connect while the server continues accepting connections.",
+        [tokioRedisApprovedResources[1], tokioRedisApprovedResources[4]]
+      ),
+      checkpoint(
+        "Implement command handling with safe state ownership",
+        "Shared state and Channels",
+        "Learn the database as shared state: parse GET/SET frames, execute commands, and decide whether state is guarded by Arc/Mutex or coordinated by a manager task and channels.",
+        "Implement a tiny HashMap-backed command executor with GET and SET, then add a test or trace for two concurrent clients touching different keys.",
+        "If the server deadlocks or stalls, inspect whether a lock is held across `.await` or whether a response channel is never answered.",
+        "GET/SET work from separate clients and the README explains state ownership and synchronization tradeoffs.",
+        [tokioRedisApprovedResources[2], tokioRedisApprovedResources[1]]
+      ),
+      checkpoint(
+        "Build the RESP framing boundary",
+        "I/O and Framing",
+        "Learn AsyncRead/AsyncWrite, partial reads, EOF, BytesMut buffering, frame parsing, and writing frames back to the socket.",
+        "Implement or trace the Connection wrapper that buffers bytes until a full frame is available, then write simple string, error, bulk, null, and array replies.",
+        "If parsing fails intermittently, log buffer contents and frame completeness before changing command logic.",
+        "A raw RESP SET/GET command is parsed into frames and a valid RESP reply is written back.",
+        [tokioRedisApprovedResources[3], tokioRedisApprovedResources[4]]
+      ),
+      checkpoint(
+        "Document async and Redis scope honestly",
+        "Async in depth, Select, Streams, and final review",
+        "Learn the later caveats: futures are polled state machines, select chooses between async branches, streams yield many async values, and Mini-Redis remains an educational subset.",
+        "Add proof notes for one cancellation/select or stream example if you implement pub/sub, then document missing Redis features: persistence, eviction, transactions, clustering, authentication, RESP3 completeness, pub/sub edge cases, command coverage, and production observability.",
+        "If the final project feels production-ready, compare it against the RESP spec and the Mini-Redis tutorial warning about missing real-library features.",
+        "README explains async tasks, shared state, channels, RESP framing, supported commands, and omitted production Redis behavior.",
+        tokioRedisApprovedResources.slice(0, 5)
+      )
+    ],
+    [
+      "Review Rust ownership, borrowing, Result, enums, pattern matching, traits, async/await, Cargo, and basic TCP before starting.",
+      "Run the official mini-redis server/client first so protocol bugs are not confused with setup bugs.",
+      "Keep separate files or modules for server accept loop, command execution, and connection framing.",
+      "Commit after hello client, spawned server, shared-state command executor, RESP framing, and scope/limitations notes."
+    ],
+    [
+      "Demo two clients setting/getting keys through your server.",
+      "Add README artifacts for async task lifecycle, shared-state ownership, RESP frame examples, and partial-read buffering.",
+      "Include one Rust async compiler error or framing bug and how you diagnosed it.",
+      "List exactly which Redis commands/protocol features are supported and which production Redis guarantees are omitted."
+    ],
+    "Built a Tokio-powered Mini-Redis-style client/server in Rust with async client proof, concurrent TCP accept loop, per-connection tasks, shared state or channel coordination, RESP frame parsing/writing, GET/SET command execution, and explicit async/Redis subset limits.",
+    ["Tokio Mini-Redis tutorial sections and Redis RESP specification were read; approval is scoped to an educational async Rust Redis subset, not a production Redis-compatible server."]
+  ),
+  approvedTutorialOverride(
+    "database-c-build-your-own-redis-from-scratch",
+    "Individual review of Build Your Own Redis C/C++ chapters plus Redis RESP and Linux socket/epoll references",
+    "Approved path for the C/C++ Redis-from-scratch book focused on TCP byte streams, length-prefixed protocol parsing, read/write loops, nonblocking sockets, event loop readiness, key-value command execution, custom hash tables, serialization, sorted sets, TTL expiration, thread-pool boundaries, and explicit Redis compatibility limits.",
+    cppRedisApprovedResources,
+    [
+      concept(
+        "approved-cpp-redis-tcp-protocol",
+        "TCP is bytes, so Redis needs message framing",
+        "The early chapters teach that TCP does not preserve message boundaries, so the server must define a protocol and loop until it has read or written the exact bytes needed.",
+        "Beginners often assume one write equals one read; this project forces the correct mental model before adding Redis commands.",
+        [
+          "You can explain why `read_full` and `write_all` loop.",
+          "You can draw the tutorial's 4-byte length header plus payload format.",
+          "You can compare the tutorial protocol with RESP arrays and bulk strings."
+        ],
+        [cppRedisApprovedResources[1], cppRedisApprovedResources[2], cppRedisApprovedResources[9], cppRedisApprovedResources[10]]
+      ),
+      concept(
+        "approved-cpp-redis-event-loop",
+        "An event loop keeps many connections moving",
+        "The book moves from one blocking connection to nonblocking sockets and an event loop that tracks which file descriptors are ready for reads, writes, timers, and background work.",
+        "That is the key step from a toy server to Redis-shaped infrastructure: concurrency is explicit readiness bookkeeping, not one thread per tiny wait.",
+        [
+          "You can describe a connection state machine with read and write buffers.",
+          "You can explain level-triggered readiness and why nonblocking file descriptors matter.",
+          "You can identify where idle connections, timers, and worker completions reenter the loop."
+        ],
+        [cppRedisApprovedResources[3], cppRedisApprovedResources[11], cppRedisApprovedResources[10]]
+      ),
+      concept(
+        "approved-cpp-redis-data-structures",
+        "Redis behavior comes from chosen data structures",
+        "The advanced chapters replace placeholder maps with custom chained hash tables, intrusive nodes, serialized response types, balanced trees, sorted sets, TTL heaps, and a thread pool.",
+        "Beginners need to see Redis as a networked data-structure server, not a mystery cache: each command is fast because a specific structure supports it.",
+        [
+          "You can explain why top-level keys use a hash table.",
+          "You can say why sorted sets need both lookup by name and ordering by score.",
+          "You can connect TTL expiration to a heap or timer structure."
+        ],
+        [cppRedisApprovedResources[5], cppRedisApprovedResources[6], cppRedisApprovedResources[7], cppRedisApprovedResources[8]]
+      )
+    ],
+    [
+      checkpoint(
+        "Build blocking sockets and a toy protocol first",
+        "Socket Programming, TCP Server and Client, and Request-Response Protocol",
+        "Learn socket(), bind(), listen(), accept(), connect(), read(), write(), EOF, errno, and byte-stream message framing before adding concurrency.",
+        "Implement the blocking client/server and the length-prefixed request/response protocol; add fixtures for short reads, long payload rejection, EOF, and two requests on one connection.",
+        "If a request is split or glued together, stop assuming read/write boundaries and inspect the buffered byte count.",
+        "Client and server exchange multiple framed messages over one TCP connection with robust read/write loops.",
+        [cppRedisApprovedResources[1], cppRedisApprovedResources[2], cppRedisApprovedResources[10], cppRedisApprovedResources[9]]
+      ),
+      checkpoint(
+        "Move to nonblocking evented I/O",
+        "Concurrent IO Models and Event Loop",
+        "Learn nonblocking sockets, readiness notification, per-connection buffers, interest lists, ready lists, and connection cleanup.",
+        "Implement the event loop version that accepts multiple clients, stores read/write state per connection, and only reads/writes when the fd is ready.",
+        "If CPU spins or a connection starves, inspect nonblocking flags, readiness registration, and whether buffers are fully drained or flushed.",
+        "Several clients can connect and receive replies without one slow client blocking the server.",
+        [cppRedisApprovedResources[3], cppRedisApprovedResources[11], cppRedisApprovedResources[10]]
+      ),
+      checkpoint(
+        "Implement GET/SET/DEL over the event loop",
+        "Key-Value Server",
+        "Learn command parsing, key/value ownership, reply types, and simple database state inside the evented server.",
+        "Implement SET, GET, DEL, and a small response convention; then test missing keys, overwritten keys, invalid commands, and multiple commands per connection.",
+        "If state looks stale, inspect command parse output before changing the hash table.",
+        "The server behaves as a networked key-value store with visible success, missing-key, and error responses.",
+        [cppRedisApprovedResources[4], cppRedisApprovedResources[9], cppRedisApprovedResources[2]]
+      ),
+      checkpoint(
+        "Replace placeholders with Redis-shaped structures",
+        "Hashtables, Data Serialization, Balanced Binary Tree, and Sorted Set",
+        "Learn why Redis implements data structures deliberately: progressive hash table resizing for latency, intrusive nodes for stable references, typed serialization, and sorted-set dual indexing.",
+        "Implement or trace the custom hash table, serialization format, tree-backed sorted set, and enough tests to prove lookup, ordering, and response encoding.",
+        "If a node vanishes or a pointer is wrong, draw ownership and embedded-node offsets before editing memory code.",
+        "Tests prove hash lookup/resizing behavior, serialized replies, and sorted-set ordering.",
+        [cppRedisApprovedResources[5], cppRedisApprovedResources[6], cppRedisApprovedResources[7], cppRedisApprovedResources[9]]
+      ),
+      checkpoint(
+        "Add TTL/thread-pool scope and document Redis gaps",
+        "Timer and Timeout, Cache Expiration with TTL, Thread Pool, and final review",
+        "Learn timers, heap-based expiration, idle timeouts, background work, and where threaded work must return safely to the event loop.",
+        "Add TTL expiration and one background-task proof, then document missing real Redis features: RESP completeness, persistence, replication, clustering, ACL/auth, transactions, Lua/scripts, pub/sub completeness, eviction policies, observability, and cross-platform portability.",
+        "If expirations happen late or early, inspect monotonic time, heap ordering, and event-loop timeout calculation.",
+        "README explains protocol, event loop, KV commands, hash table, sorted set, TTL, thread pool, and production Redis omissions.",
+        cppRedisApprovedResources.slice(0, 12)
+      )
+    ],
+    [
+      "Review C/C++ pointers, structs, dynamic allocation, errno, file descriptors, sockets, byte order, nonblocking I/O, and debugger basics.",
+      "Run each chapter's small proof before adding the next layer; keep protocol transcripts as fixtures.",
+      "Draw the connection state machine and buffer ownership before implementing the event loop.",
+      "Commit after blocking protocol, nonblocking event loop, KV commands, hash table, serialization, sorted set, TTL, and scope notes."
+    ],
+    [
+      "Demo multiple clients using SET/GET/DEL against the evented server.",
+      "Add README artifacts for byte-stream framing, event-loop state, response serialization, hash table resizing, sorted-set dual index, and TTL heap.",
+      "Include one short-read/event-loop/pointer bug and how it was isolated.",
+      "State exactly which Redis commands and production guarantees are absent."
+    ],
+    "Built a Redis-inspired C/C++ server with TCP socket handling, length-prefixed protocol framing, robust read/write loops, nonblocking event-loop concurrency, GET/SET/DEL command execution, custom hash table, typed serialization, sorted sets, TTL expiration, thread-pool integration, and explicit Redis compatibility limits.",
+    ["Build Your Own Redis chapters, Redis RESP specification, and Linux socket/epoll references were read; approval is scoped to the educational C/C++ Redis-like server, not full Redis compatibility."]
+  ),
+  approvedTutorialOverride(
+    "distributed-systems-java-building-your-own-kafka-like-system-from-scratch-a-step",
+    "Individual review of buildthingsuseful Build Your Own Kafka repository source plus Apache Kafka/ZooKeeper and Java NIO references",
+    "Approved path for the Java Kafka-like tutorial focused on a simplified broker cluster, custom byte protocol, append-only partition logs, file indexes, ZooKeeper coordination, producer/consumer clients, and explicit gaps from real Kafka.",
+    simpleKafkaApprovedResources,
+    [
+      concept(
+        "approved-simple-kafka-scope",
+        "Kafka-shaped, not Kafka-compatible",
+        "This project is valuable because it builds a tiny system with Kafka-shaped parts: brokers, topics, partitions, producers, consumers, metadata, and replication messages.",
+        "The beginner must also know the boundary: it is not the Kafka wire protocol, it does not implement consumer groups, real retention, in-sync replicas, KRaft, security, transactions, compaction, or exactly-once guarantees.",
+        [
+          "You can name which classes implement broker, partition, protocol, ZooKeeper, producer, and consumer behavior.",
+          "You can explain topics and partitions without claiming full Kafka compatibility.",
+          "You can list at least five production Kafka features this tutorial intentionally omits."
+        ],
+        [simpleKafkaApprovedResources[0], simpleKafkaApprovedResources[1], simpleKafkaApprovedResources[8]]
+      ),
+      concept(
+        "approved-simple-kafka-byte-protocol",
+        "A broker protocol is bytes with a contract",
+        "The Protocol class uses ByteBuffer to encode request and response types, topic lengths, partitions, offsets, message sizes, metadata, and errors into a custom binary format.",
+        "This is the bridge from beginner Java to distributed systems: clients and brokers only understand each other because both sides follow the same byte-level contract.",
+        [
+          "You can trace one produce request field by field.",
+          "You can explain why the code writes lengths before variable-size strings or messages.",
+          "You can distinguish protocol bugs from storage or ZooKeeper bugs."
+        ],
+        [simpleKafkaApprovedResources[3], simpleKafkaApprovedResources[5], simpleKafkaApprovedResources[10], simpleKafkaApprovedResources[11]]
+      ),
+      concept(
+        "approved-simple-kafka-partition-log",
+        "Partitions are append-only logs with offsets",
+        "The Partition class writes each message to segment files, stores an index from offset to file position, rolls segments, and reads messages back from a requested offset.",
+        "This gives beginners the core storage idea behind log systems: durable order comes from appending bytes and remembering where each logical offset lives.",
+        [
+          "You can explain nextOffset, segment base offset, and index entry.",
+          "You can say why append uses a write lock and read uses a read lock.",
+          "You can debug a missing message by checking offset, index position, and log bytes separately."
+        ],
+        [simpleKafkaApprovedResources[2], simpleKafkaApprovedResources[12], simpleKafkaApprovedResources[11], simpleKafkaApprovedResources[8]]
+      ),
+      concept(
+        "approved-simple-kafka-zookeeper-coordination",
+        "ZooKeeper is the cluster notice board",
+        "The tutorial uses ZooKeeper znodes for broker membership, topic/partition metadata, watches, and a controller election through an ephemeral /controller node.",
+        "That matters because distributed systems need a source of shared coordination before brokers can agree who exists, who leads, and what topic metadata should be loaded.",
+        [
+          "You can explain persistent versus ephemeral znodes in this project.",
+          "You can trace how broker membership changes update local metadata.",
+          "You can describe why the controller election is educational but not a full production failover design."
+        ],
+        [simpleKafkaApprovedResources[4], simpleKafkaApprovedResources[9], simpleKafkaApprovedResources[1]]
+      ),
+      concept(
+        "approved-simple-kafka-client-flow",
+        "Clients bootstrap, fetch metadata, then talk to leaders",
+        "The SimpleKafkaClient connects to one bootstrap broker, asks for metadata, chooses the leader for a topic partition, and sends produce/fetch requests there.",
+        "This is the practical client-side lesson: distributed clients first discover the cluster map, then route work according to that map.",
+        [
+          "You can describe bootstrap broker versus partition leader.",
+          "You can show when refreshMetadata is called.",
+          "You can explain why a producer randomly chooses a partition while a consumer polls one partition from an offset."
+        ],
+        [simpleKafkaApprovedResources[5], simpleKafkaApprovedResources[6], simpleKafkaApprovedResources[7], simpleKafkaApprovedResources[8]]
+      )
+    ],
+    [
+      checkpoint(
+        "Set up the Java 11 Maven project and one broker",
+        "Project structure and local run",
+        "Learn the Maven pom, Java 11 target, shaded jar, ZooKeeper dependency, and command-line broker arguments before distributed behavior.",
+        "Run or trace `mvn clean package`, start ZooKeeper, and start one broker; record which directories and ZooKeeper paths are expected.",
+        "If startup fails, separate Maven build errors, ZooKeeper connection errors, and broker port conflicts before changing code.",
+        "One broker starts with a clean data directory and can register its identity path.",
+        [simpleKafkaApprovedResources[0], simpleKafkaApprovedResources[14], simpleKafkaApprovedResources[4], simpleKafkaApprovedResources[9]]
+      ),
+      checkpoint(
+        "Implement and test the byte protocol",
+        "Core protocol layer",
+        "Learn request/response type bytes, ByteBuffer position/limit, length-prefixed strings, offsets, message sizes, metadata responses, and error frames.",
+        "Write small encode/decode fixtures for produce, fetch, metadata, create-topic, replicate, and error responses before using sockets.",
+        "If decoding fails, print the buffer position after every field and compare client and broker field order.",
+        "Protocol fixtures prove both sides agree on field order and lengths.",
+        [simpleKafkaApprovedResources[3], simpleKafkaApprovedResources[11], simpleKafkaApprovedResources[5], simpleKafkaApprovedResources[1]]
+      ),
+      checkpoint(
+        "Build partition storage with segments and indexes",
+        "Storage layer",
+        "Learn append-only log files, active segment rollover, file channels, force-to-disk calls, offset-to-position indexes, and read/write locks.",
+        "Append messages, inspect the `.log` and `.index` files, then fetch from offsets 0, a middle offset, and the log end.",
+        "If fetch returns the wrong bytes, debug in this order: requested offset, chosen segment, index position, message length, message body.",
+        "A partition can append, reopen, count existing messages, and read messages from a chosen offset.",
+        [simpleKafkaApprovedResources[2], simpleKafkaApprovedResources[12], simpleKafkaApprovedResources[11], simpleKafkaApprovedResources[8]]
+      ),
+      checkpoint(
+        "Wire ZooKeeper coordination and topic metadata",
+        "Zookeeper integration and topic creation",
+        "Learn broker registration, `/brokers`, `/topics`, `/controller`, ephemeral nodes, persistent topic metadata, watches, controller election, and partition assignment.",
+        "Start multiple brokers, create a topic, then inspect how leaders/followers and partition paths are stored and loaded.",
+        "If brokers disagree about metadata, inspect ZooKeeper node data before socket forwarding or storage code.",
+        "Multiple brokers can see the same topic metadata and one broker acts as controller.",
+        [simpleKafkaApprovedResources[4], simpleKafkaApprovedResources[9], simpleKafkaApprovedResources[1], simpleKafkaApprovedResources[0]]
+      ),
+      checkpoint(
+        "Handle produce, fetch, forwarding, and best-effort replication",
+        "Broker behavior",
+        "Learn the broker's request dispatcher, leader check, forwarding to the leader, asynchronous follower replication, fetch-from-offset behavior, and metadata response construction.",
+        "Produce to a partition leader, produce through a non-leader broker, fetch messages back, and observe replication messages to followers.",
+        "If replication looks successful too early, remember the broker sends the produce response without waiting for follower durability; document that limitation instead of hiding it.",
+        "A broker can create topics, accept produce/fetch/metadata requests, forward to leaders, and attempt follower replication.",
+        [simpleKafkaApprovedResources[1], simpleKafkaApprovedResources[2], simpleKafkaApprovedResources[3], simpleKafkaApprovedResources[4]]
+      ),
+      checkpoint(
+        "Build producer/consumer demos and document real Kafka gaps",
+        "Client library and test system",
+        "Learn bootstrap metadata lookup, leader routing, random partition selection, consumer polling from an offset, and the difference between demo clients and production Kafka clients.",
+        "Run the sample producer and consumer against three brokers, capture the offsets/messages, and write a limitations table comparing the toy project with Apache Kafka.",
+        "If the demo only works once, clean data/ZooKeeper state and verify topic metadata before blaming client code.",
+        "README proves produce/consume behavior and honestly lists missing Kafka features such as real protocol compatibility, ISR durability, consumer groups, committed offsets, retention, compaction, transactions, security, monitoring, KRaft, and operational hardening.",
+        simpleKafkaApprovedResources.slice(0, 15)
+      )
+    ],
+    [
+      "Refresh Java classes, exceptions, collections, threads/executors, Maven basics, terminal use, and local port troubleshooting before starting.",
+      "Read the repository README and skim each source file once to map broker, partition, protocol, ZooKeeper, and client responsibilities.",
+      "Use the Medium article only as a backup if it is accessible; keep the GitHub source as the auditable project truth.",
+      "Commit after protocol fixtures, partition storage, ZooKeeper registration, broker request handling, client demos, and limitations documentation."
+    ],
+    [
+      "Demo three brokers, one topic, one producer run, and one consumer run from offset 0.",
+      "Add README diagrams for byte protocol fields, partition log/index files, ZooKeeper paths, and client metadata routing.",
+      "Include one bug story from protocol decoding, file-offset indexing, ZooKeeper state, or leader forwarding.",
+      "Add a clear limitations table so the project reads as a serious educational Kafka-like system, not a misleading Kafka replacement."
+    ],
+    "Built a Java Kafka-like messaging system with Maven setup, custom binary protocol, broker request dispatch, append-only partition logs, offset indexes, ZooKeeper membership/controller/topic metadata, leader-aware produce/fetch handling, producer and consumer demos, and explicit non-production Kafka gaps.",
+    [
+      "Repository README, pom, broker, partition, protocol, ZooKeeper client, producer, consumer, Apache Kafka introduction, ZooKeeper overview, Java socket/NIO references, and Maven quickstart were reviewed.",
+      "The linked Medium article is treated as optional backup because extraction may be blocked; approval is grounded in the auditable GitHub repository source.",
+      "Replication is described as educational and best-effort because the broker does not wait for follower durability before acknowledging a produce request."
+    ]
+  ),
   approvedTutorialOverride(
     "web-server-python-a-simple-web-server",
     "Individual review of AOSA 'A Simple Web Server' plus MDN HTTP and socket resources",
@@ -1233,81 +2750,127 @@ const curatedOverrides: CuratedOverride[] = [
     [
       concept(
         "approved-gifbot-app-identity",
-        "GitHub App identity",
-        "The tutorial's key beginner lesson is that GitHub Apps are installed integrations with their own permissions, not a script pretending to be your personal account.",
-        "That distinction explains why installation, private keys, webhook secrets, and scoped permissions come before bot features.",
+        "GitHub App identity and installation boundary",
+        "The tutorial's first serious lesson is that a GitHub App is an installed integration with its own bot identity, permissions, webhook configuration, private key, and per-installation access.",
+        "A beginner who understands that boundary will not confuse this project with a personal access token script. The app acts where it is installed, under reviewed permissions, and its API calls should be attributed to the app rather than to your personal account.",
         [
           "You can explain GitHub App versus personal access token.",
-          "You can name the app installation boundary.",
-          "You can describe why least privilege matters."
+          "You can name what belongs to the app registration and what belongs to each installation.",
+          "You can describe why least privilege matters before the bot posts anything."
         ],
-        gifbotApprovedResources.slice(0, 4)
+        [gifbotApprovedResources[1], gifbotApprovedResources[2], gifbotApprovedResources[6]]
       ),
       concept(
-        "approved-gifbot-webhook-flow",
-        "Webhook to API action",
-        "gifbot reacts to a GitHub event, validates/understands the payload, then calls the GitHub API to post a response.",
-        "This event-to-action flow is the reusable mental model for GitHub bots and app integrations.",
+        "approved-gifbot-issue-comment-event",
+        "The issue_comment event is the trigger",
+        "gifbot is awakened by an issue_comment webhook where the action is `created`, the payload has a `comment.body`, and GitHub App deliveries include an `installation` object.",
+        "This keeps the learner from treating webhooks as magic callbacks. The app is just receiving an HTTP request with a known event name, a known payload shape, and enough installation context to decide whether it should act.",
         [
-          "You can identify the event that wakes the app.",
-          "You can find the payload field the bot reads.",
-          "You can explain which API call creates the visible result."
+          "You can identify the `issue_comment` event and `created` action.",
+          "You can point to `comment.body`, `issue.comments_url`, and `installation.id` in the payload.",
+          "You can ignore non-created actions before calling external APIs."
         ],
-        [gifbotApprovedResources[0], gifbotApprovedResources[1], gifbotApprovedResources[2], gifbotApprovedResources[3]]
+        [gifbotApprovedResources[11], gifbotApprovedResources[3], gifbotApprovedResources[4]]
+      ),
+      concept(
+        "approved-gifbot-webhook-safety",
+        "Webhook safety before bot behavior",
+        "A useful bot should first prove the delivery really came from GitHub, parse only the event it expects, avoid logging secrets or full payloads, and fail without posting duplicate or unsafe comments.",
+        "This is the quality gap in many beginner bot tutorials: the fun visible action is easy, but real integrations need signature validation, event filtering, idempotence thinking, and defensive logs before they are trustworthy.",
+        [
+          "You can explain what the `x-hub-signature-256` header protects.",
+          "You can say which event/action combinations the bot ignores.",
+          "You can write a safe log line without leaking tokens, private keys, or full user content."
+        ],
+        [gifbotApprovedResources[5], gifbotApprovedResources[13], gifbotApprovedResources[3]]
+      ),
+      concept(
+        "approved-gifbot-installation-auth",
+        "JWT to installation token flow",
+        "The app signs a short-lived JWT with its private key, uses that app identity to request an installation access token, then uses the installation token for repository API calls.",
+        "Beginners need this sequence in order. The JWT proves which app is asking; the installation token grants scoped access to repositories where that app was installed.",
+        [
+          "You can describe why the app private key should never be committed.",
+          "You can explain why the JWT and installation token are different.",
+          "You can identify where `installation.id` enters the token request flow."
+        ],
+        [gifbotApprovedResources[6], gifbotApprovedResources[7], gifbotApprovedResources[8]]
+      ),
+      concept(
+        "approved-gifbot-giphy-comment-action",
+        "Search GIPHY, then post a GitHub comment",
+        "After the event and auth checks pass, gifbot extracts the search term from `[gifbot:search]`, calls the GIPHY search endpoint, formats a Markdown image comment, and posts it to the issue comment thread.",
+        "This final action is only educational if the learner can separate user input parsing, third-party API response handling, Markdown formatting, and the GitHub create-comment request.",
+        [
+          "You can trace search term -> GIPHY request -> GIF URL -> Markdown body.",
+          "You can name which GitHub REST endpoint creates the visible response.",
+          "You can handle no-match or API-failure cases without spamming the thread."
+        ],
+        [gifbotApprovedResources[10], gifbotApprovedResources[9], gifbotApprovedResources[12], gifbotApprovedResources[4]]
       )
     ],
     [
       checkpoint(
         "Create the GitHub App safely",
-        "Apps vs. Bots and setup",
-        "Learn app registration, permissions, webhook URL, private key, and secrets before running code.",
-        "Create or document a test GitHub App with minimum permissions and local environment variables.",
+        "Apps vs. Bots and Creating an App",
+        "Learn app registration, installation scope, permissions, webhook URL, private key, and secrets before running code.",
+        "Create or document a test GitHub App with issue-comment webhook subscription and the minimum repository permissions needed to read comments and post a reply.",
         "If authentication fails, check installation, private key format, app id, and permissions before handler code.",
-        "The app can start with credentials kept out of source control.",
-        gifbotApprovedResources.slice(0, 4)
+        "The app can start with credentials kept out of source control and a test installation selected.",
+        [gifbotApprovedResources[0], gifbotApprovedResources[1], gifbotApprovedResources[2], gifbotApprovedResources[3]]
       ),
       checkpoint(
         "Receive and inspect one webhook",
         "Webhook handling",
-        "Learn event payload shape and signature/security expectations before posting a response.",
-        "Log a sanitized webhook payload and identify the issue/comment fields gifbot needs.",
-        "If events do not arrive, inspect webhook delivery logs and local tunneling before API code.",
-        "One delivered event is visible in safe logs with the needed fields identified.",
-        [gifbotApprovedResources[0], gifbotApprovedResources[2], gifbotApprovedResources[3]]
+        "Learn the issue_comment payload, `created` action, installation id, signature validation, and safe logging before posting a response.",
+        "Deliver one test issue comment webhook, verify its signature or document the verification boundary, then identify `comment.body`, `issue.comments_url`, and `installation.id`.",
+        "If events do not arrive, inspect webhook delivery logs, event subscription, local tunneling, and the signature header before API code.",
+        "One delivered event is visible in safe logs with the needed fields identified and secrets excluded.",
+        [gifbotApprovedResources[11], gifbotApprovedResources[4], gifbotApprovedResources[5], gifbotApprovedResources[3]]
       ),
       checkpoint(
-        "Post one bot response",
-        "GitHub API action",
-        "Learn how installation credentials become an API request with scoped authority.",
-        "Post one harmless response to a test issue or comment thread.",
-        "If the API rejects the call, inspect status code, installation token, and permission scope.",
-        "A test repository shows one bot-created response.",
-        [gifbotApprovedResources[0], gifbotApprovedResources[1], gifbotApprovedResources[3]]
+        "Turn an installation id into an API token",
+        "App Authentication Flow",
+        "Learn the JWT to installation-token sequence before the bot tries to write to GitHub.",
+        "Generate or trace the app JWT, request an installation access token for the webhook installation id, and use it only for the installed repository action.",
+        "If the API rejects the call, inspect JWT expiry, private key, app id, installation id, accepted permissions, and token type.",
+        "A scoped installation token can authorize the next GitHub API request without using a personal access token.",
+        [gifbotApprovedResources[6], gifbotApprovedResources[7], gifbotApprovedResources[8], gifbotApprovedResources[2]]
+      ),
+      checkpoint(
+        "Search GIPHY and post one comment",
+        "Building a Bot and API action",
+        "Learn the event-to-action pipeline: parse `[gifbot:search]`, call GIPHY, build a Markdown image body, and create an issue comment with the installation token.",
+        "Post one harmless GIF response to a test issue, plus one no-match or invalid-command case that does not post.",
+        "If posting fails, inspect the GitHub REST endpoint, issue number/comments URL, request body, token permissions, and response status separately from the GIPHY request.",
+        "A test repository shows one app-created response and one ignored comment case.",
+        [gifbotApprovedResources[10], gifbotApprovedResources[9], gifbotApprovedResources[12], gifbotApprovedResources[0]]
       ),
       checkpoint(
         "Document safety and deployment limits",
         "Bot hardening",
-        "Learn rate limits, duplicate delivery, webhook replay/security, secret handling, and moderation boundaries.",
-        "Add README setup, permissions, webhook events, duplicate-handling note, and deployment limitations.",
-        "If repeated events create spam, add idempotence or document the risk clearly.",
-        "README explains app identity, webhook flow, permissions, and safe test/deploy boundaries.",
-        gifbotApprovedResources.slice(0, 6)
+        "Learn duplicate delivery, webhook replay/security, secret handling, content moderation, API failures, and why this tutorial is not a full production GitHub App framework.",
+        "Add README setup, permissions, webhook events, signature verification, duplicate-handling note, GIPHY failure behavior, and deployment limitations.",
+        "If repeated events create spam, add idempotence or document the exact risk clearly.",
+        "README explains app identity, webhook flow, installation-token auth, comment API, GIPHY lookup, and safe test/deploy boundaries.",
+        [gifbotApprovedResources[13], gifbotApprovedResources[5], gifbotApprovedResources[2], gifbotApprovedResources[8]]
       )
     ],
     [
       "Read the Apps vs Bots section and write the identity/permission difference in plain language.",
       "Create a test repository for webhook/API experiments.",
-      "Prepare environment variables for app id, private key, webhook secret, and installation details.",
-      "Commit after setup, webhook receive, API response, and safety documentation."
+      "Prepare environment variables for app id, private key, webhook secret, GIPHY key, and installation details.",
+      "Commit after setup, webhook receive, installation auth, GIPHY/comment action, and safety documentation."
     ],
     [
       "Demo a webhook-triggered response in a test repository.",
       "Add README setup with secret placeholders only.",
-      "Include webhook payload fields used by the bot.",
-      "List missing production safeguards such as retries, idempotence, rate-limit handling, and moderation rules."
+      "Include webhook payload fields used by the bot plus the exact event/action subscriptions.",
+      "List missing production safeguards such as signature enforcement, retries, idempotence, rate-limit handling, abuse prevention, and moderation rules."
     ],
     "Built the gifbot GitHub App tutorial with app identity, scoped permissions, webhook handling, API response, and safe deployment boundaries.",
-    ["Source extraction is full and GitHub's official app/webhook docs are used as the safety backstop."]
+    ["Source extraction is full; Scott Logic's tutorial, GitHub App/auth/webhook/comment docs, and GIPHY search docs are used as the safety and API backstop."],
+    { prerequisiteResources: gifbotApprovedResources }
   ),
   approvedTutorialOverride(
     "git-haskell-reimplementing-git-clone-in-haskell-from-the-bottom-up",
@@ -1646,6 +3209,1686 @@ const curatedOverrides: CuratedOverride[] = [
     ["Source extraction is full and the project is suitable for individual approval as a web-app architecture tutorial."]
   ),
   approvedTutorialOverride(
+    "uncategorized-javascript-build-your-own-module-bundler-minipack",
+    "Individual review of Minipack README and annotated source plus webpack module and Babel parser docs",
+    "Approved path for Minipack focused on entry files, dependency graph creation, AST import discovery, Babel transpilation, module wrapping, and the deliberate limits of a tiny bundler.",
+    minipackApprovedResources,
+    [
+      concept(
+        "approved-minipack-dependency-graph",
+        "Dependency graph from one entry file",
+        "Minipack starts with one entry module, reads its imports, then follows each imported file until the whole miniature app is represented as assets connected by dependencies.",
+        "This gives beginners the core mental model behind bundlers before they meet loaders, plugins, caches, code splitting, or production optimization.",
+        [
+          "You can explain why the entry file bootstraps the graph.",
+          "You can distinguish a module filename from a module id.",
+          "You can draw how one import becomes a graph edge."
+        ],
+        minipackApprovedResources.slice(0, 4)
+      ),
+      concept(
+        "approved-minipack-ast-bundle-runtime",
+        "AST discovery versus bundle runtime",
+        "The source uses a parser and AST traversal to discover imports, then emits a small runtime that maps module ids to wrapped functions and local require calls.",
+        "That split keeps the learner from mixing compile-time analysis with the browser-time module loader that the bundler prints.",
+        [
+          "You can point to where imports are discovered.",
+          "You can explain why each module is wrapped in a function.",
+          "You can describe why local require needs a per-module mapping."
+        ],
+        [minipackApprovedResources[1], minipackApprovedResources[2], minipackApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Run the annotated source unchanged",
+        "README and script entry point",
+        "Learn the project shape first: example files go in, a generated bundle string comes out, and the code is intentionally educational rather than production complete.",
+        "Install dependencies, run `node src/minipack.js`, and save the generated bundle output as a proof artifact.",
+        "If the script fails, check Node version, npm install, working directory, and whether the example entry path exists before editing source.",
+        "The script prints a bundle string and the README notes what production bundlers still add.",
+        minipackApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Create one asset from one file",
+        "createAsset",
+        "Learn file reading, JavaScript parsing, import collection, module ids, and transpiled code as one asset record.",
+        "Instrument `createAsset()` for the entry file and print filename, id, dependencies, and code length.",
+        "If dependencies are missing, inspect the AST and confirm the file uses static ES module imports.",
+        "One module produces an asset object with dependencies and transpiled code.",
+        [minipackApprovedResources[1], minipackApprovedResources[2], minipackApprovedResources[3]]
+      ),
+      checkpoint(
+        "Build the dependency graph",
+        "createGraph",
+        "Learn the queue-based walk that repeatedly parses dependencies and records relative path to module id mappings.",
+        "Print the graph for the sample app and draw each asset plus its mapping object.",
+        "If the graph repeats or misses files, inspect the queue, dirname, absolute path, and mapping assignment separately.",
+        "A small diagram shows entry, child modules, ids, and relative import mappings.",
+        minipackApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Explain the emitted runtime",
+        "bundle",
+        "Learn how the generated wrapper creates a tiny require system for the browser and why each module receives require, module, and exports.",
+        "Annotate the output bundle and add a README section for module wrappers, localRequire, exports, and omitted production features.",
+        "If output runs but imports are wrong, trace module id lookup through mapping before changing parsing code.",
+        "README explains graph creation, bundle runtime, and limits such as circular dependencies, caching, loaders, source maps, and code splitting.",
+        minipackApprovedResources.slice(0, 4)
+      )
+    ],
+    [
+      "Review JavaScript modules and CommonJS basics before touching the bundler code.",
+      "Run the original Minipack script once and keep the output as a reference.",
+      "Use AST Explorer or printed AST snippets to identify one ImportDeclaration.",
+      "Commit after asset creation, graph creation, bundle output, and README explanation."
+    ],
+    [
+      "Demo the generated bundle for the sample app.",
+      "Add a README diagram for entry file to dependency graph to bundle runtime.",
+      "Include one import-resolution or module-id bug and how it was traced.",
+      "List production bundler features intentionally omitted."
+    ],
+    "Built Minipack as a tiny JavaScript bundler with AST import discovery, dependency graph construction, module wrapping, and clear production-bundler limitations.",
+    ["README and annotated source were read together because the source file is the actual tutorial."]
+  ),
+  approvedTutorialOverride(
+    "programming-language-javascript-the-super-tiny-compiler",
+    "Individual review of The Super Tiny Compiler README and annotated source plus Crafting Interpreters scanning/parsing references",
+    "Approved path for The Super Tiny Compiler focused on tokenizer, parser, AST traversal, transformer, code generator, and the end-to-end compiler pipeline.",
+    superTinyCompilerApprovedResources,
+    [
+      concept(
+        "approved-stc-compiler-pipeline",
+        "Compiler pipeline as small transformations",
+        "The tutorial is valuable because it turns a compiler into a visible pipeline: input string, tokens, AST, transformed AST, and output code.",
+        "Beginners can debug each representation separately instead of treating compilation as one mysterious step.",
+        [
+          "You can show the same tiny program as text, tokens, AST, and output code.",
+          "You can explain which function owns each representation.",
+          "You can test a failing stage before moving to the next one."
+        ],
+        superTinyCompilerApprovedResources.slice(0, 4)
+      ),
+      concept(
+        "approved-stc-traversal-transform",
+        "Traversal and visitors",
+        "The source teaches traversal as a depth-first walk over AST nodes, then uses visitor methods to build a new target-language AST.",
+        "That is the bridge from parsing syntax to changing program meaning or shape in a controlled way.",
+        [
+          "You can describe enter and exit in a tree walk.",
+          "You can name the visitor method for one node type.",
+          "You can explain why the transformer creates a new AST instead of editing strings."
+        ],
+        [superTinyCompilerApprovedResources[1], superTinyCompilerApprovedResources[2], superTinyCompilerApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Run the provided compiler tests",
+        "README and test.js",
+        "Learn the expected input and output before editing: Lisp-like calls are transformed into C-like JavaScript call syntax.",
+        "Run `node test.js`, then manually compile one tiny input and compare it with the expected output.",
+        "If tests fail immediately, check Node setup and avoid editing until the original project runs cleanly.",
+        "Tests pass and README contains one hand-worked input to output example.",
+        superTinyCompilerApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Implement tokenizer and parser proofs",
+        "Tokenizer and Parser",
+        "Learn lexical analysis as token creation and parsing as building a nested AST from those tokens.",
+        "Print tokens and AST for `(add 2 (subtract 4 2))` and label every node type.",
+        "If parsing loops or crashes, inspect current index movement and nested closing parentheses.",
+        "A sample program has a correct token list and AST sketch.",
+        [superTinyCompilerApprovedResources[1], superTinyCompilerApprovedResources[2], superTinyCompilerApprovedResources[3]]
+      ),
+      checkpoint(
+        "Trace traversal and transformation",
+        "Traverser and Transformer",
+        "Learn visitor-based traversal and the context link used to build the new AST while walking the old one.",
+        "Log enter events for Program, CallExpression, and NumberLiteral, then compare old AST to transformed AST.",
+        "If transformed nodes disappear, inspect parent context and visitor node-type names.",
+        "README shows old AST to new AST for one call expression.",
+        [superTinyCompilerApprovedResources[1], superTinyCompilerApprovedResources[3]]
+      ),
+      checkpoint(
+        "Generate code and explain limits",
+        "Code Generator and Compiler",
+        "Learn recursive code generation and how the final compiler function wires all stages together.",
+        "Compile several tiny examples, then document unsupported syntax, errors, variables, types, optimization, and real language concerns.",
+        "If output formatting is wrong, inspect codeGenerator cases before changing tokenizer or parser.",
+        "A final demo compiles nested calls and README explains the full pipeline plus honest limitations.",
+        superTinyCompilerApprovedResources.slice(0, 4)
+      )
+    ],
+    [
+      "Review JavaScript objects, arrays, recursion, and functions before the compiler stages.",
+      "Write the five stage names from memory: tokenizer, parser, traverser, transformer, generator.",
+      "Keep one tiny program as a fixture through every stage.",
+      "Commit after each compiler stage with its visible proof output."
+    ],
+    [
+      "Demo compiling one nested Lisp-like call into target call syntax.",
+      "Add README artifacts for tokens, AST, transformed AST, and generated code.",
+      "Include one traversal or parser-index bug and how it was isolated.",
+      "Avoid claiming a complete language; name the exact syntax and features supported."
+    ],
+    "Built The Super Tiny Compiler as a staged JavaScript compiler with tokenization, parsing, AST traversal, transformation, code generation, and stage-by-stage proof artifacts.",
+    ["README and annotated source were read together because the source file is the guided lesson."]
+  ),
+  approvedTutorialOverride(
+    "database-python-write-your-own-miniature-redis-with-python",
+    "Individual review of Charles Leifer's miniature Redis tutorial plus RESP and Python socket references",
+    "Approved path for the miniature Redis tutorial focused on RESP framing, socket request loops, command dispatch, in-memory key/value state, client encoding, and clear demo-only limits.",
+    miniatureRedisApprovedResources,
+    [
+      concept(
+        "approved-mini-redis-resp-framing",
+        "RESP as message framing",
+        "The tutorial works because Redis commands and replies are not vague strings: RESP gives arrays, bulk strings, errors, integers, and terminators a specific byte-level shape.",
+        "Beginners need framing before sockets make sense, because a TCP stream does not automatically preserve application messages.",
+        [
+          "You can encode one SET command as a RESP array.",
+          "You can explain why CRLF matters.",
+          "You can describe what the parser returns for a bulk string, array, integer, and error."
+        ],
+        miniatureRedisApprovedResources.slice(0, 3)
+      ),
+      concept(
+        "approved-mini-redis-command-state",
+        "Command dispatch over in-memory state",
+        "The server maps parsed command names to Python methods that mutate or read an in-memory dictionary-like store.",
+        "That keeps the beginner focused on the core Redis shape before persistence, eviction, clustering, or networking robustness.",
+        [
+          "You can trace GET and SET from client call to server command method.",
+          "You can describe where keys and values live.",
+          "You can explain why FLUSH, MGET, and MSET are extensions of the same dispatch pattern."
+        ],
+        [miniatureRedisApprovedResources[0], miniatureRedisApprovedResources[1]]
+      )
+    ],
+    [
+      checkpoint(
+        "Run a request loop skeleton",
+        "Server and client setup",
+        "Learn that this project has two sides: a server that accepts socket connections and a client that encodes commands and reads replies.",
+        "Start the server module and connect with the tutorial's client or a tiny socket script before implementing all commands.",
+        "If the client hangs, inspect whether the server loop is waiting for a complete framed message.",
+        "A client can connect and the server process stays alive for a request.",
+        miniatureRedisApprovedResources.slice(0, 3)
+      ),
+      checkpoint(
+        "Implement RESP read and write",
+        "Protocol handler",
+        "Learn message parsing as the heart of the tutorial: arrays contain command parts, bulk strings carry payloads, and replies become Python objects.",
+        "Encode and decode at least one command and one nested response without involving the key/value store yet.",
+        "If parsing fails, print raw bytes and confirm CRLF, array length, and bulk string byte counts.",
+        "Protocol fixtures prove arrays, strings, integers, nulls, and errors round-trip.",
+        miniatureRedisApprovedResources.slice(0, 3)
+      ),
+      checkpoint(
+        "Add key/value commands",
+        "Command implementation",
+        "Learn command dispatch as a small API over server state: set, get, delete, flush, mget, and mset share the same parse-dispatch-reply path.",
+        "Implement command methods and exercise them through the client instead of direct function calls only.",
+        "If a command returns the wrong value, check whether the protocol parser, dispatch lookup, or store mutation owns the bug.",
+        "GET, SET, DELETE, MGET, MSET, and FLUSH work through the client.",
+        [miniatureRedisApprovedResources[0], miniatureRedisApprovedResources[1]]
+      ),
+      checkpoint(
+        "Document demo-only Redis limits",
+        "Testing and extensions",
+        "Learn why the post calls the code demonstrational: it lacks persistence, auth, eviction, replication, robust errors, reconnect handling, and production concurrency hardening.",
+        "Add a README limitations table and one extension idea such as append-only logging or extra commands.",
+        "If the project feels Redis-compatible, compare each claim against RESP and real Redis behavior before writing it down.",
+        "README explains RESP, server/client boundary, command dispatch, tests, and production gaps.",
+        miniatureRedisApprovedResources.slice(0, 3)
+      )
+    ],
+    [
+      "Review Python dictionaries, classes, file-like sockets, and byte/string conversion.",
+      "Write one RESP command by hand before coding the protocol handler.",
+      "Keep server, protocol, command store, and client tests separate in your notes.",
+      "Commit after protocol fixtures, server loop, command methods, and client demo."
+    ],
+    [
+      "Demo the client setting, reading, deleting, and flushing values through the server.",
+      "Add README examples of raw RESP and parsed Python objects.",
+      "Include one socket/framing bug and how raw bytes exposed it.",
+      "List missing Redis features honestly."
+    ],
+    "Built a miniature Redis-like Python server with RESP parsing, socket request handling, command dispatch, client helpers, and explicit demo-only database limits.",
+    ["Original article was read through the final testing and extension notes."]
+  ),
+  approvedTutorialOverride(
+    "programming-language-python-how-to-write-a-lisp-interpreter-in-python",
+    "Individual review of Norvig's Lispy article plus Lispy 2 and interpreter representation references",
+    "Approved path for Norvig's Lispy tutorial focused on Scheme syntax, parsing into Python lists, environments, eval rules, procedures, lexical scope, REPL behavior, and honest Scheme subset limits.",
+    norvigLispyApprovedResources,
+    [
+      concept(
+        "approved-lispy-parse-eval-loop",
+        "Parse then evaluate",
+        "Norvig makes the interpreter understandable by separating reading text into nested Python data from evaluating that data according to Scheme rules.",
+        "Beginners need this split because syntax bugs, environment bugs, and evaluation bugs look similar until the program has visible representations at each stage.",
+        [
+          "You can show one Scheme expression as tokens, a Python list AST, and a final value.",
+          "You can explain why numbers evaluate differently from symbols.",
+          "You can name which function owns parsing and which owns evaluation."
+        ],
+        norvigLispyApprovedResources.slice(0, 3)
+      ),
+      concept(
+        "approved-lispy-environments-procedures",
+        "Environments give names meaning",
+        "The tutorial's key interpreter idea is that an environment maps symbols to values, and user procedures carry the environment where they were created.",
+        "That is the beginner bridge from a calculator to a language with variables, functions, recursion, and lexical scope.",
+        [
+          "You can describe the difference between a symbol and its value.",
+          "You can trace a `define` into the environment.",
+          "You can explain why a lambda call creates a local environment."
+        ],
+        [norvigLispyApprovedResources[0], norvigLispyApprovedResources[1], norvigLispyApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Run Lispy as a calculator",
+        "Language 1: Lispy Calculator",
+        "Learn Scheme's prefix syntax, atoms, list expressions, special forms, and the tiny target language before expanding toward full Scheme.",
+        "Run or recreate the first calculator examples and write expected results beside each expression.",
+        "If output surprises you, decide whether the bug is syntax, parsing, environment lookup, or procedure application.",
+        "A few arithmetic and `if` examples evaluate exactly as predicted.",
+        norvigLispyApprovedResources.slice(0, 3)
+      ),
+      checkpoint(
+        "Build parser proof artifacts",
+        "Parsing: parse, tokenize and read_from_tokens",
+        "Learn tokenization as parenthesis spacing and syntactic analysis as nested Python list construction.",
+        "Print tokens and parsed output for `(begin (define r 10) (* pi (* r r)))` before writing eval.",
+        "If parentheses break parsing, inspect token order and the recursive read position before touching eval.",
+        "README shows the source string, token list, and parsed Python representation.",
+        [norvigLispyApprovedResources[0], norvigLispyApprovedResources[2]]
+      ),
+      checkpoint(
+        "Implement environment-backed eval",
+        "Environments and Evaluation",
+        "Learn variable lookup, constants, `if`, `define`, and procedure calls as separate cases in eval.",
+        "Implement eval case by case and add one example for each supported expression form.",
+        "If a name is missing, inspect the environment before changing parser logic.",
+        "Each Lispy calculator form has a passing example and a written explanation.",
+        norvigLispyApprovedResources.slice(0, 3)
+      ),
+      checkpoint(
+        "Add procedures and document limits",
+        "Full Lispy and final review",
+        "Learn `quote`, `set!`, `lambda`, nested environments, user-defined procedures, recursion, and the REPL as the full educational payoff.",
+        "Define a recursive function and a simple higher-order example, then compare the finished subset with the limitations Norvig lists.",
+        "If recursion or lambdas fail, trace parameter binding and outer environment lookup before adding new forms.",
+        "README explains parse to eval to environment to procedure, plus missing Scheme features and error-handling limits.",
+        norvigLispyApprovedResources.slice(0, 3)
+      )
+    ],
+    [
+      "Review Python lists, dictionaries, functions, exceptions, and recursion before starting.",
+      "Write three tiny Scheme expressions by hand and predict their nested list representation.",
+      "Keep one expression as a fixture through parse, eval, and REPL.",
+      "Commit after parser, environment, eval cases, procedure support, and limitations notes."
+    ],
+    [
+      "Demo the REPL evaluating arithmetic, variables, conditionals, lambdas, and recursion.",
+      "Add README artifacts for tokens, parsed expressions, environments, and procedure calls.",
+      "Include one scoping or parenthesis bug and how it was isolated.",
+      "List the Scheme features Lispy intentionally omits."
+    ],
+    "Built Norvig's Lispy interpreter with parsing, evaluation, environments, procedures, recursion, REPL behavior, and clear Scheme-subset limitations.",
+    ["Original article and Lispy 2 follow-up were read; approval is scoped to the first Lispy project with Lispy 2 as extension context."]
+  ),
+  approvedTutorialOverride(
+    "regex-engine-c-regular-expression-matching-can-be-simple-and-fast",
+    "Individual review of Russ Cox's Thompson NFA article plus VM follow-up and regex reference material",
+    "Approved path for Russ Cox's regex tutorial focused on catastrophic backtracking, Thompson NFA construction, state-list simulation, match correctness, and why the implementation is fast.",
+    russCoxRegexApprovedResources,
+    [
+      concept(
+        "approved-russcox-backtracking-vs-nfa",
+        "Backtracking versus NFA simulation",
+        "The article's main lesson is that many regex engines explore alternatives by backtracking, while Thompson-style simulation tracks all possible NFA states in lockstep.",
+        "Beginners need this contrast to understand why a small C matcher can avoid catastrophic cases that defeat naive backtracking.",
+        [
+          "You can explain why nested optional patterns can explode for backtracking engines.",
+          "You can describe state-list simulation without recursion over every possible path.",
+          "You can connect the performance graph to implementation strategy."
+        ],
+        russCoxRegexApprovedResources.slice(0, 4)
+      ),
+      concept(
+        "approved-russcox-thompson-construction",
+        "Regex becomes instructions and state lists",
+        "The implementation compiles regular-expression syntax into an NFA-like program, then repeatedly moves a list of active states over the input characters.",
+        "That gives the learner a concrete project map: parse/compile the pattern, simulate it, then add caching or VM refinements later.",
+        [
+          "You can identify literal, split, jump, and match-like states.",
+          "You can explain why duplicate active states must be avoided.",
+          "You can trace one character through current and next state lists."
+        ],
+        [russCoxRegexApprovedResources[0], russCoxRegexApprovedResources[1], russCoxRegexApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Reproduce the performance problem",
+        "Introduction and performance comparison",
+        "Learn the exact motivation: some backtracking matchers can take exponential time on patterns that a Thompson NFA handles predictably.",
+        "Write or run the article's small family of repeated optional patterns and record expected versus dangerous behavior.",
+        "If the test feels artificial, explain why it still exposes an engine strategy problem.",
+        "README states the problem the matcher is trying to avoid.",
+        russCoxRegexApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Represent regex syntax and NFA fragments",
+        "Regular expression syntax and Thompson construction",
+        "Learn the supported regex subset and how each construct becomes a fragment that can be patched into a larger machine.",
+        "Build small diagrams for literal, concatenation, alternation, star, plus, and question before coding the simulation.",
+        "If compilation gets tangled, reduce to literals and concatenation, then add one operator at a time.",
+        "Each supported operator has a fragment sketch and one tiny test.",
+        [russCoxRegexApprovedResources[0], russCoxRegexApprovedResources[2], russCoxRegexApprovedResources[3]]
+      ),
+      checkpoint(
+        "Simulate active state lists",
+        "NFA simulation",
+        "Learn current and next state lists, epsilon transitions, and duplicate suppression as the heart of the fast matcher.",
+        "Trace one pattern over one input character by character and print active state ids.",
+        "If matching is wrong, inspect addstate/epsilon closure before changing syntax compilation.",
+        "A trace shows active states moving predictably over the input.",
+        [russCoxRegexApprovedResources[0], russCoxRegexApprovedResources[1]]
+      ),
+      checkpoint(
+        "Document supported regex features and limits",
+        "DFA cache and conclusion",
+        "Learn why the article's core technique is powerful but not the same as a full modern regex engine with captures, backreferences, Unicode, and engine-specific assertions.",
+        "Add a limitations table and compare one omitted feature against Python or MDN regex docs.",
+        "If a feature relies on backreferences, note that it is outside regular-language Thompson matching.",
+        "README explains backtracking risk, NFA simulation, supported syntax, and omitted production regex features.",
+        russCoxRegexApprovedResources.slice(0, 4)
+      )
+    ],
+    [
+      "Review C structs, pointers, arrays, and simple string loops before implementing the matcher.",
+      "Learn the regex syntax subset before adding operators to the compiler.",
+      "Keep tests for literal, concatenation, alternation, repetition, and non-match cases separate.",
+      "Commit after syntax representation, fragment construction, state-list simulation, and limits documentation."
+    ],
+    [
+      "Demo matching several supported patterns and one catastrophic-backtracking comparison case.",
+      "Add README diagrams for Thompson fragments and active state lists.",
+      "Include one duplicate-state or epsilon-transition bug and how it was traced.",
+      "List unsupported regex features such as captures, backreferences, lookaround, Unicode classes, and replacement APIs."
+    ],
+    "Built the Russ Cox Thompson-style regex matcher with pattern compilation, NFA state-list simulation, performance motivation, and clear regex-feature boundaries.",
+    ["Original article and VM follow-up were read; approval focuses on regexp1 as the build target and regexp2 as deeper implementation context."]
+  ),
+  approvedTutorialOverride(
+    "template-engine-python-approach-building-a-toy-template-engine-in-python",
+    "Individual review of Alex Michael's toy template engine plus Python ast.literal_eval and Django template-language references",
+    "Approved path for the toy Python template engine focused on token/fragments, node classes, AST compilation, scope stacks, context resolution, rendering, and production-safety limits.",
+    toyTemplateApprovedResources,
+    [
+      concept(
+        "approved-toy-template-fragments-ast",
+        "Template text becomes fragments and nodes",
+        "The tutorial teaches a template engine as a pipeline: split markup into text, variable, and block fragments, then compile those fragments into a tree of node objects.",
+        "This gives beginners a concrete way to understand template rendering without starting inside Django or Jinja internals.",
+        [
+          "You can mark text, variable, and block fragments in one template.",
+          "You can explain why block tags can create nested scopes.",
+          "You can draw the node tree for an `each` block."
+        ],
+        toyTemplateApprovedResources.slice(0, 3)
+      ),
+      concept(
+        "approved-toy-template-context-resolution",
+        "Rendering resolves names against context",
+        "Rendering walks the compiled node tree and turns literals or context names into output, including dotted lookup and parent-context references.",
+        "Beginners need this distinction because template syntax only becomes useful when variables are resolved predictably and safely.",
+        [
+          "You can distinguish literal values from context variable names.",
+          "You can trace `user.name` through nested dictionaries.",
+          "You can explain why a missing context value should raise a clear template error."
+        ],
+        [toyTemplateApprovedResources[0], toyTemplateApprovedResources[1], toyTemplateApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Render plain text and variables first",
+        "Template syntax and fragment basics",
+        "Learn the target syntax before nesting: plain text should pass through and variable fragments should resolve from a context dictionary.",
+        "Create one template with plain text and one variable, then print the fragment stream before rendering.",
+        "If output is empty, inspect fragment detection before node classes.",
+        "Plain text and one variable render from a small context.",
+        toyTemplateApprovedResources.slice(0, 3)
+      ),
+      checkpoint(
+        "Compile fragments into node classes",
+        "Compiling templates",
+        "Learn why text, variables, and blocks need different node classes with a shared render interface.",
+        "Implement node creation for text and variable fragments, then add one block node after the simple cases work.",
+        "If the wrong node type appears, print fragment type and command before rendering.",
+        "A template compiles into a readable root node with children.",
+        [toyTemplateApprovedResources[0], toyTemplateApprovedResources[2]]
+      ),
+      checkpoint(
+        "Handle nested scopes with a stack",
+        "Scope stack and block closing",
+        "Learn the scope stack that pushes block nodes when they open and pops them when closing tags appear.",
+        "Add an `each` block and verify that nested children are attached to the block, not the root.",
+        "If nesting breaks, inspect scope_stack before and after every open or close tag.",
+        "A nested template compiles to the expected parent/child tree.",
+        toyTemplateApprovedResources.slice(0, 3)
+      ),
+      checkpoint(
+        "Render and document safety gaps",
+        "Rendering and conclusion",
+        "Learn literal evaluation, context lookup, dotted paths, parent context, and why a toy engine is not production safe by default.",
+        "Render a list loop and nested variable lookup, then document escaping, sandboxing, inheritance, filters, includes, and error-reporting gaps.",
+        "If rendered output is wrong, decide whether the error is fragmenting, compilation, scope handling, or context resolution.",
+        "README explains fragmenting, compilation, scope stack, rendering, and missing production template features.",
+        toyTemplateApprovedResources.slice(0, 3)
+      )
+    ],
+    [
+      "Review Python classes, regex/string splitting, dictionaries, recursion/tree walking, and exceptions.",
+      "Write a tiny template and manually mark text, variable, and block fragments.",
+      "Keep one fixture for plain variables and one for nested `each` blocks.",
+      "Commit after fragmenting, node compilation, scope stack, rendering, and limitations notes."
+    ],
+    [
+      "Demo rendering text, variables, dotted names, and a repeated block from context data.",
+      "Add README diagrams for fragment stream, node tree, and render walk.",
+      "Include one nesting or context-resolution bug and how it was isolated.",
+      "List production template concerns such as escaping, sandboxing, inheritance, filters, includes, caching, and debug line numbers."
+    ],
+    "Built a toy Python template engine with fragment parsing, node-tree compilation, scope-stack nesting, context resolution, rendering, and explicit production-safety limitations.",
+    ["Original article and exact supporting docs were read; approval is scoped to the toy engine, not a production-safe template engine."]
+  ),
+  approvedTutorialOverride(
+    "programming-language-javascript-the-super-tiny-interpreter",
+    "Individual review of The Super Tiny Interpreter README/source plus MDN closures, Babel parser, and ESTree references",
+    "Approved path for The Super Tiny Interpreter focused on Babel AST parsing, expression and statement interpretation, environments, closures, lexical versus dynamic scope, recursive functions, and explicit WIP limits.",
+    superTinyInterpreterApprovedResources,
+    [
+      concept(
+        "approved-sti-ast-to-eval",
+        "AST nodes drive interpreter cases",
+        "The tutorial uses Babel to parse a small JavaScript subset, then interprets each supported AST node type instead of trying to execute source text directly.",
+        "That gives beginners the crucial compiler/interpreter split: parsing produces structure, and evaluation gives that structure meaning.",
+        [
+          "You can point to the parser boundary before any values are computed.",
+          "You can explain why a number literal, identifier, call expression, and const declaration need different cases.",
+          "You can debug one wrong result by naming the AST node type that owns it."
+        ],
+        [superTinyInterpreterApprovedResources[0], superTinyInterpreterApprovedResources[1], superTinyInterpreterApprovedResources[4]]
+      ),
+      concept(
+        "approved-sti-closures-environments",
+        "Closures remember an environment",
+        "The project models a closure as a function together with the environment available when that function was created, then contrasts lexical and dynamic lookup behavior.",
+        "This is the real learning payoff: JavaScript functions are not just code blocks; they carry name-resolution context that affects every nested function call.",
+        [
+          "You can describe what is stored in the closure object.",
+          "You can explain why lexical and dynamic scope can produce different answers.",
+          "You can trace a recursive const function through the environment lookup path."
+        ],
+        [superTinyInterpreterApprovedResources[0], superTinyInterpreterApprovedResources[2], superTinyInterpreterApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Run the supported syntax subset",
+        "README and example programs",
+        "Learn the deliberately small JavaScript subset first: literals, identifiers, binary/unary operators, ternary expressions, arrow functions, calls, blocks, returns, and const declarations.",
+        "Run tiny examples for each supported construct and write down which AST/eval case should handle it.",
+        "If a normal JavaScript feature fails, compare it against the README's supported-syntax list before changing interpreter code.",
+        "A small fixture file shows each supported construct and at least one intentionally unsupported construct.",
+        superTinyInterpreterApprovedResources.slice(0, 5)
+      ),
+      checkpoint(
+        "Inspect parsed AST before interpreting",
+        "Parser and AST cleaning",
+        "Learn that Babel produces a tree with many fields, while this tutorial strips metadata so the interpreter can focus on node type and child structure.",
+        "Print the cleaned AST for a const declaration and an arrow function before writing new interpreter behavior.",
+        "If interpretation breaks, inspect the AST shape first rather than guessing how Babel represented the source.",
+        "README includes one source snippet and its cleaned AST representation.",
+        [superTinyInterpreterApprovedResources[0], superTinyInterpreterApprovedResources[4], superTinyInterpreterApprovedResources[1]]
+      ),
+      checkpoint(
+        "Trace expression and statement evaluation",
+        "ExpressionInterp and StatementInterp",
+        "Learn why expressions produce values while statements manage program flow, declarations, blocks, and returns.",
+        "Add trace logs or tests for literals, identifiers, binary expressions, calls, blocks, returns, and const declarations.",
+        "If a value appears in the wrong place, decide whether the expression interpreter, statement interpreter, or environment owns the bug.",
+        "Each interpreter case has one passing example and one written sentence explaining its job.",
+        [superTinyInterpreterApprovedResources[1], superTinyInterpreterApprovedResources[0], superTinyInterpreterApprovedResources[4]]
+      ),
+      checkpoint(
+        "Prove closure behavior and document limits",
+        "Closure, environment, and options",
+        "Learn closure application, environment extension, recursive closure handling, and the lexical/dynamic scope option as the tutorial's central concept.",
+        "Run one nested closure example, one recursive function, and one lexical-versus-dynamic scope comparison, then document what this interpreter does not support.",
+        "If a closure sees the wrong variable, print the closure environment and call-time environment separately.",
+        "README explains AST parsing, environments, closures, recursion, scope mode, and WIP limitations.",
+        [superTinyInterpreterApprovedResources[2], superTinyInterpreterApprovedResources[3], superTinyInterpreterApprovedResources[0]]
+      )
+    ],
+    [
+      "Review JavaScript functions, arrow functions, const bindings, and block scope before editing interpreter cases.",
+      "Learn Babel parser output with two tiny snippets before interpreting the AST.",
+      "Keep one fixture for literals/operators, one for functions, and one for closures.",
+      "Commit after parser inspection, expression eval, statement eval, closure proof, and limitations notes."
+    ],
+    [
+      "Demo the interpreter running literals, operators, const declarations, function calls, closures, and recursion.",
+      "Add README artifacts for source code, AST shape, environment lookup, and closure application.",
+      "Include one scoping bug and how inspecting environments exposed it.",
+      "List unsupported JavaScript features and repeat the tutorial's WIP/spec-compliance caveat clearly."
+    ],
+    "Built a JavaScript interpreter slice with Babel AST parsing, expression and statement evaluation, immutable environments, closure application, lexical/dynamic scope comparison, recursion, and explicit JavaScript-subset limits.",
+    ["The README explicitly labels the project WIP; approval is scoped to closure/interpreter learning, not to spec-complete JavaScript."] 
+  ),
+  approvedTutorialOverride(
+    "uncategorized-typescript-tiny-package-manager-learns-how-npm-or-yarn-works",
+    "Individual review of Tiny Package Manager README/source plus npm package metadata, package-lock, and SemVer references",
+    "Approved path for Tiny Package Manager focused on package.json inputs, npm registry manifests, semver range resolution, dependency flattening, conflict handling, tarball installation, and lock-file persistence.",
+    tinyPackageManagerApprovedResources,
+    [
+      concept(
+        "approved-tiny-pm-resolution-graph",
+        "Dependency resolution is graph work",
+        "The tutorial turns package.json dependencies into registry manifest lookups, version choices, child dependencies, and a tree that may contain conflicts.",
+        "That is the missing beginner bridge behind npm and Yarn: installing a package is not one download, it is repeated constraint solving over dependency metadata.",
+        [
+          "You can explain the difference between a dependency name, version range, resolved version, and tarball URL.",
+          "You can trace one direct dependency into its transitive dependencies.",
+          "You can say why two compatible ranges can share one installed package while incompatible ranges cannot."
+        ],
+        [tinyPackageManagerApprovedResources[0], tinyPackageManagerApprovedResources[2], tinyPackageManagerApprovedResources[4], tinyPackageManagerApprovedResources[5]]
+      ),
+      concept(
+        "approved-tiny-pm-flatten-lock-install",
+        "Install trees need a reproducible record",
+        "The source separates deciding what should be installed from fetching tarballs into node_modules and writing a YAML lock file that records chosen versions.",
+        "Beginners need this boundary to understand why lock files exist and why package managers can be slow, surprising, or hard to reproduce.",
+        [
+          "You can distinguish resolution, installation, and lock-file writing.",
+          "You can explain why flattening node_modules is useful but not always possible.",
+          "You can describe what would change if the lock file already contains a package."
+        ],
+        [tinyPackageManagerApprovedResources[0], tinyPackageManagerApprovedResources[1], tinyPackageManagerApprovedResources[3], tinyPackageManagerApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Start from a tiny package.json",
+        "CLI entry and package.json discovery",
+        "Learn the input contract: the package manager reads package.json, optionally adds CLI-requested dependencies, and filters dependencies before resolution.",
+        "Create a fixture package.json with one dependency, run the CLI flow, and log the root dependency list before any network fetch.",
+        "If the project cannot start, verify current directory, package.json parsing, and CLI arguments before debugging registry code.",
+        "A fixture shows root dependencies and the top-level install request clearly.",
+        [tinyPackageManagerApprovedResources[0], tinyPackageManagerApprovedResources[1], tinyPackageManagerApprovedResources[4]]
+      ),
+      checkpoint(
+        "Resolve manifests and semver ranges",
+        "list.ts dependency traversal",
+        "Learn how registry manifests, semver max-satisfying choices, and recursive child dependency traversal build the install plan.",
+        "Trace one dependency through manifest fetch, version selection, child dependencies, and conflict detection.",
+        "If the wrong version is chosen, inspect the semver range and available versions before touching install code.",
+        "README contains one resolved dependency tree with version ranges and chosen versions.",
+        [tinyPackageManagerApprovedResources[2], tinyPackageManagerApprovedResources[5], tinyPackageManagerApprovedResources[4]]
+      ),
+      checkpoint(
+        "Download tarballs into node_modules",
+        "install.ts and node_modules layout",
+        "Learn installation as filesystem work after resolution: create directories, fetch package tarballs, and extract package contents into a package path.",
+        "Install one resolved package into a clean node_modules directory and inspect the extracted files.",
+        "If files land in the wrong place, log the package name, install path, tarball URL, and extraction root.",
+        "A clean run creates the expected node_modules package folder from the resolved tarball.",
+        [tinyPackageManagerApprovedResources[1], tinyPackageManagerApprovedResources[2], tinyPackageManagerApprovedResources[0]]
+      ),
+      checkpoint(
+        "Write the lock file and limits table",
+        "lock.ts and project omissions",
+        "Learn the lock file as the reproducibility record and document what this educational manager intentionally omits.",
+        "Run the install twice, compare the lock output, then document omitted lifecycle scripts, binary symlinks, workspaces, audits, peer dependency handling, and production security behavior.",
+        "If a second install changes unexpectedly, compare lock reads, manifest fetches, and updateOrCreate behavior.",
+        "README explains package.json input, resolution, install, lock-file reuse, conflict handling, and omitted npm/Yarn features.",
+        [tinyPackageManagerApprovedResources[3], tinyPackageManagerApprovedResources[4], tinyPackageManagerApprovedResources[0]]
+      )
+    ],
+    [
+      "Review TypeScript modules, async/await, promises, filesystem paths, and JSON parsing.",
+      "Read npm package.json fields and SemVer range rules before implementing resolution.",
+      "Use a throwaway fixture package instead of testing against a real project first.",
+      "Commit after CLI/package parsing, resolution tree, install extraction, lock writing, and limitations notes."
+    ],
+    [
+      "Demo installing a tiny fixture dependency into node_modules from a clean directory.",
+      "Add README artifacts for dependency tree, chosen versions, lock-file content, and node_modules layout.",
+      "Include one semver or conflict-resolution bug and how the trace exposed it.",
+      "List production package-manager features deliberately not implemented."
+    ],
+    "Built a tiny TypeScript package manager with package.json parsing, npm registry manifest resolution, semver version choice, dependency flattening/conflict handling, tarball installation, lock-file persistence, and honest npm/Yarn limitations.",
+    ["The README/source present this as an educational demo; approval is scoped to learning package-manager mechanics, not replacing npm or Yarn."]
+  ),
+  approvedTutorialOverride(
+    "bittorrent-client-nim-writing-a-bencode-parser",
+    "Individual review of Nim Days bencode parser plus BEP 3 bencoding and Nim variant-object references",
+    "Approved path for the Nim bencode parser focused on BitTorrent's bencoded wire format, variant object modeling, recursive encoding/decoding, consumed-length parsing, and parser correctness limits.",
+    nimBencodeApprovedResources,
+    [
+      concept(
+        "approved-bencode-wire-format",
+        "Bencode is a small wire grammar",
+        "The tutorial teaches BitTorrent's bencode format as four encodings: length-prefixed strings, i...e integers, l...e lists, and d...e dictionaries.",
+        "That makes a BitTorrent client less mysterious for beginners: before peers and pieces, torrent metadata is a deterministic byte/string format you can parse.",
+        [
+          "You can decode `4:spam`, `i42e`, `l4:spami42ee`, and a tiny dictionary by hand.",
+          "You can explain why the parser must know how many characters it consumed.",
+          "You can name one malformed input that should not silently parse."
+        ],
+        [nimBencodeApprovedResources[0], nimBencodeApprovedResources[1]]
+      ),
+      concept(
+        "approved-bencode-variant-recursion",
+        "Variant objects model recursive data",
+        "The Nim implementation uses an enum plus variant object so one Bencode value can be a string, int, list of Bencode values, or dictionary of Bencode values.",
+        "This is the beginner bridge from raw text parsing to typed recursive data structures that can be encoded, decoded, compared, and tested.",
+        [
+          "You can explain why the enum controls which object field is valid.",
+          "You can trace encode/decode recursion through a nested list or dictionary.",
+          "You can describe why hash/equality matter once bencode values are stored in Nim tables."
+        ],
+        [nimBencodeApprovedResources[0], nimBencodeApprovedResources[2], nimBencodeApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Decode primitive values by hand",
+        "Bencode basics",
+        "Learn the exact grammar for strings and integers before touching recursive lists or dictionaries.",
+        "Write fixtures for string and integer examples, then manually mark the consumed range for each.",
+        "If decoding drifts, check the length prefix or terminating `e` before changing data types.",
+        "String and integer fixtures round-trip through encode/decode with consumed lengths.",
+        [nimBencodeApprovedResources[0], nimBencodeApprovedResources[1]]
+      ),
+      checkpoint(
+        "Define the recursive Nim value type",
+        "BencodeKind and BencodeType",
+        "Learn Nim enums and object variants as a way to store different bencode cases in one type.",
+        "Define the variant object and add equality/hash behavior before writing recursive parser logic.",
+        "If fields are unavailable, inspect the active enum branch for the variant object.",
+        "A small test constructs each Bencode kind directly and compares expected values.",
+        [nimBencodeApprovedResources[0], nimBencodeApprovedResources[2], nimBencodeApprovedResources[3]]
+      ),
+      checkpoint(
+        "Encode nested lists and dictionaries",
+        "Encoder implementation",
+        "Learn recursive encoding: primitive cases produce text directly, while lists and dictionaries encode each child in order.",
+        "Encode one nested list and one dictionary, then compare output against hand-written bencode fixtures.",
+        "If output is malformed, reduce to one child value and inspect separators, prefixes, and end markers.",
+        "Nested list and dictionary values encode to expected bencode strings.",
+        [nimBencodeApprovedResources[0], nimBencodeApprovedResources[1], nimBencodeApprovedResources[2]]
+      ),
+      checkpoint(
+        "Decode recursively and document parser gaps",
+        "Decoder implementation",
+        "Learn why the decoder returns both a parsed value and the number of consumed characters so callers can continue after nested values.",
+        "Decode nested list/dictionary fixtures and document validation gaps such as sorted dictionary keys, leading-zero integers, malformed inputs, byte-vs-Unicode handling, and torrent info-hash constraints.",
+        "If nested parsing loops or skips data, print the current cursor and consumed length at every recursive return.",
+        "README explains bencode grammar, variant model, recursive encode/decode, consumed-length parsing, and BitTorrent parser limitations.",
+        nimBencodeApprovedResources.slice(0, 4)
+      )
+    ],
+    [
+      "Review Nim strings, sequences, tables, enums, object variants, and simple testing before starting.",
+      "Write four hand-decoded bencode examples before coding.",
+      "Keep fixtures for primitive values, one nested list, and one nested dictionary.",
+      "Commit after type modeling, primitive decode, recursive encode, recursive decode, and limitations notes."
+    ],
+    [
+      "Demo round-tripping primitive, list, and dictionary bencode fixtures.",
+      "Add README artifacts for the grammar, variant object shape, and consumed-length trace.",
+      "Include one malformed-input or cursor bug and how tracing fixed it.",
+      "List what remains before this becomes a full BitTorrent client parser."
+    ],
+    "Built a Nim bencode parser with typed variant-object representation, recursive encoding/decoding, consumed-length parsing, fixture-based proofs, and BitTorrent-specific parser limitation notes.",
+    ["Original Nim Days article and BEP 3 bencoding section were read; approval is scoped to a bencode parser, not a complete BitTorrent client."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-nim-writing-a-redis-protocol-parser",
+    "Individual review of Nim Days Redis Protocol article plus Redis RESP spec and Nim variant/string references",
+    "Approved path for the Nim RESP parser focused on Redis wire framing, CRLF boundaries, variant value modeling, encoder/decoder symmetry, array recursion, command preparation, and RESP2 limitation notes.",
+    nimRespApprovedResources,
+    [
+      concept(
+        "approved-resp-wire-types",
+        "RESP is framed by prefixes and CRLF",
+        "The tutorial turns Redis replies and commands into five RESP2 cases: simple strings, errors, integers, bulk strings, and arrays, each identified by a prefix byte and CRLF boundaries.",
+        "This helps beginners see Redis networking as a parseable wire protocol before they try to build a server or client.",
+        [
+          "You can identify the first byte for each RESP2 type.",
+          "You can explain why bulk strings need a byte length plus trailing CRLF.",
+          "You can hand-decode a nested array response without running code."
+        ],
+        [nimRespApprovedResources[0], nimRespApprovedResources[1]]
+      ),
+      concept(
+        "approved-resp-variant-encode-decode",
+        "One variant type backs both encode and decode",
+        "The Nim implementation represents Redis values with a variant object, then writes one encoder and one decoder branch for each value kind.",
+        "That gives the learner a clean mental model: every protocol type should have a typed representation, an encoder proof, a decoder proof, and a malformed-input story.",
+        [
+          "You can map vkStr, vkError, vkInt, vkBulkStr, and vkArray to wire examples.",
+          "You can explain why nested arrays require recursive decoding.",
+          "You can tell whether a bug belongs to parsing, variant construction, or command preparation."
+        ],
+        [nimRespApprovedResources[0], nimRespApprovedResources[2], nimRespApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Hand-decode RESP examples first",
+        "What do we expect?",
+        "Learn the exact target behavior from the tutorial's example inputs before implementing any parser branch.",
+        "Write fixtures for +simple, -error, :integer, $bulk, $-1 null bulk, and one nested array, with expected Nim values beside each.",
+        "If an example seems ambiguous, compare it against the Redis RESP spec before encoding that behavior.",
+        "Fixtures cover each RESP2 value type and one nested array.",
+        [nimRespApprovedResources[0], nimRespApprovedResources[1]]
+      ),
+      checkpoint(
+        "Model Redis values in Nim",
+        "Data types",
+        "Learn variant objects as the bridge from protocol prefixes to typed values with display, hash, and equality behavior.",
+        "Define RedisValue and add direct construction tests for every kind before writing encode or decode functions.",
+        "If a field is inaccessible, check the active variant branch rather than changing parser logic.",
+        "Each RedisValue kind can be constructed, displayed, and compared in a tiny test.",
+        [nimRespApprovedResources[0], nimRespApprovedResources[2]]
+      ),
+      checkpoint(
+        "Encode and decode each branch symmetrically",
+        "Encoder and Decoder",
+        "Learn encode/decode symmetry: a valid value should produce valid RESP, and valid RESP should reconstruct the expected RedisValue plus consumed length.",
+        "Implement one branch at a time and round-trip simple strings, errors, integers, bulk strings, null bulk strings, and arrays.",
+        "If a nested array misreads the next value, print cursor/consumed length and CRLF positions on every recursive return.",
+        "Branch fixtures round-trip and nested arrays preserve element order and types.",
+        nimRespApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Prepare commands and document protocol gaps",
+        "Preparing commands",
+        "Learn how Redis commands become RESP arrays of bulk strings, and document where the tutorial stays smaller than a production RESP client.",
+        "Build GET/SET command encodings, then add a limitations table for RESP3, streaming, pipelining, binary safety, partial reads, network errors, and strict malformed input handling.",
+        "If command output is rejected by Redis, inspect array count, bulk byte lengths, command casing, and trailing CRLF.",
+        "README explains RESP prefixes, CRLF, variant modeling, recursion, command preparation, and omitted production behavior.",
+        [nimRespApprovedResources[0], nimRespApprovedResources[1], nimRespApprovedResources[3]]
+      )
+    ],
+    [
+      "Review Nim enums, object variants, strings, sequences, parseInt, and split/find utilities.",
+      "Write a table of RESP prefix byte to value kind before coding.",
+      "Keep fixtures for every RESP2 type and at least one nested array.",
+      "Commit after value modeling, primitive encode/decode, array recursion, command preparation, and limitations notes."
+    ],
+    [
+      "Demo encoding GET/SET commands and decoding nested RESP replies.",
+      "Add README artifacts for raw RESP, parsed RedisValue objects, and cursor movement.",
+      "Include one CRLF or consumed-length bug and how tracing found it.",
+      "List RESP3/client networking features intentionally not implemented."
+    ],
+    "Built a Nim RESP parser/encoder with typed RedisValue variants, CRLF-aware branch decoders, recursive array parsing, command encoding, fixture proofs, and explicit Redis-client limitations.",
+    ["Original Nim Days article and Redis RESP spec were read; approval is scoped to protocol serialization/parsing, not a full Redis client."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-nim-writing-a-ini-parser",
+    "Individual review of Nim Days INI Parser plus Nim parsecfg, Python configparser, and Nim string utilities",
+    "Approved path for the Nim INI parser focused on line-oriented parsing, section/property data modeling, parser state, comment/blank-line handling, serialization, helper APIs, and realistic INI dialect limitations.",
+    nimIniApprovedResources,
+    [
+      concept(
+        "approved-ini-line-state-machine",
+        "INI parsing is line state, not magic",
+        "The tutorial uses a simple state machine: section lines switch the current section, while key/value lines attach properties to that section.",
+        "That is a useful beginner parser because every decision can be observed on one line at a time before learning richer config-file parsers.",
+        [
+          "You can classify a line as blank/comment, section, key/value, or malformed.",
+          "You can explain what currentSectionName stores.",
+          "You can predict where a property will be stored after a section switch."
+        ],
+        [nimIniApprovedResources[0], nimIniApprovedResources[3]]
+      ),
+      concept(
+        "approved-ini-dialect-boundaries",
+        "INI has dialects and edge cases",
+        "The toy parser supports a narrow format: bracketed sections, equals-separated key/value pairs, blank lines, and comment lines.",
+        "Beginners need this honesty because real config parsers differ on delimiters, duplicate keys, interpolation, no-value keys, inline comments, multiline values, ordering, and error reporting.",
+        [
+          "You can name three INI behaviors this toy parser does not support.",
+          "You can compare the toy parser with Nim parsecfg or Python configparser.",
+          "You can write one malformed line test and decide whether to reject or ignore it."
+        ],
+        [nimIniApprovedResources[0], nimIniApprovedResources[1], nimIniApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Parse the sample by hand",
+        "What to expect?",
+        "Learn the target structure from the tutorial's sample file: two sections, string keys, string values, and retrieval through helper methods.",
+        "Copy the sample INI, annotate every line with its kind, and write the expected section/property table before coding.",
+        "If expected output is unclear, compare section/key rules against Nim parsecfg and Python configparser examples.",
+        "A written table shows sections, keys, values, blank lines, and comments.",
+        nimIniApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Build Section and Ini helpers",
+        "Data types and helpers",
+        "Learn the storage model: Section owns properties, Ini owns sections, and helpers make tests readable before parser logic exists.",
+        "Implement constructors, get/set/delete helpers, count helpers, and toIniString, then test them without parsing text.",
+        "If parser tests fail later, first verify that the helper API works with direct object construction.",
+        "Direct helper tests can create, read, update, delete, and serialize sections/properties.",
+        [nimIniApprovedResources[0], nimIniApprovedResources[1]]
+      ),
+      checkpoint(
+        "Implement the two-state parser",
+        "Parser states and parseIni proc",
+        "Learn readSection versus readKV as an explicit parser state and keep track of currentSectionName while scanning lines.",
+        "Parse blank lines, comments, [section] lines, and key=value lines with a trace of state transitions.",
+        "If a key lands under the wrong section, log state and currentSectionName before and after every section line.",
+        "The sample parses into the expected table, and trace logs explain each transition.",
+        [nimIniApprovedResources[0], nimIniApprovedResources[3]]
+      ),
+      checkpoint(
+        "Test dialect edges and document limits",
+        "Supported INI structure comparison",
+        "Learn why production parsers are larger: they handle alternative delimiters, duplicate behavior, comments, multiline values, default sections, interpolation, no-value keys, and precise errors.",
+        "Add tests for inline comments, duplicate keys, colon delimiters, missing sections, malformed section headers, and values containing equals signs, then document decisions.",
+        "If a feature feels simple, compare it against parsecfg/configparser before claiming support.",
+        "README explains supported syntax, parser states, serialization, helper API, and unsupported INI dialect features.",
+        [nimIniApprovedResources[1], nimIniApprovedResources[2], nimIniApprovedResources[0]]
+      )
+    ],
+    [
+      "Review Nim tables, strings, splitLines, strip, startsWith, endsWith, and exception basics.",
+      "Write the supported INI grammar in four bullet points before coding.",
+      "Use one happy-path sample and one malformed sample as fixtures.",
+      "Commit after helpers, parser state, serialization, dialect-edge tests, and limitations notes."
+    ],
+    [
+      "Demo parsing and serializing a sample config with two sections.",
+      "Add README artifacts for line classification, state transitions, and section/property storage.",
+      "Include one malformed-line or wrong-section bug and how tracing fixed it.",
+      "List unsupported INI behaviors compared with Nim parsecfg and Python configparser."
+    ],
+    "Built a Nim INI parser with section/property helpers, line-oriented state parsing, comment/blank-line handling, serialization, fixture tests, and clear INI-dialect limitations.",
+    ["Original Nim Days article and official config-parser references were read; approval is scoped to a small educational INI dialect."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-python-json-decoding-algorithm",
+    "Individual review of JSON Decoding Algorithm README/source plus RFC 8259 and Python json references",
+    "Approved path for the JSON Decoding Algorithm focused on table-driven recognition, character categories, parser/goto stacks, semantic actions, JSON value construction, verifier coverage, and Python 2-era portability caveats.",
+    jsonAlgorithmApprovedResources,
+    [
+      concept(
+        "approved-json-table-recognizer",
+        "A table-driven recognizer replaces hand branches",
+        "This project parses JSON by looking up character categories in generated state tables, then shifting, popping, or moving states instead of writing a normal recursive-descent parser.",
+        "That gives beginners a rare view of parser mechanics: syntax recognition can be data-driven, while semantic actions remain ordinary code.",
+        [
+          "You can explain what states, gotos, and catcode each contribute.",
+          "You can trace one input character through state lookup and action extraction.",
+          "You can say why build_tables.py should be changed instead of hand-editing json.txt."
+        ],
+        [jsonAlgorithmApprovedResources[0], jsonAlgorithmApprovedResources[1], jsonAlgorithmApprovedResources[2]]
+      ),
+      concept(
+        "approved-json-actions-stacks",
+        "Actions build values while recognition checks syntax",
+        "The driver separates recognition from construction: the table accepts JSON syntax, while do_action mutates data, string, and escape stacks to build Python values.",
+        "This is the core bridge from 'valid JSON text' to actual decoded objects, and it also shows where strings, escapes, numbers, arrays, and objects can fail.",
+        [
+          "You can map action codes to push list/object/null/true/false/string/number behavior.",
+          "You can explain why string and escape stacks are separate from the data stack.",
+          "You can compare accepted JSON values against RFC 8259 edge cases."
+        ],
+        [jsonAlgorithmApprovedResources[0], jsonAlgorithmApprovedResources[2], jsonAlgorithmApprovedResources[3], jsonAlgorithmApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Understand the table files before porting",
+        "Parsing tables for JSON",
+        "Learn the project architecture: build_tables.py generates states/gotos/catcode, json.txt stores those generated tables, and the README shows the portable driver.",
+        "Trace one simple input such as true or [] through catcode lookup, state transition, and final accept state.",
+        "If the table feels unreadable, inspect build_tables.py's looser state definitions before reading the packed json.txt values.",
+        "README notes explain states, gotos, catcode, action bits, and why tables are generated.",
+        [jsonAlgorithmApprovedResources[0], jsonAlgorithmApprovedResources[1], jsonAlgorithmApprovedResources[2]]
+      ),
+      checkpoint(
+        "Implement the driver loop and syntax errors",
+        "Tutorial for implementing a JSON decoder or parser",
+        "Learn parse and parse_ch as the recognizer loop that consumes characters, handles shifts/pops, and rejects invalid syntax or truncated input.",
+        "Port the driver to a modern Python file or another language, then test true, false, null, numbers, strings, arrays, objects, truncation, and extra-object errors.",
+        "If the state never returns to zero, trace stack pushes/pops and the final whitespace flush.",
+        "Driver tests prove accept, syntax error, truncated input, and too-many-objects cases.",
+        [jsonAlgorithmApprovedResources[0], jsonAlgorithmApprovedResources[2], jsonAlgorithmApprovedResources[3]]
+      ),
+      checkpoint(
+        "Write semantic actions deliberately",
+        "do_action and value construction",
+        "Learn semantic actions as the construction layer: values are pushed to a data stack, string characters accumulate separately, and escapes/unicode points are resolved before string completion.",
+        "Implement do_action with tests for nested arrays, objects, escaped characters, unicode escapes, ints, floats, booleans, and null.",
+        "If valid syntax returns wrong data, inspect action behavior before changing state tables.",
+        "Complex fixtures decode to expected Python values and demonstrate escape handling.",
+        [jsonAlgorithmApprovedResources[0], jsonAlgorithmApprovedResources[2], jsonAlgorithmApprovedResources[4]]
+      ),
+      checkpoint(
+        "Verify coverage and document modernization limits",
+        "Bugfixes and verifier.py",
+        "Learn why the repo verifies state-transition coverage and why this code should be modernized carefully for Python 3 or another target language.",
+        "Run or adapt verifier-style fixtures, compare against Python's json module, and document Python 2 syntax, Unicode surrogate handling, duplicate object names, numeric precision/range, streaming multiple JSON texts, and denial-of-service limits.",
+        "If behavior differs from Python json, decide whether it is a spec issue, implementation choice, or Python extension such as NaN/Infinity.",
+        "README explains table generation, recognizer/action split, verification, RFC edge cases, and modernization caveats.",
+        [jsonAlgorithmApprovedResources[2], jsonAlgorithmApprovedResources[3], jsonAlgorithmApprovedResources[4]]
+      )
+    ],
+    [
+      "Review stacks, finite-state machines, hex numbers/bit masks, Python lists/dicts, and JSON syntax before porting code.",
+      "Read build_tables.py before treating json.txt as magic.",
+      "Keep tiny fixtures for each JSON value type and one nested object/array.",
+      "Commit after table loading, driver loop, semantic actions, verifier fixtures, and modernization notes."
+    ],
+    [
+      "Demo decoding primitive values, strings with escapes, arrays, and objects.",
+      "Add README artifacts for state lookup, parser stack, data/string/escape stacks, and action codes.",
+      "Include one syntax-vs-action bug and how the trace isolated it.",
+      "List Python 2-era and RFC compliance caveats honestly."
+    ],
+    "Built or ported a table-driven JSON decoder with generated parsing tables, character category lookup, parser/goto stacks, semantic action handlers, verifier-style coverage tests, and standards-based caveats.",
+    ["Original README, table generator, verifier, JSON tables, RFC 8259, and Python json reference were read; approval is scoped to an educational/portable decoder, not a drop-in modern JSON library."]
+  ),
+  approvedTutorialOverride(
+    "command-line-tool-nim-writing-a-stow-alternative-to-manage-dotfiles",
+    "Individual review of Nim Days Nistow article plus GNU Stow, ln, Nim parseopt, and Nim os references",
+    "Approved path for the Nistow dotfile manager focused on dotfile package layout, CLI option parsing, safe simulation, path mapping, symlink creation, conflict handling, and filesystem-risk boundaries.",
+    nistowApprovedResources,
+    [
+      concept(
+        "approved-nistow-package-to-target-map",
+        "Package paths map into target paths",
+        "The tutorial's main idea is that an application directory mirrors where its config files should live under the destination, then each source file becomes one symlink target.",
+        "Beginners need this before touching symlinks because dotfile managers are path transformation tools first and filesystem mutation tools second.",
+        [
+          "You can map app/.config/i3/config to dest/.config/i3/config by hand.",
+          "You can explain why appPath and dest must be expanded and validated.",
+          "You can tell whether a bug is in directory walking, path replacement, or symlink creation."
+        ],
+        [nistowApprovedResources[0], nistowApprovedResources[1], nistowApprovedResources[4]]
+      ),
+      concept(
+        "approved-nistow-safe-symlink-cli",
+        "A filesystem CLI needs dry-run safety",
+        "Nistow includes simulate, verbose, force, app, and dest flags so the user can see planned links before changing files and can decide how conflicts are handled.",
+        "This is the professional lesson hiding inside a tiny CLI: destructive operations should be explicit, explainable, and testable on a temporary directory.",
+        [
+          "You can describe what --simulate prevents.",
+          "You can explain why --force should remove only the exact conflicting link path.",
+          "You can test the command in a temp destination without touching real home files."
+        ],
+        [nistowApprovedResources[0], nistowApprovedResources[2], nistowApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Draw the dotfiles layout first",
+        "Dotfiles layout and expected CLI",
+        "Learn the package layout and destination mapping before parsing command-line flags or creating symlinks.",
+        "Create a tiny fixture app directory with one nested config file and write the expected destination path beside it.",
+        "If the destination path surprises you, inspect the appPath prefix replacement before using createSymlink.",
+        "A fixture shows source path, destination path, and expected link relationship.",
+        nistowApprovedResources.slice(0, 5)
+      ),
+      checkpoint(
+        "Parse options without touching files",
+        "CLI implementation",
+        "Learn parseopt/getopt, default destination behavior, required --app validation, and exit paths before filesystem mutation.",
+        "Implement help, version, simulate, verbose, force, app, and dest parsing, then print the parsed config for several command examples.",
+        "If a flag is ignored, inspect kind/key/val from getopt before changing stow logic.",
+        "CLI tests cover help, missing app, explicit dest, simulate, verbose, and force.",
+        [nistowApprovedResources[0], nistowApprovedResources[3]]
+      ),
+      checkpoint(
+        "Collect linkable files and simulate",
+        "getLinkableFiles",
+        "Learn recursive directory walking as a pure planning step that produces LinkInfo records without changing the filesystem.",
+        "Walk the fixture app directory, print every original/dest pair, and run the stow step with simulate=true.",
+        "If files are missing, inspect walkDirRec filters and path expansion before symlink code.",
+        "Simulation output lists every planned link and creates no files.",
+        [nistowApprovedResources[0], nistowApprovedResources[4], nistowApprovedResources[1]]
+      ),
+      checkpoint(
+        "Create links and document conflict limits",
+        "stow procedure",
+        "Learn safe filesystem mutation: create parent directories, skip existing targets by default, and only overwrite when force is explicit.",
+        "Create symlinks in a temporary destination, test conflict behavior with and without force, and document missing unstow, adopt, ignore lists, relative symlinks, Windows behavior, and backup support.",
+        "If force removes the wrong file, stop and trace the exact linkpath before retrying.",
+        "README explains path mapping, CLI flags, dry run, symlink creation, conflict behavior, and missing GNU Stow features.",
+        [nistowApprovedResources[0], nistowApprovedResources[1], nistowApprovedResources[2], nistowApprovedResources[4]]
+      )
+    ],
+    [
+      "Review shell paths, home directories, symlinks, Nim parseopt, and Nim os filesystem procs.",
+      "Use a temporary destination for every manual test until the project is proven safe.",
+      "Write expected source-to-destination mappings before running the tool.",
+      "Commit after CLI parsing, link planning, simulated stow, real temp-directory stow, and limitations notes."
+    ],
+    [
+      "Demo dry-run output and real symlink creation in a temporary directory.",
+      "Add README artifacts for app layout, LinkInfo mapping, and conflict behavior.",
+      "Include one path-mapping or force-mode bug and how it was isolated.",
+      "List missing GNU Stow behaviors and platform caveats honestly."
+    ],
+    "Built a Nim dotfile stow tool with CLI parsing, package-to-destination path planning, dry-run output, symlink creation, conflict handling, and explicit filesystem safety limits.",
+    ["Original Nim Days article plus Stow/ln/Nim docs were read; approval is scoped to a small stow-like learning tool, not a full GNU Stow replacement."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-nim-writing-a-dmidecode-parser",
+    "Individual review of Nim Days DMIDecode parser plus DMTF SMBIOS overview and Nim string/table references",
+    "Approved path for the DMIDecode parser focused on parsing dmidecode text output, indentation-sensitive section/property/list structure, state transitions, table-backed lookup, and raw-SMBIOS scope boundaries.",
+    dmiParserApprovedResources,
+    [
+      concept(
+        "approved-dmi-output-structure",
+        "dmidecode output is nested text",
+        "The tutorial treats dmidecode output as text with metadata, Handle lines, section titles, indented key/value properties, and deeper indented list items.",
+        "That is a strong beginner parser because the structure is visible in whitespace, but still realistic enough to teach state and nested data.",
+        [
+          "You can identify a Handle line, section title, property line, and list item.",
+          "You can explain why indentation controls the switch into readList.",
+          "You can draw Section and Property objects for one BIOS Information block."
+        ],
+        [dmiParserApprovedResources[0], dmiParserApprovedResources[2], dmiParserApprovedResources[3]]
+      ),
+      concept(
+        "approved-dmi-state-table-model",
+        "Parser state protects the current section",
+        "The parser tracks noOp, sectionName, readKeyValue, and readList so each line updates the correct current section or current property.",
+        "Beginners need this because parsing command output by splitting strings works only when the code remembers where it is in the document.",
+        [
+          "You can explain what s, p, k, and v represent while parsing.",
+          "You can trace when a section is stored in the result table.",
+          "You can distinguish parsing dmidecode output from decoding raw SMBIOS binary tables."
+        ],
+        [dmiParserApprovedResources[0], dmiParserApprovedResources[1], dmiParserApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Annotate the sample output",
+        "What to expect?",
+        "Learn the target text structure before coding: metadata lines, Handle line, section title, properties, and list items.",
+        "Mark every line in the tutorial sample as metadata, handle, title, property, or list item, then write expected keys and values.",
+        "If a line classification is uncertain, inspect indentation and colon position before designing the data type.",
+        "A written annotation maps each sample line to its parser role.",
+        dmiParserApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Model sections and properties",
+        "Mapping DMI to nim structures",
+        "Learn the nested data model: a Section stores the handle/title and a table of Property values, while each Property stores a value plus optional list items.",
+        "Implement Property, Section, addItem, and getIndentLevel, then construct one section manually in a test.",
+        "If lookup fails, verify table keys and case/spaces before changing parser state.",
+        "Direct construction tests can store a section, property value, and list items.",
+        [dmiParserApprovedResources[0], dmiParserApprovedResources[3], dmiParserApprovedResources[2]]
+      ),
+      checkpoint(
+        "Implement indentation-sensitive parsing",
+        "Parsing DMI source into nim structures",
+        "Learn how state changes when a Handle starts, a title follows, key/value lines appear, and list indentation begins or ends.",
+        "Trace state, indentation, current key, and current section title for the BIOS Information example.",
+        "If a list item becomes a property, compare getIndentLevel(current) and getIndentLevel(next) before changing split logic.",
+        "The parser extracts BIOS Information with Characteristics list items and later key/value properties intact.",
+        [dmiParserApprovedResources[0], dmiParserApprovedResources[2]]
+      ),
+      checkpoint(
+        "Document parser assumptions and DMI scope",
+        "Final return and scope review",
+        "Learn the scope boundary: this parses dmidecode's human-readable output, not raw SMBIOS structures or every hardware/vendor edge case.",
+        "Add tests for multiple sections, empty values, properties containing colons, final section without trailing blank line, tabs/spaces, and unexpected metadata, then document decisions.",
+        "If real dmidecode output breaks the parser, preserve the fixture and classify the new line shape before patching.",
+        "README explains output structure, state transitions, indentation rules, test fixtures, and raw-SMBIOS limitations.",
+        [dmiParserApprovedResources[0], dmiParserApprovedResources[1], dmiParserApprovedResources[3]]
+      )
+    ],
+    [
+      "Review Nim strings, splitLines, strip, tables, object refs, and indentation-sensitive parsing.",
+      "Use saved dmidecode text fixtures instead of requiring learners to run privileged hardware commands.",
+      "Mark sample lines by role before writing parser code.",
+      "Commit after data model, indent helper, parser states, real fixture tests, and limitations notes."
+    ],
+    [
+      "Demo parsing at least two dmidecode sections into Section and Property structures.",
+      "Add README artifacts for line annotation, state trace, and parsed table output.",
+      "Include one indentation or colon-splitting bug and how the fixture exposed it.",
+      "List the difference between parsing dmidecode output and implementing an SMBIOS decoder."
+    ],
+    "Built a Nim dmidecode-output parser with Section/Property data structures, indentation-sensitive state transitions, table-backed lookup, fixture tests, and clear raw-SMBIOS scope limits.",
+    ["Original Nim Days article and DMTF/Nim references were read; approval is scoped to parsing dmidecode text output, not decoding SMBIOS binary tables."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-nim-writing-a-url-shortening-service",
+    "Individual review of Nim Days URL shortener plus Jester, Nim db_sqlite/json, and HTTP status references",
+    "Approved path for the Nim URL shortener focused on route design, SQLite persistence, JSON request/response handling, ID lookup, redirect behavior, and production web-service safety limits.",
+    nimShortUrlApprovedResources,
+    [
+      concept(
+        "approved-shorturl-routes-dataflow",
+        "Routes move data through the app",
+        "The tutorial has three core flows: render the form, POST a long URL to create or reuse an ID, and GET that ID to redirect to the saved URL.",
+        "Beginners need this request-to-database-to-response map before web code stops feeling like scattered callbacks.",
+        [
+          "You can name the route, HTTP method, input, database query, and response for each flow.",
+          "You can explain why /shorten is POST while /@Id is GET.",
+          "You can trace a single URL from form input to redirect."
+        ],
+        [nimShortUrlApprovedResources[0], nimShortUrlApprovedResources[1], nimShortUrlApprovedResources[4]]
+      ),
+      concept(
+        "approved-shorturl-sql-json-boundary",
+        "JSON and SQL are boundaries",
+        "The app receives JSON from fetch, extracts the url field, stores/looks it up in SQLite, then returns JSON containing the short ID.",
+        "That teaches two beginner-critical habits: parse external input deliberately and use parameterized SQL instead of string-building queries.",
+        [
+          "You can distinguish request.body JSON from the SQLite urls table.",
+          "You can explain why the tutorial uses sql placeholders for url/id values.",
+          "You can name one validation or abuse case missing from the demo."
+        ],
+        [nimShortUrlApprovedResources[0], nimShortUrlApprovedResources[2], nimShortUrlApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Map the app before coding routes",
+        "Basic use case and setup",
+        "Learn the whole URL-shortener lifecycle before installing dependencies: long URL in, numeric ID stored, short path redirects out.",
+        "Draw a three-route table for home page, /shorten, and /@Id with method, input, output, and failure cases.",
+        "If route behavior is unclear, compare it with Jester's route and response examples before adding database code.",
+        "A route table explains the data flow and expected HTTP responses.",
+        nimShortUrlApprovedResources.slice(0, 5)
+      ),
+      checkpoint(
+        "Create and test the SQLite table",
+        "SQLite database setup",
+        "Learn persistence separately from web routing: the urls table maps an id to a long URL and should be queryable without a browser.",
+        "Create the table, insert one URL, select by URL, select by ID, and verify duplicate URL behavior.",
+        "If IDs are wrong, inspect the schema and tryInsertId result before debugging Jester.",
+        "Database-only tests can insert, reuse, and retrieve URLs.",
+        [nimShortUrlApprovedResources[0], nimShortUrlApprovedResources[2]]
+      ),
+      checkpoint(
+        "Implement JSON POST and form flow",
+        "Home endpoint and Shorten endpoint",
+        "Learn browser-to-server JSON: fetch sends request.body, parseJson extracts url, the server replies with a JSON id, and the page renders the short link.",
+        "Implement the home form and /shorten route, then test valid JSON, missing url, duplicate url, and invalid JSON manually or with a small request script.",
+        "If the browser gets no id, inspect request.body, parseJson result, DB lookup, and response status separately.",
+        "/shorten returns 200 with an id for valid input and 400 for missing url.",
+        [nimShortUrlApprovedResources[0], nimShortUrlApprovedResources[3], nimShortUrlApprovedResources[4]]
+      ),
+      checkpoint(
+        "Redirect and document production gaps",
+        "Shorturls redirect",
+        "Learn redirect behavior as a lookup followed by a 3xx response, and document why a public URL shortener needs much more hardening.",
+        "Implement /@Id redirect, then document URL validation, abuse/spam controls, auth/admin tools, collision strategy, deletion, analytics, rate limiting, CSRF/CORS, HTTPS, and deployment behind a reverse proxy.",
+        "If redirect loops or points somewhere unsafe, inspect stored URL validation before changing routing.",
+        "README explains routes, JSON, SQLite queries, redirects, error cases, and production-safety gaps.",
+        [nimShortUrlApprovedResources[0], nimShortUrlApprovedResources[1], nimShortUrlApprovedResources[4]]
+      )
+    ],
+    [
+      "Review HTTP methods/status codes, JSON request bodies, SQLite basics, and Jester route syntax.",
+      "Test the SQLite layer separately before running the web server.",
+      "Keep a route/data-flow table visible while building.",
+      "Commit after database setup, home page, /shorten JSON route, redirect route, and security limitations notes."
+    ],
+    [
+      "Demo creating a short link and following it through the redirect route.",
+      "Add README artifacts for route table, database schema, sample request/response, and redirect flow.",
+      "Include one JSON/body or SQL lookup bug and how it was isolated.",
+      "List public-service risks and deployment hardening that the tutorial intentionally skips."
+    ],
+    "Built a Nim URL shortener with Jester routes, SQLite persistence, JSON request/response handling, redirect lookup, route-level proof tests, and explicit production web-service safety limits.",
+    ["Original Nim Days article and Jester/Nim/HTTP references were read; approval is scoped to a local educational shortener, not a hardened public service."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-nim-writing-a-link-checker",
+    "Individual review of Nim Days Async Link Checker plus Nim asyncdispatch/httpclient/os and MDN HTTP status references",
+    "Approved path for the Nim link checker focused on sequential versus async HTTP requests, futures, event-loop scheduling, result modeling, CLI file input, status-code interpretation, and network-checking limits.",
+    nimLinkCheckerApprovedResources,
+    [
+      concept(
+        "approved-link-checker-io-concurrency",
+        "Async helps when work is waiting on IO",
+        "The tutorial compares sequential HTTP requests with async requests so the learner can see that network waiting time can overlap when each check returns a Future.",
+        "This is the real beginner payoff: async is not faster because the CPU works harder; it is faster because the program does other checks while one request is waiting.",
+        [
+          "You can explain why five slow links take less wall-clock time when requested concurrently.",
+          "You can distinguish an async Future from the finished LinkCheckResult.",
+          "You can say why waitFor is needed when main calls an async proc."
+        ],
+        [nimLinkCheckerApprovedResources[0], nimLinkCheckerApprovedResources[1], nimLinkCheckerApprovedResources[2]]
+      ),
+      concept(
+        "approved-link-checker-status-semantics",
+        "A link checker needs a status policy",
+        "The tutorial treats only HTTP 200 as valid, but real link checking needs a deliberate policy for redirects, 204, 3xx, 4xx, 5xx, timeouts, malformed URLs, SSL, and DNS failures.",
+        "Beginners need this nuance because otherwise a working HTTP client becomes a misleading quality checker.",
+        [
+          "You can explain what the tutorial's true/false state means.",
+          "You can decide whether redirects should count as healthy for your project.",
+          "You can record exception, timeout, and non-200 status separately in a future improvement."
+        ],
+        [nimLinkCheckerApprovedResources[0], nimLinkCheckerApprovedResources[3], nimLinkCheckerApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Model one link check result",
+        "Step 1: Data types",
+        "Learn the smallest result shape before HTTP code: each check should record the link and the result state or reason.",
+        "Create LinkCheckResult and one direct test/result printout before making any network requests.",
+        "If output is unclear later, add fields for status code or error reason instead of relying on bool alone.",
+        "A result object can represent a checked URL and its health result.",
+        [nimLinkCheckerApprovedResources[0]]
+      ),
+      checkpoint(
+        "Implement sequential checks first",
+        "Step 2: GO Sequential!",
+        "Learn blocking HTTP behavior with newHttpClient, get, response.code, try/except, and a line-by-line file of URLs.",
+        "Check a tiny links file sequentially, print status for valid, invalid, blank, and unreachable URLs, and record elapsed time.",
+        "If every HTTPS URL fails, check SSL build flags and network access before rewriting logic.",
+        "Sequential mode prints one result per nonblank input line and handles exceptions without crashing.",
+        [nimLinkCheckerApprovedResources[0], nimLinkCheckerApprovedResources[2], nimLinkCheckerApprovedResources[4]]
+      ),
+      checkpoint(
+        "Add async Future collection",
+        "Step 3: GO ASYNC!",
+        "Learn async proc return types, newAsyncHttpClient, yield/await, all(futures), failed futures, read, and waitFor from sync main.",
+        "Implement asyncLinksChecker and compare elapsed time against the same links file from sequential mode.",
+        "If output order or timing surprises you, print when each Future is created and when it finishes.",
+        "Async mode checks several links concurrently and produces the same health decisions as sequential mode for the fixture.",
+        [nimLinkCheckerApprovedResources[0], nimLinkCheckerApprovedResources[1], nimLinkCheckerApprovedResources[2]]
+      ),
+      checkpoint(
+        "Document link-checker policy limits",
+        "Step 4 simple cli and Extra threading",
+        "Learn the CLI boundary and document why a real link checker needs more policy and operational controls.",
+        "Add command usage, file input checks, timing output, and a limitations table for redirects, HEAD vs GET, rate limiting, retries, timeouts, SSL, robots.txt, status classes, concurrency caps, and threadpool comparison.",
+        "If the checker overloads a host or hangs, add a small concurrency limit and timeout before adding more features.",
+        "README explains sequential vs async behavior, Future flow, CLI usage, measured speedup, and link-health policy gaps.",
+        nimLinkCheckerApprovedResources.slice(0, 5)
+      )
+    ],
+    [
+      "Review Nim procedures, exceptions, sequences, file reading, async Future basics, and HTTP status classes.",
+      "Use a small local fixture file with known good, bad, blank, and malformed links.",
+      "Run sequential and async modes on the same fixture before interpreting timing.",
+      "Commit after result type, sequential checker, async checker, CLI file input, and limitations notes."
+    ],
+    [
+      "Demo sequential and async runs over the same links file with elapsed timings.",
+      "Add README artifacts for Future creation/completion and status policy decisions.",
+      "Include one SSL, timeout, or malformed-URL bug and how it was diagnosed.",
+      "List real crawler/link-checker concerns not implemented."
+    ],
+    "Built a Nim link checker with sequential and async HTTP modes, Future aggregation, CLI file input, timing comparison, exception handling, and explicit link-health policy limits.",
+    ["Original Nim Days article and exact Nim/HTTP status references were read; approval is scoped to a small educational link checker, not a production crawler."]
+  ),
+  approvedTutorialOverride(
+    "uncategorized-nim-writing-a-build-system",
+    "Individual review of Nim Days Bake build system plus GNU Make rules, cp-algorithms cycle detection, and Nim table/algorithm references",
+    "Approved path for the Nim Bake build system focused on Make-like targets, dependencies, actions, adjacency-list task graphs, DFS ordering, duplicate suppression, cycle detection, and build-tool scope limits.",
+    nimBuildSystemApprovedResources,
+    [
+      concept(
+        "approved-bake-target-dependency-graph",
+        "Build targets form a directed graph",
+        "The tutorial models each task as a node, its requirements as outgoing dependency names, and its action as the command text to run after dependencies are ready.",
+        "That is the beginner bridge from a Makefile-looking example to the actual algorithm: build tools decide order by walking dependencies.",
+        [
+          "You can draw publish -> build-release -> nim-installed as a graph.",
+          "You can explain why the dependency must run before the target action.",
+          "You can distinguish a task record from the adjacency-list graph."
+        ],
+        [nimBuildSystemApprovedResources[0], nimBuildSystemApprovedResources[1], nimBuildSystemApprovedResources[3]]
+      ),
+      concept(
+        "approved-bake-dfs-cycle-safety",
+        "DFS ordering must reject cycles",
+        "Bake uses depth-first traversal to collect tasks in dependency order, then graph coloring to detect a dependency cycle before running actions.",
+        "Beginners need this because build systems are dangerous if they silently recurse forever or run partial commands from an invalid graph.",
+        [
+          "You can explain white, gray, and black node colors.",
+          "You can identify the back edge that proves a cycle.",
+          "You can show why a shared dependency should run once, while a cyclic dependency should stop the build."
+        ],
+        [nimBuildSystemApprovedResources[0], nimBuildSystemApprovedResources[2], nimBuildSystemApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Translate Make vocabulary into Bake tasks",
+        "What to expect",
+        "Learn variables, targets, dependencies, and actions from the Make-like example before writing Nim data structures.",
+        "Write a tiny task table for default, program, program.o, and clean with each task's dependencies and action.",
+        "If a target order is confusing, draw dependency arrows before writing code.",
+        "A written table maps Make-like targets to Bake task records.",
+        [nimBuildSystemApprovedResources[0], nimBuildSystemApprovedResources[1]]
+      ),
+      checkpoint(
+        "Store tasks and adjacency lists",
+        "Objects and Adding a task",
+        "Learn the two tables: tasksgraph stores dependency edges, and tasks stores full Task objects with actions.",
+        "Implement Task, Bake, initBake, and addTask, then print both tables after adding the normal publish example.",
+        "If a task is missing during traversal, inspect both tables because the graph and task metadata must be updated together.",
+        "The publish example creates matching graph and task-table entries.",
+        [nimBuildSystemApprovedResources[0], nimBuildSystemApprovedResources[3]]
+      ),
+      checkpoint(
+        "Run dependencies once in order",
+        "Running tasks",
+        "Learn recursive dependency traversal with deps and seen so shared dependencies are not executed repeatedly.",
+        "Implement runTaskHelper and prove the normal publish example prints actions from leaf dependencies up to publish.",
+        "If actions run twice, inspect seen handling before changing graph data.",
+        "The normal example prints apt-installed before curl-installed before nim-installed before build-release before publish.",
+        [nimBuildSystemApprovedResources[0], nimBuildSystemApprovedResources[3], nimBuildSystemApprovedResources[4]]
+      ),
+      checkpoint(
+        "Detect cycles and document build-system limits",
+        "Detecting cycles and What's next?",
+        "Learn graph coloring as a safety pass before task execution: gray means currently visiting, so an edge to gray means a cycle.",
+        "Implement graphHasCycle and hasCycleDFS, test the circular publish example, and document missing variables, file timestamps, recipes from config files, command execution, phony targets, parallelism, environment handling, and incremental rebuilds.",
+        "If cycle output is wrong, trace parentMap and the __CYCLESTART__ marker before changing runTask.",
+        "README explains task graph storage, DFS order, cycle detection, duplicate suppression, and missing Make/build-system features.",
+        [nimBuildSystemApprovedResources[0], nimBuildSystemApprovedResources[2], nimBuildSystemApprovedResources[1]]
+      )
+    ],
+    [
+      "Review Nim tables, sequences, recursion, enums, and simple graph terminology.",
+      "Draw the dependency graph for both the normal and circular examples before coding.",
+      "Keep expected action order and expected cycle path as fixtures.",
+      "Commit after addTask, dependency traversal, duplicate suppression, cycle detection, and limitations notes."
+    ],
+    [
+      "Demo the normal publish example and the circular dependency example.",
+      "Add README artifacts for task graph, DFS traversal order, and cycle-color trace.",
+      "Include one duplicate-run or cycle-detection bug and how it was traced.",
+      "List the build-system features intentionally omitted compared with Make."
+    ],
+    "Built a Nim Make-like task runner with task/action records, adjacency-list dependency graph, DFS execution ordering, duplicate suppression, cycle detection, and explicit build-system limitations.",
+    ["Original Nim Days article, GNU Make rules, cp-algorithms cycle detection, and Nim table/algorithm references were read; approval is scoped to an educational task graph runner."]
+  ),
+  approvedTutorialOverride(
+    "programming-language-javascript-little-lisp-interpreter",
+    "Individual review of Mary Rose Cook's Little Lisp article, source, tests, and interpreter representation reference",
+    "Approved path for Little Lisp focused on tokenizing Lisp syntax, parenthesizing into nested typed arrays, context-chain lookup, special forms, function application, lambdas, lets, ifs, tests, and JavaScript-specific scope caveats.",
+    littleLispApprovedResources,
+    [
+      concept(
+        "approved-little-lisp-nested-array-ast",
+        "Parentheses become nested arrays",
+        "Little Lisp keeps parsing beginner-visible: tokenize adds spaces around parentheses, parenthesize turns tokens into nested arrays, and categorize labels atoms as numbers, strings, or identifiers.",
+        "This gives learners a concrete AST without heavy parser theory, and it explains why Lisp is a friendly first interpreter project.",
+        [
+          "You can transform `((lambda (x) x) \"Lisp\")` into tokens and nested arrays.",
+          "You can explain why strings with spaces need special handling in the source code.",
+          "You can tell whether a bug belongs to tokenize, parenthesize, or categorize."
+        ],
+        [littleLispApprovedResources[0], littleLispApprovedResources[1], littleLispApprovedResources[3]]
+      ),
+      concept(
+        "approved-little-lisp-context-special-forms",
+        "Context chains give identifiers meaning",
+        "The interpreter resolves identifiers through a Context object with a current scope and parent scope, while lambda, let, and if are special forms because they control when evaluation happens.",
+        "Beginners need this split because evaluating every list the same way would break conditionals, local bindings, and lambda creation.",
+        [
+          "You can explain how Context.get walks from inner scope to parent scope.",
+          "You can say why lambda and if are handled before normal list evaluation.",
+          "You can trace one lambda call from argument binding to body evaluation."
+        ],
+        [littleLispApprovedResources[0], littleLispApprovedResources[1], littleLispApprovedResources[2]]
+      )
+    ],
+    [
+      checkpoint(
+        "Run the language examples first",
+        "First, let's learn some Lisp",
+        "Learn the tiny language surface before reading implementation: atoms, empty lists, nested lists, function invocation, lambdas, lets, ifs, and builtins.",
+        "Run or write expected outputs for atoms, lists, first/rest/print, one lambda call, one let, and one if.",
+        "If an example surprises you, decide whether it is Lisp syntax, JavaScript truthiness, or Little Lisp's subset behavior.",
+        "README has a table of supported forms and expected outputs.",
+        littleLispApprovedResources.slice(0, 4)
+      ),
+      checkpoint(
+        "Prove parsing in visible stages",
+        "The parser",
+        "Learn the parse pipeline as three proof artifacts: tokens, typed atoms, and nested array structure.",
+        "Print tokenized and parenthesized output for a lambda call and compare against the article's walkthrough.",
+        "If strings or parentheses are wrong, inspect tokenize before changing interpretation.",
+        "One source expression is documented as tokens and nested typed arrays.",
+        [littleLispApprovedResources[0], littleLispApprovedResources[1], littleLispApprovedResources[3]]
+      ),
+      checkpoint(
+        "Trace context lookup and function invocation",
+        "The interpreter",
+        "Learn interpret, interpretList, Context, library functions, and normal function application as the evaluator core.",
+        "Trace `(first (1 2 3))` and one lambda call through interpretList, argument evaluation, and Context lookup.",
+        "If an identifier returns undefined, inspect scope and parent before changing parser output.",
+        "Trace notes show identifier lookup and function application from parsed input to final value.",
+        [littleLispApprovedResources[0], littleLispApprovedResources[1], littleLispApprovedResources[2]]
+      ),
+      checkpoint(
+        "Add tests and document subset limits",
+        "Repository tests and final review",
+        "Learn how the repository tests cover parser atoms/lists, library functions, lambdas, lets, and if behavior.",
+        "Run or recreate the tests, then document missing Lisp features such as quoting, macros, recursion helpers, error reporting, numbers beyond parseFloat behavior, lexical edge cases, and full Scheme compatibility.",
+        "If test and article behavior differ, treat the source and tests as the exact project contract.",
+        "README explains parser stages, contexts, special forms, tests, and unsupported language features.",
+        [littleLispApprovedResources[1], littleLispApprovedResources[2], littleLispApprovedResources[0]]
+      )
+    ],
+    [
+      "Review JavaScript arrays, objects, functions, closures, recursion, map/reduce, and truthiness.",
+      "Write three Lisp examples and their expected nested arrays before reading the interpreter.",
+      "Use the repository tests as the project contract.",
+      "Commit after tokenizer, parenthesizer, context lookup, special forms, library calls, and subset notes."
+    ],
+    [
+      "Demo parsing and interpreting atoms, lists, library calls, lambdas, lets, and ifs.",
+      "Add README artifacts for tokens, nested arrays, context chain lookup, and lambda invocation.",
+      "Include one parser or scope bug and how the trace isolated it.",
+      "List Little Lisp's intentional language limits honestly."
+    ],
+    "Built Little Lisp in JavaScript with tokenization, nested-array parsing, typed atoms, context-chain lookup, special forms, lambda/let/if support, builtins, tests, and clear Lisp-subset limits.",
+    ["Original article, source, and tests were read; approval is scoped to Mary Rose Cook's JavaScript Little Lisp, not a full Scheme implementation."]
+  ),
+  approvedTutorialOverride(
+    "programming-language-python-lisp-py-make-your-own-lisp-interpreter",
+    "Individual review of Khamidou's lisp.py article plus Norvig Lispy and interpreter representation/evaluation references",
+    "Approved path for lisp.py focused on Python container classes, tokenizer state for strings and parentheses, recursive parsing, eval/apply split, special-form evaluation order, environment mutation, builtins, and Python 2 modernization caveats.",
+    khamidouLispApprovedResources,
+    [
+      concept(
+        "approved-khamidou-lisp-token-state",
+        "Tokenizing Lisp still needs state",
+        "Even with Lisp's simple parentheses, lisp.py scans characters while tracking strings, whitespace, parentheses, integers, floats, and symbols.",
+        "This keeps beginners honest: simple syntax does not remove the need to define token boundaries and literal rules.",
+        [
+          "You can explain why quoted strings change tokenizer behavior.",
+          "You can classify a token as int, float, String, or Symbol.",
+          "You can trace recursive do_parse until a closing parenthesis returns a sublist."
+        ],
+        [khamidouLispApprovedResources[0], khamidouLispApprovedResources[2]]
+      ),
+      concept(
+        "approved-khamidou-eval-apply-special",
+        "eval and apply have different jobs",
+        "The interpreter's eval turns expressions into values, while apply calls either Python builtins or Lisp lambdas after binding arguments into a new environment.",
+        "Special forms such as lambda, if, define, and begin need direct interpreter handling because they cannot evaluate all arguments in ordinary function-call order.",
+        [
+          "You can say why `if` would be wrong as an ordinary function.",
+          "You can trace a Symbol lookup through the environment dictionary.",
+          "You can explain how apply binds lambda arguments before evaluating the body."
+        ],
+        [khamidouLispApprovedResources[0], khamidouLispApprovedResources[1], khamidouLispApprovedResources[3]]
+      )
+    ],
+    [
+      checkpoint(
+        "Separate containers, parser, and interpreter",
+        "Utility functions and data structures",
+        "Learn the three-part project shape before coding: small wrapper classes for interpreter values, parser functions, and evaluator/apply logic.",
+        "Create Symbol, String, and Lambda examples and print their representations before parsing source text.",
+        "If later debugging feels messy, label whether the value is raw Python data or an InterpreterObject wrapper.",
+        "Direct construction tests show Symbol, String, and Lambda containers clearly.",
+        [khamidouLispApprovedResources[0], khamidouLispApprovedResources[2]]
+      ),
+      checkpoint(
+        "Build tokenizer and recursive parser fixtures",
+        "Parser",
+        "Learn the char scanner, string-state flag, numeric classification, Symbol wrapping, and recursive list construction.",
+        "Parse examples for numbers, floats, strings, nested lists, bad opening tokens, and unmatched structure.",
+        "If parsing fails, inspect token stream before do_parse recursion.",
+        "Parser fixtures show tokens and Python list/Symbol/String output for each supported literal type.",
+        [khamidouLispApprovedResources[0], khamidouLispApprovedResources[1], khamidouLispApprovedResources[2]]
+      ),
+      checkpoint(
+        "Implement eval, special forms, and apply",
+        "Interpreter",
+        "Learn evaluation order: literals return themselves, symbols look up environment values, special forms control evaluation, and ordinary calls use apply.",
+        "Trace lambda, if, define, begin, and one builtin arithmetic call through eval/apply with printed environment changes.",
+        "If both branches of if run, stop and make if a special form before adding more builtins.",
+        "Examples prove Symbol lookup, lambda application, define mutation, begin sequencing, and if short-circuit behavior.",
+        [khamidouLispApprovedResources[0], khamidouLispApprovedResources[3], khamidouLispApprovedResources[1]]
+      ),
+      checkpoint(
+        "Modernize carefully and document limits",
+        "Parting words and final source",
+        "Learn that the article is Python 2-era code and an educational prototype, so modernizing should preserve behavior with tests.",
+        "Port print/operator division/iterator syntax if needed, add tests, and document missing quoting depth, macros, lexical scoping limits, error recovery, tail calls, module loading, and full Scheme compatibility.",
+        "If modernization changes behavior, compare against the original article examples and Norvig's Lispy distinctions.",
+        "README explains tokenizer state, recursive parser, eval/apply, special forms, builtins, Python 2 modernization, and language limits.",
+        khamidouLispApprovedResources.slice(0, 4)
+      )
+    ],
+    [
+      "Review Python classes, lists, dictionaries, recursion, iterators, callable objects, and Python 2 to 3 syntax differences.",
+      "Write expected parse output for a nested expression before writing eval.",
+      "Keep one fixture for each special form and one for each literal type.",
+      "Commit after value wrappers, tokenizer, parser, eval/apply, builtins, and modernization notes."
+    ],
+    [
+      "Demo a file running arithmetic, define, if, begin, and lambda application.",
+      "Add README artifacts for token stream, parsed expression, environment before/after, and eval/apply trace.",
+      "Include one special-form evaluation-order bug and how it was diagnosed.",
+      "List Python 2 and language-subset caveats."
+    ],
+    "Built or modernized lisp.py with interpreter value wrappers, stateful tokenizer, recursive parser, eval/apply evaluator, special forms, builtins, file runner, and explicit Python/Lisp subset caveats.",
+    ["Original lisp.py article and supporting interpreter references were read; approval is scoped to Khamidou's educational Python Lisp, not a complete Scheme."]
+  ),
+  approvedTutorialOverride(
+    "programming-language-swift-building-a-lisp-from-scratch-with-swift",
+    "Individual review of SwiftyLISP article, source, README, and interpreter representation/evaluation references",
+    "Approved path for SwiftyLISP focused on recursive SExpr enum modeling, tokenizer/parser extensions, builtin environment functions, localContext for defun/lambda, skip-evaluation forms, recursive eval, REPL proof, and Swift 4-era caveats.",
+    swiftyLispApprovedResources,
+    [
+      concept(
+        "approved-swiftylisp-recursive-sexpr",
+        "Recursive enum models symbolic expressions",
+        "SwiftyLISP represents Lisp data with a recursive SExpr enum: either an Atom string or a List of more SExpr values.",
+        "That makes the parser and evaluator share one clear data model, and it shows why host-language type features matter when building interpreters.",
+        [
+          "You can draw Atom and List cases for one nested expression.",
+          "You can explain how string literal conversion calls SExpr.read.",
+          "You can tell where tokenization ends and SExpr structure begins."
+        ],
+        [swiftyLispApprovedResources[0], swiftyLispApprovedResources[1], swiftyLispApprovedResources[3]]
+      ),
+      concept(
+        "approved-swiftylisp-builtin-environments",
+        "Builtins decide evaluation behavior",
+        "The project stores builtins in a defaultEnvironment dictionary and user definitions in localContext, while mustSkip prevents eager evaluation for quote, cond, defun, and lambda.",
+        "Beginners need this because a Lisp interpreter is not just function lookup; special forms control which expressions are evaluated and when.",
+        [
+          "You can explain why quote and cond skip normal subexpression evaluation.",
+          "You can trace a defun into localContext and a later call back out of it.",
+          "You can distinguish empty list as nil/false from Atom true."
+        ],
+        [swiftyLispApprovedResources[0], swiftyLispApprovedResources[1], swiftyLispApprovedResources[2], swiftyLispApprovedResources[4]]
+      )
+    ],
+    [
+      checkpoint(
+        "Learn the target Lisp surface",
+        "LISP Basics",
+        "Learn the supported atom structures first: quote, car, cdr, cons, equal, atom, cond, list, lambda, defun, eval, and print behavior.",
+        "Write expected outputs for one example of quote, car/cdr/cons, cond, lambda, and defun before reading Swift code.",
+        "If output surprises you, check whether empty list is being used as false/nil.",
+        "A small table maps supported forms to example inputs and expected outputs.",
+        [swiftyLispApprovedResources[0], swiftyLispApprovedResources[2]]
+      ),
+      checkpoint(
+        "Implement SExpr read, tokenize, and parse",
+        "Lexer and Parser",
+        "Learn the recursive enum plus read extension: tokenize parentheses/text blocks, recursively parse lists, and build Atom/List nodes.",
+        "Trace `(car (quote (a b c)))` through tokens, parse recursion, and final SExpr.",
+        "If a nested list is malformed, inspect pOpen/pClose handling and remaining tokens before eval.",
+        "README shows tokens and SExpr tree for one nested expression.",
+        [swiftyLispApprovedResources[0], swiftyLispApprovedResources[1], swiftyLispApprovedResources[3]]
+      ),
+      checkpoint(
+        "Trace builtin and user-defined evaluation",
+        "Evaluation and Default Global Environment",
+        "Learn recursive eval, defaultEnvironment, localContext, Builtins.mustSkip, lambda/defun registration, and variable substitution.",
+        "Trace quote, cond, lambda invocation, and defun call with logs for skip, environment lookup, and returned SExpr.",
+        "If a special form evaluates too early, inspect Builtins.mustSkip before changing builtin functions.",
+        "Examples prove builtins, special forms, lambda, defun, and localContext lookup.",
+        [swiftyLispApprovedResources[0], swiftyLispApprovedResources[1], swiftyLispApprovedResources[4]]
+      ),
+      checkpoint(
+        "Add REPL proof and version caveats",
+        "SwiftyLisp REPL and conclusion",
+        "Learn the final user loop: read one line, convert to SExpr, evaluate, and print using CustomStringConvertible.",
+        "Build the REPL proof, run a few README examples, then document Swift 4-era syntax, package setup, error handling via empty list, global localContext behavior, parser string limitations, recursion/tail-call limits, and full Lisp compatibility gaps.",
+        "If the REPL crashes, isolate read, eval, and print with one expression each before debugging the loop.",
+        "README explains SExpr, parser, builtin environment, local definitions, REPL, and modern Swift/language-subset limits.",
+        swiftyLispApprovedResources.slice(0, 5)
+      )
+    ],
+    [
+      "Review Swift enums, arrays, dictionaries, closures, extensions, optionals, and CustomStringConvertible.",
+      "Write SExpr trees for three expressions before evaluating them.",
+      "Use README examples and source behavior as the contract.",
+      "Commit after SExpr model, read/parser, builtin environment, lambda/defun, REPL, and caveat notes."
+    ],
+    [
+      "Demo the REPL evaluating quote, car/cdr/cons, cond, lambda, defun, and eval examples.",
+      "Add README artifacts for SExpr enum tree, parser recursion, builtin lookup, and localContext registration.",
+      "Include one skip-evaluation or variable-substitution bug and how it was traced.",
+      "List Swift version and Lisp-subset caveats clearly."
+    ],
+    "Built SwiftyLISP with recursive SExpr modeling, tokenizer/parser extensions, builtin and local environments, special-form evaluation control, lambda/defun support, REPL proof, and explicit Swift/Lisp subset limitations.",
+    ["Original article, source, and README were read; approval is scoped to SwiftyLISP's educational interpreter and Swift 4-era implementation."]
+  ),
+  approvedTutorialOverride(
     "front-end-framework-library-javascript-wtf-is-jsx-let-s-build-a-jsx-renderer",
     "Individual review of Jason Miller's WTF is JSX plus React/DOM resources",
     "Approved path for the JSX renderer tutorial focused on JSX pragma, transpilation into function calls, VNode objects, recursive DOM rendering, and JavaScript-as-template logic.",
@@ -1905,27 +5148,63 @@ const curatedOverrides: CuratedOverride[] = [
     [
       concept(
         "approved-php-front-controller",
-        "Front controller",
-        "The tutorial starts with a `public/index.php` front controller: one entry point that receives web requests and boots the app.",
-        "This helps beginners understand modern PHP architecture before route dispatch and packages enter the picture.",
+        "One front controller owns the request entry point",
+        "The tutorial starts with `public/index.php`, a single file that every browser request reaches first. That file boots the application, loads dependencies, creates request objects, dispatches work, and eventually sends a response.",
+        "This matters because beginners often think a PHP app is a pile of pages. The front-controller shape teaches a modern web-app boundary: public files stay small, application code lives outside the web root, and every request follows the same predictable path.",
         [
           "You can explain why `public/index.php` is the request entry point.",
           "You can run PHP's built-in server against the public directory.",
-          "You can distinguish app bootstrapping from page logic."
+          "You can distinguish app bootstrapping from page-specific logic."
         ],
-        modernPhpApprovedResources.slice(0, 4)
+        [modernPhpApprovedResources[13], modernPhpApprovedResources[1], modernPhpApprovedResources[15], modernPhpApprovedResources[5]]
       ),
       concept(
         "approved-php-composer-di",
-        "Autoloading and dependency injection",
-        "The tutorial's quality comes from using Composer autoloading and dependency injection instead of include-spaghetti or global dependencies.",
-        "This gives learners modern PHP practices while still seeing what frameworks normally hide.",
+        "Composer autoloading replaces include-spaghetti",
+        "The tutorial uses Composer and PSR-4 so PHP can locate classes from namespaces and directory paths. Instead of scattering `require` calls through the app, the front controller loads Composer once and then class names map to files.",
+        "This is a beginner unlock. It explains why modern PHP projects have `composer.json`, `vendor/autoload.php`, namespaces, and `src/` directories, and it makes later package usage feel like normal architecture rather than magic.",
         [
           "You can explain PSR-4 at a beginner level.",
           "You can move Hello World into an autoloaded class.",
-          "You can describe a dependency passed in instead of fetched globally."
+          "You can debug a namespace/path mismatch without guessing."
         ],
-        [modernPhpApprovedResources[0], modernPhpApprovedResources[1], modernPhpApprovedResources[2]]
+        [modernPhpApprovedResources[2], modernPhpApprovedResources[3], modernPhpApprovedResources[4], modernPhpApprovedResources[14]]
+      ),
+      concept(
+        "approved-php-di-container",
+        "Dependency injection keeps object needs visible",
+        "The tutorial first explains dependency injection as passing collaborators into a class, then introduces PHP-DI as a container that can assemble those collaborators at the application boundary.",
+        "This keeps the app understandable. A beginner should learn that dependency injection is the design habit, while the container is a tool; classes should not hide database connections, environment reads, or service construction inside random methods.",
+        [
+          "You can explain why `new PDO(...)` inside a business method is tightly coupled.",
+          "You can pass a fake dependency into a class during a test.",
+          "You can say why PSR-11 discourages using the container as a service locator."
+        ],
+        [modernPhpApprovedResources[8], modernPhpApprovedResources[6], modernPhpApprovedResources[9], modernPhpApprovedResources[15]]
+      ),
+      concept(
+        "approved-php-routing-handler",
+        "Routing chooses a handler before work begins",
+        "Routing turns an HTTP method and URI into a handler plus route variables. In the tutorial, this is where a URL such as a product path becomes an application decision rather than an `if` statement buried in the front controller.",
+        "This is the bridge from one Hello World page to a real app. A beginner can see that the front controller should not contain every page's logic; it should delegate to a router and handler layer.",
+        [
+          "You can identify method, path, handler, and route variables.",
+          "You can explain what should happen for not found and method not allowed results.",
+          "You can keep route registration separate from handler execution."
+        ],
+        [modernPhpApprovedResources[10], modernPhpApprovedResources[13], modernPhpApprovedResources[5], modernPhpApprovedResources[7]]
+      ),
+      concept(
+        "approved-php-psr-middleware-response",
+        "Middleware wraps request handling and response emission",
+        "The later tutorial sections use PSR-7 request/response objects and PSR-15 middleware so cross-cutting behavior can wrap the handler pipeline. A response object is created, passed back through the stack, and emitted to the browser deliberately.",
+        "This explains why frameworks feel structured without requiring a framework. Middleware, request handlers, response factories, and emitters are the small interoperable pieces that frameworks usually assemble for you.",
+        [
+          "You can describe the middleware onion without hand-waving.",
+          "You can identify where a `ServerRequestInterface` enters the app.",
+          "You can explain why echoing strings is different from emitting a response object."
+        ],
+        [modernPhpApprovedResources[7], modernPhpApprovedResources[11], modernPhpApprovedResources[16], modernPhpApprovedResources[12]]
       )
     ],
     [
@@ -1936,7 +5215,7 @@ const curatedOverrides: CuratedOverride[] = [
         "Run `php -S localhost:8080 -t public/` and serve a tiny response from `public/index.php`.",
         "If the browser cannot reach it, inspect working directory, public path, and PHP version before app code.",
         "The browser shows Hello World through the front controller.",
-        modernPhpApprovedResources.slice(0, 4)
+        [modernPhpApprovedResources[0], modernPhpApprovedResources[1], modernPhpApprovedResources[13], modernPhpApprovedResources[15]]
       ),
       checkpoint(
         "Move behavior into an autoloaded class",
@@ -1945,25 +5224,43 @@ const curatedOverrides: CuratedOverride[] = [
         "Create a class under `src/`, autoload it, and call it from the front controller.",
         "If class loading fails, inspect namespace, path, composer dump-autoload/install, and case sensitivity.",
         "The response comes from an autoloaded class.",
-        [modernPhpApprovedResources[0], modernPhpApprovedResources[1], modernPhpApprovedResources[2]]
+        [modernPhpApprovedResources[2], modernPhpApprovedResources[3], modernPhpApprovedResources[4], modernPhpApprovedResources[14]]
       ),
       checkpoint(
-        "Inject dependencies deliberately",
-        "What is Dependency Injection?",
-        "Learn why objects should receive collaborators instead of reaching into globals or constructing hidden dependencies.",
-        "Refactor one class to receive a dependency through its constructor or method.",
-        "If the code becomes hard to test, identify hidden dependency creation.",
-        "A class can be instantiated with a test/fake dependency.",
-        [modernPhpApprovedResources[0], modernPhpApprovedResources[2], modernPhpApprovedResources[4]]
+        "Inject dependencies and configure the container",
+        "What is Dependency Injection and The Dependency Injection Container",
+        "Learn constructor injection, hidden dependency creation, PSR-11 container access, and PHP-DI's explicit container builder configuration.",
+        "Refactor one class to receive a collaborator, then configure PHP-DI to create that class without hiding the dependency inside the class.",
+        "If the code becomes hard to test, identify whether the class is asking the container for dependencies instead of receiving them.",
+        "A class can be instantiated with a fake dependency, and the container can create the real application instance.",
+        [modernPhpApprovedResources[8], modernPhpApprovedResources[9], modernPhpApprovedResources[6], modernPhpApprovedResources[15]]
       ),
       checkpoint(
-        "Document framework-free architecture",
-        "Application architecture",
-        "Learn what the tutorial borrows from modern PHP packages and what a full framework would still provide.",
-        "Add README request-flow and dependency diagrams plus limitations around routing, templates, middleware, sessions, and security.",
-        "If the app feels framework-like, name which framework services are still missing.",
-        "README explains front controller, autoloading, DI, request cycle, and missing framework features.",
-        modernPhpApprovedResources.slice(0, 6)
+        "Route a request to a handler",
+        "Routing",
+        "Learn route patterns, HTTP methods, URI parsing, route variables, not-found results, and method-not-allowed results.",
+        "Register one static route and one parameterized route, dispatch the current request, and call a handler with route variables.",
+        "If every request hits the wrong handler, inspect method, URI normalization, query-string stripping, and route registration order.",
+        "Two URLs reach different handlers and the README explains the dispatcher result cases.",
+        [modernPhpApprovedResources[10], modernPhpApprovedResources[13], modernPhpApprovedResources[5], modernPhpApprovedResources[7]]
+      ),
+      checkpoint(
+        "Build the middleware dispatcher path",
+        "Middleware and The Middleware Dispatcher",
+        "Learn PSR-15 middleware, request handlers, middleware queue order, Relay dispatch, and how middleware can create or delegate a response.",
+        "Create a short middleware queue, pass a server request through Relay, and prove middleware executes in the expected order.",
+        "If middleware does not run, inspect queue entries, resolver/container wiring, and whether each class implements the PSR-15 interface.",
+        "The app logs or tests middleware order and still returns the expected response.",
+        [modernPhpApprovedResources[7], modernPhpApprovedResources[11], modernPhpApprovedResources[16], modernPhpApprovedResources[12]]
+      ),
+      checkpoint(
+        "Emit the response and document framework-free scope",
+        "Properly Sending Responses and Wrapping Up",
+        "Learn PSR-7 response objects, Diactoros response emission, headers/body separation, and what a full framework would still provide.",
+        "Return a response object from the pipeline, emit it deliberately, then add a README diagram for front controller -> container -> router -> middleware -> handler -> response.",
+        "If output is duplicated or headers fail, inspect whether anything echoed before the emitter and whether response headers/body are being sent once.",
+        "README explains request flow, response emission, and missing framework features such as templates, sessions, validation, security middleware, error pages, and configuration management.",
+        [modernPhpApprovedResources[12], modernPhpApprovedResources[16], modernPhpApprovedResources[5], modernPhpApprovedResources[0]]
       )
     ],
     [
@@ -1978,8 +5275,12 @@ const curatedOverrides: CuratedOverride[] = [
       "Include one autoloading/namespace bug and how it was diagnosed.",
       "List what the framework-free app still lacks compared with Laravel/Symfony-style frameworks."
     ],
-    "Built Modern PHP Without a Framework as a front-controller app with Composer autoloading, dependency injection, request lifecycle understanding, and framework-limit documentation.",
-    ["Source extraction is full and the tutorial explicitly teaches architecture, not just code snippets."]
+    "Built Modern PHP Without a Framework as a front-controller app with Composer/PSR-4 autoloading, dependency injection, a PSR-11 container, FastRoute routing, PSR-15 middleware dispatch, PSR-7 response emission, request lifecycle understanding, and framework-limit documentation.",
+    [
+      "Source extraction is full and the tutorial explicitly teaches architecture, not just code snippets.",
+      "Manual audit covered the original Kevin Smith article, PHP built-in server, namespaces, and type docs, Composer autoloading docs, PHP-FIG PSR-4/7/11/15/17, PHP-DI, FastRoute, Relay, Laminas Diactoros, and MDN HTTP messages."
+    ],
+    { prerequisiteResources: modernPhpApprovedResources, prerequisiteResourceStrategy: "modern-php" }
   ),
   approvedTutorialOverride(
     "augmented-reality-python-augmented-reality-with-python-and-opencv",
@@ -1988,73 +5289,127 @@ const curatedOverrides: CuratedOverride[] = [
     openCvArApprovedResources,
     [
       concept(
-        "approved-opencv-ar-feature-homography",
-        "Features lead to homography",
-        "The tutorial breaks AR into recognizing a flat reference surface, matching image features, then estimating the homography between reference and camera frame.",
-        "That sequence gives beginners a concrete route from image pixels to pose-like information.",
+        "approved-opencv-ar-reference-plane",
+        "The flat reference surface is the anchor",
+        "This project is not general scene understanding. It is card-style augmented reality: choose a known flat reference surface, find that plane in each frame, then draw a model whose pose is tied to that plane.",
+        "That distinction protects beginners from vague AR expectations. The tutorial works because a planar surface lets the learner connect reference-image coordinates, camera-frame coordinates, and model coordinates one boundary at a time.",
         [
-          "You can explain keypoints and descriptors.",
-          "You can describe why enough good matches are needed.",
-          "You can define homography as a 2D-to-2D transform for the reference plane."
+          "You can explain why this project needs a known flat target before it can draw an overlay.",
+          "You can name reference-image coordinates, camera-frame pixels, and model coordinates.",
+          "You can state why non-planar objects and markerless AR are outside this tutorial's scope."
         ],
-        openCvArApprovedResources.slice(0, 4)
+        [openCvArApprovedResources[0], openCvArApprovedResources[8], openCvArApprovedResources[10], openCvArApprovedResources[11]]
       ),
       concept(
-        "approved-opencv-ar-projection",
-        "2D tracking to 3D projection",
-        "After detecting the reference surface, the project extends that transformation so a 3D model can be projected into the target image.",
-        "This is the exact bridge from computer-vision matching to an augmented-reality result.",
+        "approved-opencv-ar-orb-descriptors",
+        "ORB keypoints become binary descriptors",
+        "The first real computer-vision skill here is extracting stable points from the reference image and the scene image, then describing each point with ORB so the program can compare them.",
+        "If this layer is weak, everything after it becomes fake confidence. A blurry, textureless, badly cropped, or poorly lit reference surface will produce too few distinctive descriptors for the homography to be trustworthy.",
         [
-          "You can name reference image coordinates, target image coordinates, and model coordinates.",
-          "You can explain why camera calibration/projection math matters.",
-          "You can document why the result is a proof of concept."
+          "You can explain keypoints as distinctive image locations.",
+          "You can explain descriptors as comparable fingerprints around those locations.",
+          "You can predict why corners and textured regions work better than blank surfaces."
         ],
-        [openCvArApprovedResources[0], openCvArApprovedResources[3], openCvArApprovedResources[4]]
+        [openCvArApprovedResources[0], openCvArApprovedResources[3], openCvArApprovedResources[4], openCvArApprovedResources[6]]
+      ),
+      concept(
+        "approved-opencv-ar-matches-homography",
+        "Good matches estimate the homography",
+        "After ORB descriptors exist, the tutorial matches reference descriptors to scene descriptors, filters weak evidence, and estimates the homography that maps the flat reference plane into the camera image.",
+        "This is the gate between object recognition and usable geometry. Bad matches create bad homographies, and bad homographies make outlines and projected models drift, warp, or appear in the wrong place.",
+        [
+          "You can explain Hamming distance for ORB's binary descriptors.",
+          "You can describe why RANSAC separates inlier matches from outliers.",
+          "You can use the projected reference outline as a visual test before adding 3D rendering."
+        ],
+        [openCvArApprovedResources[5], openCvArApprovedResources[7], openCvArApprovedResources[9], openCvArApprovedResources[6]]
+      ),
+      concept(
+        "approved-opencv-ar-projection-matrix",
+        "Homography plus camera assumptions becomes projection",
+        "Part 2 turns the 2D plane mapping into a 3D projection step by combining the homography with a camera calibration matrix, recovering a rotation-like basis and translation, then projecting model points into image pixels.",
+        "That is the exact math bridge that makes the final overlay feel like AR instead of drawing on top of an image. Beginners need to treat camera intrinsics, coordinate axes, matrix order, and model scale as testable assumptions.",
+        [
+          "You can explain what the camera calibration matrix contributes.",
+          "You can trace one model vertex through projection into image pixels.",
+          "You can debug a floating or flipped model by checking axes, scale, and matrix order."
+        ],
+        [openCvArApprovedResources[1], openCvArApprovedResources[10], openCvArApprovedResources[11], openCvArApprovedResources[12], openCvArApprovedResources[15]]
+      ),
+      concept(
+        "approved-opencv-ar-stability-limits",
+        "Tracking smooths a noisy proof of concept",
+        "Part 3 is valuable because it admits the first version is shaky: the program detects the surface independently in each frame, then improves stability by carrying state forward with tracking and Kalman-filter ideas.",
+        "This keeps the portfolio story honest. The learner can explain what was built, what was only a proof of concept, and why lighting, blur, occlusion, calibration, frame rate, and target quality determine whether the demo survives real video.",
+        [
+          "You can describe why per-frame detection jitters.",
+          "You can explain what previous-frame state adds to the estimate.",
+          "You can list the prototype's practical limits without overselling it."
+        ],
+        [openCvArApprovedResources[2], openCvArApprovedResources[14], openCvArApprovedResources[13], openCvArApprovedResources[6]]
       )
     ],
     [
       checkpoint(
-        "Detect ORB features on reference and scene",
-        "Recognizing the target surface",
-        "Learn feature extraction and descriptors before matching or drawing 3D objects.",
-        "Run ORB on a reference image and a scene image and visualize detected keypoints.",
-        "If no features appear, check image quality, grayscale conversion, and ORB parameters.",
-        "Keypoints are visible on both reference and target images.",
-        openCvArApprovedResources.slice(0, 4)
+        "Prepare reference and scene images",
+        "Where do we start?",
+        "Learn why the tutorial depends on a known flat target, a clean reference crop, and at least one positive and one negative scene image before feature matching starts.",
+        "Load the reference and scene images in grayscale, record their dimensions, and save a quick contact sheet showing the exact images that will be used for matching.",
+        "If later results are unstable, come back here first: the reference may be too blank, too cropped, too glossy, or not actually planar.",
+        "The project folder contains a reference image, a positive scene, a negative scene, and a short note explaining why the target should be detectable.",
+        [openCvArApprovedResources[0], openCvArApprovedResources[10], openCvArApprovedResources[9], openCvArApprovedResources[15]]
       ),
       checkpoint(
-        "Match descriptors and decide detection",
+        "Detect ORB features and descriptors",
+        "Feature extraction and description",
+        "Learn feature extraction, descriptor computation, grayscale inputs, ORB parameters, and why distinctive points are the raw material for the whole AR pipeline.",
+        "Run ORB on the reference and scene images, then export keypoint visualizations before writing any matching or projection code.",
+        "If too few keypoints appear, inspect grayscale conversion, image sharpness, lighting, target texture, and ORB feature count.",
+        "Keypoints are visible on both images, and the notes identify whether the reference is feature-rich enough to continue.",
+        [openCvArApprovedResources[0], openCvArApprovedResources[3], openCvArApprovedResources[4], openCvArApprovedResources[6]]
+      ),
+      checkpoint(
+        "Match descriptors and reject weak detections",
         "Feature matching",
-        "Learn Hamming distance, brute-force matching, cross-checking, and minimum-match thresholds.",
-        "Match descriptors and draw the accepted matches between reference and scene.",
-        "If false positives dominate, inspect descriptor distance, crossCheck, and threshold choice.",
-        "A known scene produces enough matches and a negative scene does not.",
-        [openCvArApprovedResources[0], openCvArApprovedResources[2], openCvArApprovedResources[3]]
+        "Learn Hamming distance, brute-force matching, cross-checking, minimum-match thresholds, and why a negative image is needed to catch false confidence.",
+        "Match ORB descriptors, draw accepted matches, and compare a positive scene against a negative scene before estimating geometry.",
+        "If false positives dominate, inspect descriptor distance, crossCheck, threshold choice, and whether the scene shares repeated visual patterns.",
+        "The positive scene produces a convincing match set, while the negative scene fails with a clear not-enough-matches path.",
+        [openCvArApprovedResources[5], openCvArApprovedResources[7], openCvArApprovedResources[6], openCvArApprovedResources[0]]
       ),
       checkpoint(
-        "Estimate homography",
-        "Estimate the homography",
-        "Learn homography as the transformation from reference plane to target image plane.",
-        "Compute homography from matched points and draw the projected reference outline on the scene.",
-        "If the outline is warped badly, inspect match quality before projection code.",
-        "The reference-surface outline appears in the correct image region.",
-        [openCvArApprovedResources[0], openCvArApprovedResources[3], openCvArApprovedResources[4]]
+        "Estimate homography and draw the outline",
+        "Homography estimation",
+        "Learn homography as the 2D transform from the reference plane to the target image, plus RANSAC as protection against bad matches.",
+        "Compute the homography from matched point pairs, use it to project the reference corners, and draw the outline on the scene.",
+        "If the outline is warped or jumps away from the target, debug match quality and inlier counts before touching projection math.",
+        "The projected outline hugs the reference surface in the positive scene and refuses to draw in the negative scene.",
+        [openCvArApprovedResources[8], openCvArApprovedResources[9], openCvArApprovedResources[7], openCvArApprovedResources[15]]
       ),
       checkpoint(
-        "Project and document AR limits",
-        "Project the 3D model",
-        "Learn 3D projection as the final proof, then document lighting, calibration, marker, frame-rate, and robustness limits.",
-        "Draw a simple cube/model over the detected surface and write the assumptions clearly.",
+        "Recover projection and render a simple model",
+        "Pose estimation from a plane and model projection",
+        "Learn the camera calibration matrix, coordinate conventions, projection-matrix derivation, OBJ vertex projection, and the difference between a plane outline and a 3D overlay.",
+        "Project a tiny cube or simple OBJ model onto the detected plane, saving screenshots after projection but before any smoothing or polish.",
         "If the model floats or flips, inspect coordinate-space conventions and matrix order.",
-        "A frame shows the model aligned to the reference surface and README explains the proof-of-concept limits.",
-        openCvArApprovedResources.slice(0, 6)
+        "A frame shows the model aligned to the reference surface, and the notes trace one model vertex from model space to image pixels.",
+        [openCvArApprovedResources[1], openCvArApprovedResources[11], openCvArApprovedResources[12], openCvArApprovedResources[10]]
+      ),
+      checkpoint(
+        "Document stability and prototype limits",
+        "Kalman filter and final notes",
+        "Learn why the detection-only pipeline jitters, what tracking adds, and which environmental assumptions make this project fragile.",
+        "Compare an unsmoothed run with a stabilized or documented-limit run, then write a README section about lighting, occlusion, calibration, motion blur, frame rate, and target quality.",
+        "If the overlay jitters, separate detection noise, calibration errors, low frame rate, and model-coordinate mistakes before changing random constants.",
+        "The final README includes keypoint, match, homography-outline, projection, and stability evidence with an honest limitation list.",
+        [openCvArApprovedResources[2], openCvArApprovedResources[14], openCvArApprovedResources[13], openCvArApprovedResources[6]]
       )
     ],
     [
       "Install Python, OpenCV, and NumPy and run one image-load/display script.",
-      "Choose a clear reference image and one positive/negative scene image.",
-      "Write the four tutorial chunks: recognize surface, homography, projection transform, draw model.",
-      "Commit after feature detection, matching, homography, and projection."
+      "Choose a clear planar reference image, one positive scene, and one negative scene.",
+      "Save separate proof images for keypoints, matches, homography outline, and projected model.",
+      "Commit after image setup, feature detection, matching, homography, projection, and stability notes."
     ],
     [
       "Demo reference-surface detection and projected object on at least one image/frame.",
@@ -2063,7 +5418,11 @@ const curatedOverrides: CuratedOverride[] = [
       "List limitations around lighting, occlusion, calibration, performance, and non-planar targets."
     ],
     "Built the OpenCV AR tutorial as a feature-matching, homography, and projection pipeline with visual proof artifacts and explicit AR limitations.",
-    ["Source extraction is full and the article explicitly decomposes the project into four AR pipeline chunks."]
+    [
+      "Source extraction is full and the article explicitly decomposes the project into four AR pipeline chunks.",
+      "Manual audit covered Bites of Code parts 1-3, OpenCV ORB/matching/planar-tracking/homography/calibration/pose/PnP/Kalman docs, LearnOpenCV homography, and NumPy linear algebra references."
+    ],
+    { prerequisiteResources: openCvArApprovedResources, prerequisiteResourceStrategy: "opencv-ar" }
   ),
   approvedTutorialOverride(
     "3d-renderer-c-typescript-javascript-learning-how-to-write-a-3d-soft-engine-from-",
@@ -2073,165 +5432,267 @@ const curatedOverrides: CuratedOverride[] = [
     [
       concept(
         "approved-soft-engine-3d-to-2d",
-        "3D points become pixels",
-        "A software renderer teaches the pipeline from 3D model coordinates through camera/projection math into 2D screen pixels.",
-        "This is the core concept a beginner needs before triangles, meshes, and lighting start piling up.",
+        "Object points travel through spaces before becoming pixels",
+        "This tutorial starts with cube vertices defined relative to the cube itself, moves the mesh into world space, views it from a camera, projects it into normalized 2D space, then remaps that result into screen coordinates.",
+        "That whole chain matters because a blank or distorted render can fail at many different boundaries. Beginners need to debug model coordinates, world transforms, camera/view setup, projection, viewport mapping, and clipping as separate stages instead of treating matrix math as one mysterious black box.",
         [
-          "You can distinguish model, world, camera, and screen coordinates.",
-          "You can project one point by hand or with a tiny helper.",
-          "You can explain why the same mesh appears different when the camera changes."
+          "You can distinguish object/model, world, view/camera, projection, and screen coordinates.",
+          "You can explain why `world * view * projection` order matters in this tutorial.",
+          "You can debug one invisible vertex by printing its value after each transform stage."
         ],
-        softEngineApprovedResources.slice(0, 4)
+        [softEngineApprovedResources[0], softEngineApprovedResources[6], softEngineApprovedResources[7], softEngineApprovedResources[11]]
       ),
       concept(
-        "approved-soft-engine-raster-debug",
-        "Rasterization needs visual proof",
-        "A soft engine is easiest to learn when every stage has a visible proof: vertices, wireframes, filled triangles, depth, and animation.",
-        "This keeps learners from debugging a blank canvas with no idea whether math, data, or drawing failed.",
+        "approved-soft-engine-framebuffer-loop",
+        "The framebuffer is just memory you redraw every frame",
+        "The tutorial's Device object owns a back buffer, clears it, writes pixels into it, presents it to the visible target, and repeats that inside a rendering loop.",
+        "This makes 3D feel less magical: before meshes or lighting, the learner needs to know where pixels live, when they are cleared, when they are copied to the screen, and why requestAnimationFrame or the XAML rendering callback drives animation.",
         [
-          "You can show a wireframe before filling triangles.",
-          "You can draw axes or debug points.",
-          "You can isolate mesh loading from projection and drawing."
+          "You can explain back buffer versus front/visible buffer.",
+          "You can convert x/y coordinates to a one-dimensional pixel-array index.",
+          "You can describe why clear -> draw -> present must happen every frame."
         ],
-        [softEngineApprovedResources[0], softEngineApprovedResources[1], softEngineApprovedResources[2]]
+        [softEngineApprovedResources[0], softEngineApprovedResources[8], softEngineApprovedResources[9]]
+      ),
+      concept(
+        "approved-soft-engine-mesh-wireframe",
+        "Meshes become faces, then wireframes",
+        "After points work, the series teaches that a mesh is not only vertices. Faces store indexes into the vertex array, and each triangular face can be drawn by projecting its three vertices and connecting them with lines.",
+        "That is the bridge from a rotating cloud of cube points to an actual 3D object. It also gives beginners a visual debugging stage before filled triangles and depth tests make mistakes harder to see.",
+        [
+          "You can explain why a cube side is split into two triangles.",
+          "You can trace one face index back to three vertices.",
+          "You can render a wireframe before attempting filled rasterization."
+        ],
+        [softEngineApprovedResources[1], softEngineApprovedResources[2], softEngineApprovedResources[0]]
+      ),
+      concept(
+        "approved-soft-engine-raster-depth",
+        "Rasterization fills triangles; Z-buffering chooses what is visible",
+        "The rasterization part changes the renderer from drawing triangle edges to deciding which pixels are inside each projected triangle, then using a depth buffer to keep the nearest surface visible.",
+        "This is the moment the project becomes a true software renderer. Learners must separate coverage, interpolation, color, and depth; otherwise every wrong triangle looks like one vague math failure.",
+        [
+          "You can explain the difference between wireframe drawing and triangle filling.",
+          "You can describe what a Z-buffer stores per pixel.",
+          "You can debug a wrong overlap by checking triangle coverage and depth independently."
+        ],
+        [softEngineApprovedResources[3], softEngineApprovedResources[10], softEngineApprovedResources[1]]
+      ),
+      concept(
+        "approved-soft-engine-shading-texture-scope",
+        "Shading and textures are later pipeline stages",
+        "Flat shading, Gouraud shading, texture mapping, back-face culling, and WebGL are layered after the beginner can already transform, project, rasterize, and depth-test triangles.",
+        "This ordering keeps the portfolio project honest. A learner can show a meaningful renderer without claiming a full engine, while still understanding how lighting and textures extend the same pipeline.",
+        [
+          "You can name what data shading needs that wireframe rendering does not.",
+          "You can explain why back-face culling can hide triangles intentionally.",
+          "You can list which advanced renderer features are out of scope for your version."
+        ],
+        [softEngineApprovedResources[4], softEngineApprovedResources[5], softEngineApprovedResources[10]]
       )
     ],
     [
       checkpoint(
         "Draw pixels and lines first",
-        "Rendering foundation",
-        "Learn the canvas/framebuffer drawing target before 3D math.",
-        "Draw individual pixels, lines, and a simple 2D shape in the chosen runtime.",
-        "If nothing appears, inspect canvas size, coordinate origin, and draw/update calls.",
-        "A 2D line/shape renders reliably.",
-        softEngineApprovedResources.slice(0, 4)
+        "Back buffer and rendering loop",
+        "Learn the framebuffer/back-buffer drawing target, coordinate origin, pixel indexing, clear/present order, and frame callback before 3D math.",
+        "Draw individual pixels, lines, and one moving 2D shape in the chosen runtime.",
+        "If nothing appears, inspect canvas or bitmap size, coordinate origin, pixel-array indexing, and draw/update calls.",
+        "A 2D line or moving shape renders reliably from a cleared buffer.",
+        [softEngineApprovedResources[0], softEngineApprovedResources[8], softEngineApprovedResources[9]]
       ),
       checkpoint(
         "Project one 3D point or cube",
-        "Camera and projection",
-        "Learn vector coordinates, camera position, and projection into screen space.",
-        "Project a cube's vertices and draw them as points or wireframe.",
-        "If the cube is invisible, inspect camera position, near plane, and coordinate handedness.",
-        "A wireframe cube appears and changes predictably with camera/object movement.",
-        [softEngineApprovedResources[0], softEngineApprovedResources[2], softEngineApprovedResources[3]]
+        "Camera, mesh, and Device object",
+        "Learn vector coordinates, mesh position/rotation, camera target, view matrix, projection matrix, viewport remapping, and clipping.",
+        "Project the cube's eight vertices, draw them as debug points, and print each stage for one vertex.",
+        "If the cube is invisible, inspect transform order, camera position/target, near/far range, coordinate handedness, and viewport mapping before changing drawing code.",
+        "Eight cube points appear and move predictably when the mesh or camera changes.",
+        [softEngineApprovedResources[0], softEngineApprovedResources[6], softEngineApprovedResources[7], softEngineApprovedResources[11]]
       ),
       checkpoint(
-        "Render meshes and triangles",
-        "Mesh and rasterization",
-        "Learn mesh data as vertices/faces and triangles as the basic render unit.",
-        "Load or define a tiny mesh and render its triangles or wireframe.",
-        "If triangles connect wrong points, inspect face indices separately from projection math.",
-        "A mesh renders with inspectable vertices/faces.",
-        [softEngineApprovedResources[0], softEngineApprovedResources[1], softEngineApprovedResources[2]]
+        "Render indexed faces as a wireframe",
+        "Drawing lines and triangles plus loading meshes",
+        "Learn faces as indexes into the vertex array, triangle topology, line drawing, and JSON mesh loading as a separate data-loading step.",
+        "Render the cube as indexed triangle edges, then load a tiny Blender/Babylon JSON mesh and draw its wireframe.",
+        "If triangles connect wrong points, inspect face indexes and parsed vertices separately from projection math.",
+        "A hand-built cube and one loaded mesh both render as inspectable wireframes.",
+        [softEngineApprovedResources[1], softEngineApprovedResources[2], softEngineApprovedResources[0]]
       ),
       checkpoint(
-        "Animate and document renderer limits",
-        "Render loop and scope",
-        "Learn render loop timing and what the tutorial omits: GPU acceleration, clipping, lighting, textures, z-buffer precision, and performance.",
-        "Animate rotation or camera movement and add README screenshots plus pipeline notes.",
-        "If animation flickers, isolate clear/draw order and frame timing.",
-        "README explains the software rendering pipeline and limitations.",
-        softEngineApprovedResources.slice(0, 5)
+        "Fill triangles with depth testing",
+        "Rasterization and Z-buffering",
+        "Learn triangle coverage, scanline or edge tests, per-pixel color writes, per-pixel depth storage, and why nearer fragments replace farther ones.",
+        "Fill one triangle, then render a simple mesh with overlapping faces and a Z-buffer proof image.",
+        "If faces appear in the wrong order, log the depth value before every pixel overwrite and separate raster coverage from depth comparison.",
+        "A filled mesh renders with nearer surfaces correctly covering farther ones.",
+        [softEngineApprovedResources[3], softEngineApprovedResources[10], softEngineApprovedResources[1]]
+      ),
+      checkpoint(
+        "Add one visual polish stage and document limits",
+        "Shading, textures, culling, and scope",
+        "Learn flat/Gouraud shading or texture mapping as an extension of the already-working transform/raster/depth pipeline, not as the foundation.",
+        "Add one polish feature, such as flat shading, Gouraud shading, back-face culling, or a texture sample; then document the remaining renderer gaps.",
+        "If the feature breaks the image, switch back to wireframe/depth proof and reintroduce the feature on one triangle.",
+        "README explains the pipeline from framebuffer to transforms to wireframe to rasterization to one optional polish feature.",
+        [softEngineApprovedResources[4], softEngineApprovedResources[5], softEngineApprovedResources[3], softEngineApprovedResources[10]]
       )
     ],
     [
-      "Review vectors, coordinate systems, and the drawing API before mesh rendering.",
-      "Create a debug scene with one cube before importing complex models.",
-      "Write the render pipeline as input mesh -> transform -> project -> rasterize -> display.",
-      "Commit after 2D drawing, projection, mesh rendering, and animation."
+      "Review vectors, model/view/projection transforms, and the canvas or bitmap drawing target before mesh rendering.",
+      "Create a debug scene with one cube and print one vertex after every transform stage.",
+      "Write the render pipeline as mesh vertices -> world transform -> view transform -> projection -> viewport mapping -> rasterize -> present.",
+      "Commit after framebuffer drawing, point projection, wireframe faces, mesh loading, rasterization/Z-buffering, and one polish feature."
     ],
     [
-      "Demo a rotating wireframe or triangle-rendered object.",
-      "Add screenshots of debug points/wireframe/final render.",
-      "Include one coordinate-system or projection bug and how it was diagnosed.",
-      "List missing production renderer features honestly."
+      "Demo a rotating cube or mesh progressing from debug points to wireframe to filled/depth-tested triangles.",
+      "Add screenshots of debug points, wireframe, rasterized mesh, and optional shading/texture/culling stage.",
+      "Include one coordinate-system, projection, face-index, or Z-buffer bug and how it was diagnosed.",
+      "List missing production renderer features honestly: clipping, perspective-correct interpolation, robust model formats, materials, shadows, anti-aliasing, GPU acceleration, and performance profiling."
     ],
     "Built David Rousset's 3D soft-engine tutorial as a software-rendering pipeline with coordinate transforms, projection, mesh rendering, animation, and visual debug proof.",
-    ["Source extraction is full and the tutorial is a clear graphics pipeline project."]
+    ["Source extraction is full and the tutorial is a clear multi-part graphics pipeline project."],
+    { prerequisiteResources: softEngineApprovedResources, prerequisiteResourceStrategy: "soft-engine" }
   ),
   approvedTutorialOverride(
     "bot-node-js-create-a-discord-bot",
     "Individual review of discord.js Guide plus official Discord API resources",
-    "Approved path for the Discord bot tutorial focused on JavaScript/Node prerequisites, application setup, gateway intents, commands/interactions, permissions, and bot safety.",
+    "Approved path for the Discord bot tutorial focused on JavaScript/Node prerequisites, Discord application identity, token safety, gateway events, slash commands, interactions, permissions, rate limits, and portfolio-grade safety notes.",
     discordBotApprovedResources,
     [
       concept(
-        "approved-discord-app-gateway",
-        "Discord app and gateway events",
-        "A Discord bot is a registered application that receives events through Discord's gateway and responds through the API.",
-        "Beginners need that platform boundary before they write command handlers.",
+        "approved-discord-application-identity",
+        "Discord application identity and bot tokens",
+        "The tutorial does not start with code; it starts with a Discord application, a bot user, a client id, an invite URL, and a token that acts like the bot's password.",
+        "A beginner who treats the token as ordinary text can leak control of the bot, so the first real skill is separating platform setup, permissions, and local code.",
         [
-          "You can distinguish app setup from local bot code.",
-          "You can explain what gateway intents allow.",
-          "You can describe which event triggers one command."
+          "You can distinguish the application id, bot token, client secret, and guild id.",
+          "You can explain why `bot` and `applications.commands` are separate invite scopes.",
+          "You can describe what to do if a token is committed or shared by accident."
         ],
-        discordBotApprovedResources.slice(0, 4)
+        resourcesByIndex(discordBotApprovedResources, [1, 2, 12, 16, 21])
       ),
       concept(
-        "approved-discord-command-safety",
-        "Commands need permissions and validation",
-        "A useful bot checks command input, uses only the permissions it needs, and handles API failures without leaking tokens or spamming servers.",
-        "This turns a fun tutorial into a safe portfolio project.",
+        "approved-discord-node-project-shape",
+        "Node project shape for a bot",
+        "The bot is a long-running Node process with a package manifest, installed dependencies, command files, a main entry point, and secret configuration loaded outside source control.",
+        "This project is a useful beginner bridge because it forces setup discipline before features: install Node, understand packages, run scripts, load modules, and keep secrets out of Git.",
         [
-          "You can keep the token outside source control.",
-          "You can name one permission the bot needs.",
-          "You can handle an invalid command or missing permission."
+          "You can explain what `package.json`, `node_modules`, and `package-lock.json` do.",
+          "You can load one command module and say why it exports both metadata and code.",
+          "You can run the bot with environment variables without committing `.env` or config files."
         ],
-        [discordBotApprovedResources[0], discordBotApprovedResources[1], discordBotApprovedResources[2]]
+        resourcesByIndex(discordBotApprovedResources, [3, 4, 19, 21, 26])
+      ),
+      concept(
+        "approved-discord-gateway-event-flow",
+        "Gateway events, intents, and the event loop",
+        "discord.js hides most WebSocket machinery, but the mental model still matters: Discord sends gateway events, the client emits Node-style events, and intents decide which event groups your bot receives.",
+        "Most beginner bot bugs look like code bugs but are really event-selection bugs: the bot is online, yet Discord never sends the event because the intent or privileged-intent setting is wrong.",
+        [
+          "You can map Discord's Gateway to the `ClientReady` and `InteractionCreate` events used in the guide.",
+          "You can name the minimum intent needed for slash-command-only guild interactions.",
+          "You can explain why enabling every privileged intent is a privacy and maintenance smell."
+        ],
+        resourcesByIndex(discordBotApprovedResources, [9, 10, 13, 22, 23])
+      ),
+      concept(
+        "approved-discord-slash-command-lifecycle",
+        "Slash command definition, registration, and execution",
+        "A slash command has three separate lives: a command file describes the shape, a deployment script registers that shape with Discord, and an interaction handler executes code when a user invokes it.",
+        "Separating those lives stops beginners from confusing local JavaScript changes with Discord API registration state, especially when a command appears, disappears, or replies too late.",
+        [
+          "You can explain why command definitions are registered separately from the running bot client.",
+          "You can tell the difference between guild command testing and global command deployment.",
+          "You can handle a command lookup miss or thrown command error without leaving the user with a failed interaction."
+        ],
+        resourcesByIndex(discordBotApprovedResources, [6, 7, 8, 14, 15])
+      ),
+      concept(
+        "approved-discord-permissions-rate-limits",
+        "Permissions, validation, and rate-limit safety",
+        "A portfolio-quality Discord bot uses the smallest useful permissions, validates command inputs, reports failures safely, and respects Discord's per-route and global rate-limit model.",
+        "This is the difference between a toy demo and a responsible integration: the bot should not require administrator access, spam requests, expose secrets, or hide operational limits from reviewers.",
+        [
+          "You can list the exact invite permissions your bot needs and remove unnecessary ones.",
+          "You can describe what happens when Discord returns a rate-limit response.",
+          "You can document production gaps such as persistence, logging, hosting, moderation risk, and sharding."
+        ],
+        resourcesByIndex(discordBotApprovedResources, [11, 17, 18, 16, 1])
       )
     ],
     [
       checkpoint(
-        "Prepare JavaScript, Node, and app registration",
-        "Before you begin and Application Setup",
-        "Learn the guide's prerequisite warning, Discord developer app setup, token storage, and invite permissions.",
-        "Create a test app/server setup and run a no-op bot locally with secrets in environment variables.",
-        "If login fails, check token, app id, invite scope, and gateway intents before command code.",
-        "The bot logs in safely without secrets committed.",
-        discordBotApprovedResources.slice(0, 4)
+        "Install Node and create a private Discord test app",
+        "Before you begin, installation, and application setup",
+        "Learn the guide's JavaScript prerequisite warning, install a current Node LTS, create a Discord application, and keep the work inside a private test server while learning.",
+        "Install Node, initialize the project, create the Discord application, record app/client/guild ids in a local-only place, and invite the bot to a server you control.",
+        "If the bot cannot be invited, inspect the OAuth2 scopes, client id, server permission to add apps, and whether the application is actually configured with a bot user.",
+        "A private test server contains the bot, and the repo has project files but no secret token or generated dependency directory committed.",
+        resourcesByIndex(discordBotApprovedResources, [0, 1, 2, 3, 12, 20])
       ),
       checkpoint(
-        "Handle one ready/message/interaction event",
-        "Getting Started",
-        "Learn event-driven bot flow with one event and one logged payload.",
-        "Log a sanitized event or interaction and identify the fields your command handler needs.",
-        "If events do not fire, inspect intents and server invite permissions.",
-        "A test event is visible in logs with sensitive data omitted.",
-        [discordBotApprovedResources[0], discordBotApprovedResources[2], discordBotApprovedResources[3]]
+        "Protect the token and build the project skeleton",
+        "Project setup and configuration files",
+        "Learn how the guide stores configuration, then strengthen it by using environment variables, `.gitignore`, and a small package setup that makes the run command repeatable.",
+        "Create the main file, add a local environment variable or ignored config file, add scripts to `package.json`, and prove the token is read at runtime without being printed or committed.",
+        "If login fails, rotate copied secrets carefully: check token versus client secret, reload the environment, and never paste a real token into logs or README text.",
+        "The bot can attempt login from local configuration, `.gitignore` excludes secrets, and README setup instructions use placeholder names only.",
+        resourcesByIndex(discordBotApprovedResources, [4, 5, 21, 25, 26])
       ),
       checkpoint(
-        "Implement one slash command",
-        "Slash Commands",
-        "Learn command registration, command payloads, validation, and response timing.",
-        "Create one harmless slash command with a clear success and invalid-input path.",
-        "If Discord says interaction failed, inspect response timing and command registration.",
-        "A slash command responds correctly in a test server.",
-        [discordBotApprovedResources[0], discordBotApprovedResources[1], discordBotApprovedResources[3]]
+        "Connect the client and prove the gateway event path",
+        "The main file, event handling, and gateway intents",
+        "Learn the minimum event-driven loop: create the discord.js client, choose the required intents, log `ClientReady`, and understand why slash-command-only bots usually need fewer events than message-parsing bots.",
+        "Run the bot until `ClientReady` fires, then add one sanitized interaction or debug log showing that the client event system is alive without dumping tokens or full user payloads.",
+        "If events do not fire, separate three causes: the process did not log in, the bot was not invited to the guild, or Discord is not sending the event because an intent/scope is missing.",
+        "A ready log proves the gateway session works, and the notes explain which intents were chosen and why no privileged intent is enabled by default.",
+        resourcesByIndex(discordBotApprovedResources, [9, 10, 13, 22, 23])
       ),
       checkpoint(
-        "Document deployment and safety",
-        "More to know",
-        "Learn what production bots add: permissions, rate limits, persistence, sharding, moderation, logging, and secret rotation.",
-        "Add README setup, command list, permission list, and safe deployment notes.",
-        "If repeated commands create noise, add cooldown/idempotence or document the risk.",
-        "README explains app setup, command flow, permissions, and production limitations.",
-        discordBotApprovedResources.slice(0, 6)
+        "Create, register, and test one slash command",
+        "Creating slash commands and registering commands",
+        "Learn the command lifecycle in the guide: command files define metadata and behavior, a deployment script registers command JSON with Discord, and guild registration is the safest beginner testing path.",
+        "Build a harmless `/ping` or `/about` command, register it to your test guild, run it in Discord, and capture the exact command definition fields in your notes.",
+        "If the command does not appear, check `applications.commands` scope, guild id, command registration output, command name rules, and whether you registered globally by accident.",
+        "A slash command appears in the test server and returns a response within Discord's interaction window.",
+        resourcesByIndex(discordBotApprovedResources, [6, 8, 14, 15, 16])
+      ),
+      checkpoint(
+        "Load commands dynamically and handle failures",
+        "Command handling",
+        "Learn why the guide moves away from one giant conditional: loading command files into a collection makes the bot easier to extend and makes errors easier to isolate.",
+        "Load command modules from folders, guard against missing `data` or `execute`, handle `interactionCreate`, and return a safe ephemeral error when a command throws.",
+        "If every command fails, check module exports and command names; if only one command fails, log the command name and catch the thrown error around that command only.",
+        "At least two command files load successfully, and an intentional command error produces a controlled user-facing failure message.",
+        resourcesByIndex(discordBotApprovedResources, [7, 15, 24, 27, 14])
+      ),
+      checkpoint(
+        "Document permissions, rate limits, and production limits",
+        "Permissions, OAuth2, and more to know",
+        "Learn the operational side the tutorial only introduces: least-privilege invite permissions, command permission checks, rate-limit behavior, secret rotation, hosting assumptions, and scaling limits.",
+        "Add README sections for required scopes, required permissions, token rotation, expected rate-limit behavior, safe testing rules, and what would need to change before public deployment.",
+        "If a feature requires broad permissions or message content, rewrite the feature or document the exact reason and safer alternative before enabling privileged access.",
+        "The project README makes the bot reviewable as a responsible integration, not just a command that happens to run.",
+        resourcesByIndex(discordBotApprovedResources, [11, 17, 18, 16, 1])
       )
     ],
     [
-      "Learn enough JavaScript and Node before following the bot guide.",
-      "Use a private test server and environment variables for tokens.",
-      "Write command inputs/outputs before implementing handlers.",
-      "Commit after app setup, event handling, command, and safety docs."
+      "Learn enough JavaScript, Node, npm, modules, and async functions to understand the guide's warning before wiring Discord-specific code.",
+      "Use a private test server, a disposable development application, and ignored environment/config files for every token and id.",
+      "Write the command names, descriptions, required scopes, and required permissions before implementing handlers.",
+      "Commit after app creation, token-safe project setup, gateway proof, command registration, command handling, and safety documentation."
     ],
     [
       "Demo one slash command in a test server.",
-      "Add README setup with no real secrets.",
-      "Include a permissions/intents explanation.",
-      "List missing production bot concerns such as persistence, rate limits, sharding, moderation, and observability."
+      "Add README setup with no real secrets and with separate development/test ids documented as placeholders.",
+      "Include a permissions, OAuth2 scopes, and gateway intents explanation tied to this exact bot.",
+      "Include one real debugging note such as missing command registration, wrong token, missing scope, or an intent mismatch.",
+      "List missing production bot concerns such as persistence, rate limits, sharding, moderation abuse cases, hosting, logging, uptime, and observability."
     ],
-    "Built the Discord bot tutorial as an event-driven platform integration with safe app setup, command handling, permissions, and deployment limits.",
-    ["Source is official guide content and explicitly warns about JavaScript prerequisites."]
+    "Built the Discord bot tutorial as an event-driven platform integration with safe app setup, token handling, gateway/intents reasoning, slash-command registration, command dispatch, permissions, and deployment limits.",
+    ["Source is official guide content and Discord platform documentation; the guide explicitly warns learners to build JavaScript confidence before attempting the bot."],
+    { prerequisiteResources: discordBotApprovedResources, prerequisiteResourceStrategy: "discord-bot" }
   ),
   approvedTutorialOverride(
     "network-stack-c-let-s-code-a-tcp-ip-stack",
@@ -2474,8 +5935,8 @@ const curatedOverrides: CuratedOverride[] = [
   familyResearchOverride(
     "bot-platform-family",
     (article) => article.category === "Bot" || /bot|discord|slack|reddit|telegram|twitter|irc|messenger|chatbot/i.test(article.title),
-    "Bot/platform pack built from Discord, Slack, Reddit, and HTTP message resources",
-    "Research-backed bot path focused on events, platform APIs, authentication boundaries, message handling, rate limits, and safe local testing.",
+    "Bot/platform family pack built from audited WebSocket, HTTP, async JavaScript, environment-variable, and secret-management resources",
+    "Research-backed bot path focused on event delivery, platform API boundaries, credential hygiene, asynchronous handlers, rate-limit awareness, and safe local testing without injecting unrelated platform docs.",
     botResources,
     [
       {
@@ -2487,7 +5948,8 @@ const curatedOverrides: CuratedOverride[] = [
           "You can describe what event wakes the bot.",
           "You can test one handler with fake input.",
           "You can separate receiving an event from deciding the reply."
-        ]
+        ],
+        resourceIndexes: [0, 1, 3]
       },
       {
         id: "platform-contracts",
@@ -2499,7 +5961,7 @@ const curatedOverrides: CuratedOverride[] = [
           "You can explain one permission the bot needs.",
           "You can log API failures without leaking secrets."
         ],
-        resourceIndexes: [0, 1, 2]
+        resourceIndexes: [1, 2, 4]
       }
     ],
     [
@@ -2509,7 +5971,8 @@ const curatedOverrides: CuratedOverride[] = [
         learnRightHere: "Learn environment variables, platform app setup, and the difference between local code and platform configuration.",
         action: "Start the bot with a harmless login or local handler test and keep credentials out of source control.",
         debugPrompt: "If authentication fails, check token location, app permissions, and the platform dashboard before changing handler code.",
-        selfCheck: "The bot starts or the handler test runs without secrets committed."
+        selfCheck: "The bot starts or the handler test runs without secrets committed.",
+        resourceIndexes: [2, 4, 1]
       },
       {
         title: "Handle one message or command",
@@ -2527,7 +5990,7 @@ const curatedOverrides: CuratedOverride[] = [
         action: "Send one message, fetch one resource, or perform one platform action with explicit error handling.",
         debugPrompt: "If the API call fails, record status code, permission, and payload shape without exposing secrets.",
         selfCheck: "A successful call and one handled failure are both visible in logs.",
-        resourceIndexes: [1, 2, 3]
+        resourceIndexes: [1, 3, 2, 4]
       },
       {
         title: "Add safety and limits",
@@ -2536,7 +5999,7 @@ const curatedOverrides: CuratedOverride[] = [
         action: "Add one validation rule, one failure message, and a README section describing permissions and limits.",
         debugPrompt: "If repeated commands misbehave, inspect handler idempotence and platform rate-limit responses.",
         selfCheck: "README explains setup, supported commands, credentials, and rate-limit or moderation boundaries.",
-        resourceIndexes: [0, 1, 2, 3]
+        resourceIndexes: [4, 2, 1, 3]
       }
     ],
     "Built a bot with event handling, platform API integration, credential hygiene, and documented permissions/rate-limit boundaries."
@@ -4649,7 +8112,11 @@ function approvedTutorialOverride(
   setupSteps: string[],
   finalProofTasks: string[],
   cvFraming: string,
-  notes: string[]
+  notes: string[],
+  options: {
+    prerequisiteResources?: ResourceLink[];
+    prerequisiteResourceStrategy?: CuratedOverride["prerequisiteResourceStrategy"];
+  } = {}
 ): CuratedOverride {
   const auditNotes = [
     "Approved curation requires each displayed learning source to be read and judged useful for this tutorial.",
@@ -4679,6 +8146,12 @@ function approvedTutorialOverride(
     })),
     setupSteps,
     finalProofTasks,
+    prerequisiteResources: options.prerequisiteResources
+      ? auditResources(options.prerequisiteResources, source, [
+          "Displayed in approved prerequisite modules for this tutorial."
+        ])
+      : undefined,
+    prerequisiteResourceStrategy: options.prerequisiteResourceStrategy,
     cvFraming
   };
 }
@@ -4813,12 +8286,7 @@ function fallbackResearchResources(article: TutorialArticle): ResourceLink[] {
   }
 
   if (/bot|discord|slack|reddit|telegram|twitter|irc|messenger|chatbot/.test(text)) {
-    return [
-      resource("Discord", "Developer documentation", "https://discord.com/developers/docs/intro"),
-      resource("Slack", "API basics", "https://api.slack.com/start"),
-      resource("Reddit", "API documentation", "https://www.reddit.com/dev/api/"),
-      resource("MDN", "HTTP messages", "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages")
-    ];
+    return botResources;
   }
 
   if (/command-line|cli|terminal|lolcat|cowsay|fortune/.test(text)) {
@@ -4939,9 +8407,11 @@ export function applyCuratedPathOverrides(article: TutorialArticle, path: Projec
           "Displayed in an approved project path and reviewed against the source-curation standard."
         ])
       : mergedConcepts;
+  const prerequisites = applyPrerequisiteResourceOverrides(path.prerequisites, override);
 
   return {
     ...path,
+    prerequisites,
     concepts,
     curation: override.curation,
     cvFraming: override.cvFraming.includes(article.title)
@@ -4955,11 +8425,194 @@ export function applyCuratedPathOverrides(article: TutorialArticle, path: Projec
   };
 }
 
+function applyPrerequisiteResourceOverrides(
+  prerequisites: LearningModule[],
+  override: CuratedOverride
+): LearningModule[] {
+  if (!override.prerequisiteResources?.length) {
+    return prerequisites;
+  }
+
+  return prerequisites.map((module) => {
+    if (module.layer !== "domain") {
+      return module;
+    }
+
+    const resources = resourcesForPrerequisiteModule(
+      module,
+      override.prerequisiteResources ?? [],
+      override.prerequisiteResourceStrategy
+    );
+
+    return {
+      ...module,
+      resource: resources[0] ?? module.resource,
+      resources
+    };
+  });
+}
+
+function resourcesForPrerequisiteModule(
+  module: LearningModule,
+  resources: ResourceLink[],
+  strategy: CuratedOverride["prerequisiteResourceStrategy"]
+): ResourceLink[] {
+  const moduleText = `${module.id} ${module.title}`.toLowerCase();
+
+  if (strategy === "soft-engine") {
+    if (/mechanics|core/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[6], resources[7], resources[11], resources[0]])).slice(0, 4);
+    }
+
+    if (/proof|practice|progress|raster|render/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[8], resources[9], resources[10], resources[3]])).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[0], resources[6], resources[8], resources[11]])).slice(0, 4);
+  }
+
+  if (strategy === "opencv-ar") {
+    if (/mechanics|feature|vision|matching|recognition|core/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[3], resources[5], resources[6], resources[0]])).slice(0, 4);
+    }
+
+    if (/proof|practice|progress|projection|pose|camera|tracking/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[8], resources[10], resources[11], resources[12], resources[2]])).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[0], resources[3], resources[8], resources[15]])).slice(0, 4);
+  }
+
+  if (strategy === "archaeology-db") {
+    if (/mechanics|core|storage|record|protocol|immutable|collection/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[14], resources[1], resources[2], resources[3]])).slice(0, 4);
+    }
+
+    if (/proof|practice|progress|index|schema|query|transaction|history/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[7], resources[8], resources[10], resources[15], resources[9]])).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[0], resources[6], resources[12], resources[13]])).slice(0, 4);
+  }
+
+  if (strategy === "modern-php") {
+    if (/mechanics|core|request|response|server|front|web/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[13], resources[1], resources[5], resources[15]])).slice(0, 4);
+    }
+
+    if (/composer|autoload|namespace|setup|package/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[2], resources[3], resources[4], resources[14]])).slice(0, 4);
+    }
+
+    if (/proof|practice|progress|dependency|container|di/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[8], resources[9], resources[6], resources[15]])).slice(0, 4);
+    }
+
+    if (/route|routing|middleware|handler|emit/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[10], resources[7], resources[11], resources[12], resources[16]])).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[13], resources[1], resources[2], resources[5]])).slice(0, 4);
+  }
+
+  if (strategy === "discord-bot") {
+    if (/setup|node|javascript|package|install|environment/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[19], resources[20], resources[3], resources[21], resources[25]])).slice(0, 4);
+    }
+
+    if (/mechanics|core|event|gateway|intent|async/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[13], resources[10], resources[9], resources[22], resources[23]])).slice(0, 4);
+    }
+
+    if (/proof|practice|progress|command|interaction|slash/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[6], resources[8], resources[7], resources[14], resources[15]])).slice(0, 4);
+    }
+
+    if (/security|secret|token|permission|oauth|rate|deploy|production/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[1], resources[21], resources[16], resources[17], resources[18]])).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[0], resources[3], resources[12], resources[19]])).slice(0, 4);
+  }
+
+  if (strategy === "nand2tetris") {
+    if (/setup|shell|terminal|tool|install|environment/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[2], resources[1], resources[3], resources[16], resources[17]])).slice(0, 4);
+    }
+
+    if (/mechanics|core|logic|gate|boolean|hdl|alu/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[4], resources[5], resources[19], resources[20]])).slice(0, 4);
+    }
+
+    if (/memory|state|cpu|architecture|instruction|hardware/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[6], resources[8], resources[21], resources[22], resources[26]])).slice(0, 4);
+    }
+
+    if (/assembler|assembly|machine|symbol/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[7], resources[9], resources[22], resources[23]])).slice(0, 4);
+    }
+
+    if (/vm|stack|translator|procedure|function|call/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[10], resources[11], resources[25], resources[28]])).slice(0, 4);
+    }
+
+    if (/compiler|parser|token|syntax|os|operating|jack/.test(moduleText)) {
+      return uniqueResources(
+        compactResources([resources[12], resources[13], resources[14], resources[15], resources[24], resources[27], resources[29], resources[30]])
+      ).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[0], resources[1], resources[2], resources[18]])).slice(0, 4);
+  }
+
+  if (strategy === "node-web-server") {
+    if (/setup|terminal|tool|install|environment|javascript|node/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[1], resources[2], resources[8], resources[13]])).slice(0, 4);
+    }
+
+    if (/mechanics|core|socket|tcp|network|server|event/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[3], resources[8], resources[10], resources[16]])).slice(0, 4);
+    }
+
+    if (/buffer|byte|parser|parse|protocol|framing|request/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[5], resources[6], resources[9], resources[14]])).slice(0, 4);
+    }
+
+    if (/http|response|header|body|semantic|syntax|route/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[6], resources[7], resources[12], resources[15]])).slice(0, 4);
+    }
+
+    if (/proof|practice|progress|stream|file|extension|websocket|concurrency/.test(moduleText)) {
+      return uniqueResources(compactResources([resources[0], resources[7], resources[11], resources[16]])).slice(0, 4);
+    }
+
+    return uniqueResources(compactResources([resources[0], resources[2], resources[3], resources[12]])).slice(0, 4);
+  }
+
+  if (/mechanics|webhook|event/.test(moduleText)) {
+    return uniqueResources(compactResources([resources[3], resources[4], resources[5], resources[2], resources[0]])).slice(0, 4);
+  }
+
+  if (/proof|practice|progress|action/.test(moduleText)) {
+    return uniqueResources(compactResources([resources[10], resources[9], resources[4], resources[5], resources[8]])).slice(0, 4);
+  }
+
+  return uniqueResources(compactResources([resources[0], resources[1], resources[2], resources[3], resources[4]])).slice(0, 4);
+}
+
+function compactResources(resources: Array<ResourceLink | undefined>): ResourceLink[] {
+  return resources.filter((resource): resource is ResourceLink => Boolean(resource));
+}
+
 function supportingGeneratedConcepts(
   article: TutorialArticle,
   override: CuratedOverride,
   concepts: ConceptModule[]
 ): ConceptModule[] {
+  if (override.curation.status === "approved" && override.concepts.length >= 4) {
+    return [];
+  }
+
   if (article.category !== "Uncategorized" || override.id === "nand2tetris") {
     return concepts;
   }
@@ -5114,6 +8767,21 @@ function concept(
 
 function resource(provider: string, label: string, url: string, audit?: ResourceSourceAudit): ResourceLink {
   return audit ? { provider, label, url, audit } : { provider, label, url };
+}
+
+function auditedResource(
+  provider: string,
+  label: string,
+  url: string,
+  source: string,
+  notes: string[] = []
+): ResourceLink {
+  const link = resource(provider, label, url);
+
+  return {
+    ...link,
+    audit: readInFullAudit(source, link, notes)
+  };
 }
 
 function auditConceptResources(
